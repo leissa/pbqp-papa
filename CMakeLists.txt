@@ -22,7 +22,11 @@ target_include_directories(pbqp-core PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/submodules/json/single_include
 )
 
-target_compile_options(pbqp-core PRIVATE -Wall -Wextra)
+if(MSVC)
+    target_compile_options(pbqp-core PRIVATE /W4)
+else()
+    target_compile_options(pbqp-core PRIVATE -Wall -Wextra)
+endif()
 
 # --- Optional: Graphviz ---
 if(PBQP_USE_GVC)

@@ -1,12 +1,8 @@
 # pbqp-papa
+
 Solver and analysing tool for Partitioned Boolean Quadratic Problems
 
-Made as part of my bachelor thesis at KIT in February 2019
-
-
----
-
-## Building instructions:
+## Building Instructions
 
 `git clone --recursive https://github.com/leissa/pbqp-papa.git`
 
@@ -23,7 +19,7 @@ cmake -B build -DPBQP_USE_GVC=ON -DPBQP_USE_GUROBI=ON
 cmake --build build
 ```
 
-## Development setup
+## Development Setup
 
 Install the [pre-commit](https://pre-commit.com/) hook to enforce consistent
 formatting via `clang-format`:
@@ -42,3 +38,8 @@ All dependencies are included as git submodules:
 - [nlohmann/json](https://github.com/nlohmann/json) — JSON parsing
 - [doctest](https://github.com/doctest/doctest) — unit testing
 - [graphviz](https://gitlab.com/graphviz/graphviz) — graph visualization (only for `make all`)
+
+## Credits
+
+Original solver by [Max Baumstark](https://github.com/Maxopoly).
+See [*Development of a library for solving and analyzing PBQP*](https://pp.ipd.kit.edu/uploads/publikationen/mbaumstark19bachelorarbeit.pdf).

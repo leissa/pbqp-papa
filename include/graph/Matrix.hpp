@@ -4,8 +4,6 @@
 #include <algorithm>
 #include <cassert>
 #include <cstring>
-#include <iterator>
-#include <vector>
 
 #ifndef PBQP_USE_GUROBI
 #define PBQP_USE_GUROBI 0

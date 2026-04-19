@@ -29,11 +29,11 @@ namespace pbqppapa {
 	};                                                                                                                 \
 	extern "C" void pbqp_##SHORTNAME##_addNode(struct pbqp_##SHORTNAME##_parsing* pbqpparsing, TYPENAME* data,         \
 			unsigned short length, unsigned int index) {                                                               \
-		InfinityWrapper<TYPENAME> infData[length];                                                                     \
+		std::vector<InfinityWrapper<TYPENAME>> infData(length);                                                        \
 		for (unsigned short i = 0; i < length; i++) {                                                                  \
 			infData[i] = InfinityWrapper<TYPENAME>(data[i]);                                                           \
 		}                                                                                                              \
-		Vector<InfinityWrapper<TYPENAME>> vek(length, infData);                                                        \
+		Vector<InfinityWrapper<TYPENAME>> vek(length, infData.data());                                                 \
 		PBQPNode<InfinityWrapper<TYPENAME>>* node = new PBQPNode<InfinityWrapper<TYPENAME>>(index, vek);               \
 		pbqpparsing->graph->addNode(node);                                                                             \
 		pbqpparsing->nodes.at(index) = node;                                                                           \
@@ -43,11 +43,11 @@ namespace pbqppapa {
 		PBQPNode<InfinityWrapper<TYPENAME>>* source = pbqpparsing->nodes.at(sourceIndex);                              \
 		PBQPNode<InfinityWrapper<TYPENAME>>* target = pbqpparsing->nodes.at(targetIndex);                              \
 		const unsigned short length = source->getVectorDegree() * target->getVectorDegree();                           \
-		InfinityWrapper<TYPENAME> infData[length];                                                                     \
+		std::vector<InfinityWrapper<TYPENAME>> infData(length);                                                        \
 		for (unsigned short i = 0; i < length; i++) {                                                                  \
 			infData[i] = InfinityWrapper<TYPENAME>(data[i]);                                                           \
 		}                                                                                                              \
-		Matrix<InfinityWrapper<TYPENAME>> mat(source->getVectorDegree(), target->getVectorDegree(), infData);          \
+		Matrix<InfinityWrapper<TYPENAME>> mat(source->getVectorDegree(), target->getVectorDegree(), infData.data());   \
 		pbqpparsing->graph->addEdge(source, target, mat);                                                              \
 	}                                                                                                                  \
 	struct pbqp_##SHORTNAME##_solution* pbqp_##SHORTNAME##_convertSolution(                                            \

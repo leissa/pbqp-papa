@@ -19,13 +19,12 @@ private:
 	float averageVectorDegree;
 
 public:
-
-	template<typename T>
+	template <typename T>
 	void submitGraphBefore(PBQPGraph<T>* graph) {
 		nodeCount = graph->getNodeCount();
 		edgeCount = graph->getEdgeCount();
 		float vectorDegreeSum = 0;
-		for(auto iter = graph->getNodeBegin(); iter != graph->getNodeEnd(); ++iter) {
+		for (auto iter = graph->getNodeBegin(); iter != graph->getNodeEnd(); ++iter) {
 			vectorDegreeSum += static_cast<float>((*iter)->getVectorDegree());
 		}
 		averageVectorDegree = vectorDegreeSum / static_cast<float>(nodeCount);
@@ -42,11 +41,8 @@ public:
 	[[nodiscard]] std::string getSumUp();
 
 	[[nodiscard]] std::string getGraphDescription();
-
 };
 
-}
-
-
+} // namespace pbqppapa
 
 #endif /* DEBUG_STATKEEPER_HPP_ */

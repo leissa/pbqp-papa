@@ -1,39 +1,37 @@
 #ifndef REDUCTION_DEGREETWOREDUCTOR_HPP_
 #define REDUCTION_DEGREETWOREDUCTOR_HPP_
 
-#include <vector>
-#include <set>
 #include <iterator>
+#include <set>
+#include <vector>
 
-#include "reduction/solutions/TwoToOneDependentSolution.hpp"
-#include "reduction/solutions/NtoNDependentSolution.hpp"
-#include "reduction/PBQPReduction.hpp"
 #include "math/InfinityWrapper.hpp"
+#include "reduction/PBQPReduction.hpp"
+#include "reduction/solutions/NtoNDependentSolution.hpp"
+#include "reduction/solutions/TwoToOneDependentSolution.hpp"
 
 namespace pbqppapa {
 
-template<typename T>
+template <typename T>
 class PBQPGraph;
-template<typename T>
+template <typename T>
 class PBQPEdge;
-template<typename T>
+template <typename T>
 class NtoNDependentSolution;
-template<typename T>
+template <typename T>
 class PBQPSolution;
-template<typename T>
+template <typename T>
 class PBQPNode;
-template<typename T>
+template <typename T>
 class PBQP_Reduction;
 
-template<typename T>
+template <typename T>
 class DegreeTwoReducer: public PBQP_Reduction<T> {
 private:
 	std::vector<NtoNDependentSolution<T>*> solutions;
 
 public:
-	DegreeTwoReducer(PBQPGraph<T>* graph) :
-			PBQP_Reduction<T>(graph) {
-	}
+	DegreeTwoReducer(PBQPGraph<T>* graph) : PBQP_Reduction<T>(graph) {}
 
 	~DegreeTwoReducer() {
 		for (NtoNDependentSolution<T>* sol : solutions) {
@@ -46,8 +44,7 @@ public:
 		while (iter != this->graph->getNodeEnd()) {
 			PBQPNode<T>* node = *iter++;
 			if (node->getDegree() == 2) {
-				NtoNDependentSolution<T>* sol = reduceDegreeTwo(node,
-						this->graph);
+				NtoNDependentSolution<T>* sol = reduceDegreeTwo(node, this->graph);
 				solutions.push_back(sol);
 			}
 		}
@@ -68,9 +65,8 @@ public:
 	 * an ideal selection in the given node is calculated, which is then transformed into
 	 * a single edge connecting the nodes adjacent to the given node
 	 */
-	static NtoNDependentSolution<T>* reduceDegreeTwo(PBQPNode<T>* node,
-			PBQPGraph<T>* graph) {
-		//TODO exception if vector degree of any is 0
+	static NtoNDependentSolution<T>* reduceDegreeTwo(PBQPNode<T>* node, PBQPGraph<T>* graph) {
+		// TODO exception if vector degree of any is 0
 		std::vector<PBQPNode<T>*> dependencyNodes;
 		auto it = node->getAdjacentEdges().begin();
 		PBQPEdge<T>* firstEdge = *it++;
@@ -83,16 +79,11 @@ public:
 		bool isSecondSource = secondEdge->isSource(secondNode);
 		std::vector<PBQPNode<T>*> solutionNodes;
 		solutionNodes.push_back(node);
-		NtoNDependentSolution<T>* solution = new NtoNDependentSolution<T>(
-				dependencyNodes, solutionNodes);
-		//edge will go from first to second node
-		Matrix<T> resultMatrix(firstNode->getVectorDegree(),
-				secondNode->getVectorDegree());
-		for (unsigned short firstSelection = 0;
-				firstSelection < firstNode->getVectorDegree();
-				firstSelection++) {
-			for (unsigned short secondSelection = 0;
-					secondSelection < secondNode->getVectorDegree();
+		NtoNDependentSolution<T>* solution = new NtoNDependentSolution<T>(dependencyNodes, solutionNodes);
+		// edge will go from first to second node
+		Matrix<T> resultMatrix(firstNode->getVectorDegree(), secondNode->getVectorDegree());
+		for (unsigned short firstSelection = 0; firstSelection < firstNode->getVectorDegree(); firstSelection++) {
+			for (unsigned short secondSelection = 0; secondSelection < secondNode->getVectorDegree();
 					secondSelection++) {
 				T minimum = node->getVector().get(0);
 				unsigned short minimalNodeSelection = 0;
@@ -106,23 +97,17 @@ public:
 				} else {
 					minimum += secondEdge->getMatrix().get(0, secondSelection);
 				}
-				for (unsigned short nodeSelection = 1;
-						nodeSelection < node->getVectorDegree();
-						nodeSelection++) {
+				for (unsigned short nodeSelection = 1; nodeSelection < node->getVectorDegree(); nodeSelection++) {
 					T sum = node->getVector().get(nodeSelection);
 					if (isFirstSource) {
-						sum += firstEdge->getMatrix().get(firstSelection,
-								nodeSelection);
+						sum += firstEdge->getMatrix().get(firstSelection, nodeSelection);
 					} else {
-						sum += firstEdge->getMatrix().get(nodeSelection,
-								firstSelection);
+						sum += firstEdge->getMatrix().get(nodeSelection, firstSelection);
 					}
 					if (isSecondSource) {
-						sum += secondEdge->getMatrix().get(secondSelection,
-								nodeSelection);
+						sum += secondEdge->getMatrix().get(secondSelection, nodeSelection);
 					} else {
-						sum += secondEdge->getMatrix().get(nodeSelection,
-								secondSelection);
+						sum += secondEdge->getMatrix().get(nodeSelection, secondSelection);
 					}
 					if (sum < minimum) {
 						minimum = sum;
@@ -144,37 +129,29 @@ public:
 	}
 
 	static TwotoOneDependentSolution<InfinityWrapper<T>>* reduceDegreeTwoInf(
-			PBQPNode<InfinityWrapper<T>>* node,
-			PBQPGraph<InfinityWrapper<T>>* graph) {
+			PBQPNode<InfinityWrapper<T>>* node, PBQPGraph<InfinityWrapper<T>>* graph) {
 		assert(node->getVectorDegree() > 0);
 		assert(node->getDegree() == 2);
 		auto it = node->getAdjacentEdges().begin();
 		PBQPEdge<InfinityWrapper<T>>* const firstEdge = *it++;
-		PBQPNode<InfinityWrapper<T>>* const firstNode = firstEdge->getOtherEnd(
-				node);
+		PBQPNode<InfinityWrapper<T>>* const firstNode = firstEdge->getOtherEnd(node);
 		PBQPEdge<InfinityWrapper<T>>* const secondEdge = *it;
-		PBQPNode<InfinityWrapper<T>>* const secondNode = secondEdge->getOtherEnd(
-				node);
+		PBQPNode<InfinityWrapper<T>>* const secondNode = secondEdge->getOtherEnd(node);
 		const bool isFirstSource = firstEdge->isSource(firstNode);
 		const bool isSecondSource = secondEdge->isSource(secondNode);
 		TwotoOneDependentSolution<InfinityWrapper<T>>* solution =
-				new TwotoOneDependentSolution<InfinityWrapper<T>>(node,
-						firstNode, secondNode);
-		Matrix<InfinityWrapper<T>> resultMatrix(firstNode->getVectorDegree(),
-				secondNode->getVectorDegree());
+				new TwotoOneDependentSolution<InfinityWrapper<T>>(node, firstNode, secondNode);
+		Matrix<InfinityWrapper<T>> resultMatrix(firstNode->getVectorDegree(), secondNode->getVectorDegree());
 		bool foundSolution = false;
-		for (unsigned short firstSelection = 0;
-				firstSelection < firstNode->getVectorDegree();
-				firstSelection++) {
+		for (unsigned short firstSelection = 0; firstSelection < firstNode->getVectorDegree(); firstSelection++) {
 			if (firstNode->getVector().get(firstSelection).isInfinite()) {
-				//we just leave these values uninitialized, they will never be chosen (hopefully)
+				// we just leave these values uninitialized, they will never be chosen (hopefully)
 				continue;
 			}
-			for (unsigned short secondSelection = 0;
-					secondSelection < secondNode->getVectorDegree();
+			for (unsigned short secondSelection = 0; secondSelection < secondNode->getVectorDegree();
 					secondSelection++) {
 				if (secondNode->getVector().get(secondSelection).isInfinite()) {
-					//we just leave these values uninitialized, they will never be chosen (hopefully)
+					// we just leave these values uninitialized, they will never be chosen (hopefully)
 					continue;
 				}
 				InfinityWrapper<T> minimum = node->getVector().get(0);
@@ -189,24 +166,17 @@ public:
 				} else {
 					minimum += secondEdge->getMatrix().get(0, secondSelection);
 				}
-				for (unsigned short nodeSelection = 1;
-						nodeSelection < node->getVectorDegree();
-						nodeSelection++) {
-					InfinityWrapper<T> sum = node->getVector().get(
-							nodeSelection);
+				for (unsigned short nodeSelection = 1; nodeSelection < node->getVectorDegree(); nodeSelection++) {
+					InfinityWrapper<T> sum = node->getVector().get(nodeSelection);
 					if (isFirstSource) {
-						sum += firstEdge->getMatrix().get(firstSelection,
-								nodeSelection);
+						sum += firstEdge->getMatrix().get(firstSelection, nodeSelection);
 					} else {
-						sum += firstEdge->getMatrix().get(nodeSelection,
-								firstSelection);
+						sum += firstEdge->getMatrix().get(nodeSelection, firstSelection);
 					}
 					if (isSecondSource) {
-						sum += secondEdge->getMatrix().get(secondSelection,
-								nodeSelection);
+						sum += secondEdge->getMatrix().get(secondSelection, nodeSelection);
 					} else {
-						sum += secondEdge->getMatrix().get(nodeSelection,
-								secondSelection);
+						sum += secondEdge->getMatrix().get(nodeSelection, secondSelection);
 					}
 					if (sum < minimum) {
 						minimum = sum;
@@ -216,8 +186,7 @@ public:
 				if (!minimum.isInfinite()) {
 					foundSolution = true;
 				}
-				solution->setSolutionSelection(firstSelection, secondSelection,
-						minimalNodeSelection);
+				solution->setSolutionSelection(firstSelection, secondSelection, minimalNodeSelection);
 			}
 		}
 		if (!foundSolution) {
@@ -229,6 +198,6 @@ public:
 	}
 };
 
-}
+} // namespace pbqppapa
 
 #endif /* REDUCTION_DEGREETWOREDUCTOR_HPP_ */

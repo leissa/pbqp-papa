@@ -1,63 +1,58 @@
 #ifndef SHELL_COMMANDHANDLER_HPP_
 #define SHELL_COMMANDHANDLER_HPP_
 
-#include <string>
 #include <iostream>
 #include <map>
-
-#include "shell/Command.hpp"
-#include "shell/DumpCommand.hpp"
-#include "shell/StepForwardCommand.hpp"
-#include "shell/StepBackwardCommand.hpp"
-#include "shell/LoadCommand.hpp"
-#include "shell/InfoCommand.hpp"
-#include "shell/StopCommand.hpp"
-#include "shell/FullySolveCommand.hpp"
-#include "shell/CheckSolvableCommand.hpp"
-#include "shell/VisualizeCommand.hpp"
-
+#include <string>
 
 #include "math/InfinityWrapper.hpp"
+#include "shell/CheckSolvableCommand.hpp"
+#include "shell/Command.hpp"
+#include "shell/DumpCommand.hpp"
+#include "shell/FullySolveCommand.hpp"
+#include "shell/InfoCommand.hpp"
+#include "shell/LoadCommand.hpp"
+#include "shell/StepBackwardCommand.hpp"
+#include "shell/StepForwardCommand.hpp"
+#include "shell/StopCommand.hpp"
+#include "shell/VisualizeCommand.hpp"
 
 namespace pbqppapa {
 
-template<typename T>
+template <typename T>
 class Command;
-template<typename T>
+template <typename T>
 class StepByStepSolver;
-template<typename T>
+template <typename T>
 class DumpCommand;
-template<typename T>
+template <typename T>
 class StepForwardCommand;
-template<typename T>
+template <typename T>
 class StepBackwardCommand;
-template<typename T>
+template <typename T>
 class InfoCommand;
-template<typename T>
+template <typename T>
 class LoadCommand;
-template<typename T>
+template <typename T>
 class StopCommand;
-template<typename T>
+template <typename T>
 class FullySolveCommand;
-template<typename T>
+template <typename T>
 class VisualizeCommand;
 
 /**
  * Used for step by step debugging this is command handler will take text input and call the method associated
  * with the given input if one is known
  */
-template<typename T>
+template <typename T>
 class CommandHandler {
 private:
-
 	std::map<std::string, Command<T>*> commands;
 	std::string error = "Unknown command: ";
 	std::unique_ptr<StepByStepSolver<T>> solver;
 
 public:
-
-	CommandHandler(PBQPGraph<InfinityWrapper<T>>* graph) :
-			solver(std::make_unique<StepByStepSolver<T>>(graph)) {
+	CommandHandler(PBQPGraph<InfinityWrapper<T>>* graph) : solver(std::make_unique<StepByStepSolver<T>>(graph)) {
 		registerCommand(new DumpCommand<T>());
 		registerCommand(new StepForwardCommand<T>());
 		registerCommand(new StepBackwardCommand<T>());
@@ -74,7 +69,7 @@ public:
 		std::string commandString;
 		std::string commandArgs;
 		if (spaceIndex == input.npos) {
-			//not found, so take the entire string
+			// not found, so take the entire string
 			commandString = input;
 		} else {
 			commandString = input.substr(0, spaceIndex);
@@ -82,7 +77,7 @@ public:
 		}
 		auto iter = commands.find(commandString);
 		if (iter == commands.end()) {
-			//command doesnt exist
+			// command doesnt exist
 			return error + input;
 		}
 		Command<T>* command = iter->second;
@@ -103,6 +98,6 @@ public:
 	}
 };
 
-}
+} // namespace pbqppapa
 
 #endif /* SHELL_COMMANDHANDLER_HPP_ */

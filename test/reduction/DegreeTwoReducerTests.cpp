@@ -1,23 +1,22 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <set>
+#include <vector>
+
 #include <doctest/doctest.h>
 
-#include <vector>
-#include <set>
-
-#include "graph/PBQPGraph.hpp"
-#include "graph/Vector.hpp"
-#include "graph/PBQPNode.hpp"
 #include "graph/PBQPEdge.hpp"
-#include "reduction/PBQPReduction.hpp"
-#include "reduction/degree/DegreeTwoReducer.hpp"
+#include "graph/PBQPGraph.hpp"
+#include "graph/PBQPNode.hpp"
 #include "graph/PBQPSolution.hpp"
-
+#include "graph/Vector.hpp"
+#include "reduction/degree/DegreeTwoReducer.hpp"
+#include "reduction/PBQPReduction.hpp"
 #include "util/TestUtils.hpp"
 
 namespace pbqppapa {
 
 TEST_CASE("emptyGraphTest") {
-	//make sure this doesnt explode
+	// make sure this doesnt explode
 	PBQPGraph<int> graph;
 	DegreeTwoReducer<int> twoReducer(&graph);
 	std::vector<PBQPGraph<int>*> result = twoReducer.reduce();
@@ -25,9 +24,9 @@ TEST_CASE("emptyGraphTest") {
 
 TEST_CASE("simpleCalculation") {
 	PBQPGraph<int> graph = PBQPGraph<int>();
-	int node1Arr[] { 1, 2 };
-	int node2Arr[] { 5, 3 };
-	int node3Arr[] { 10, 2 };
+	int node1Arr[]{1, 2};
+	int node2Arr[]{5, 3};
+	int node3Arr[]{10, 2};
 	Vector<int> vek1(2, node1Arr);
 	Vector<int> vek2(2, node2Arr);
 	Vector<int> vek3(2, node3Arr);
@@ -37,13 +36,13 @@ TEST_CASE("simpleCalculation") {
 	unsigned long firstIndex = first->getIndex();
 	unsigned long secondIndex = second->getIndex();
 	unsigned long thirdIndex = third->getIndex();
-	int edge1Arr[] { 3, 1, 8, 5 };
+	int edge1Arr[]{3, 1, 8, 5};
 	Matrix<int> mat1(2, 2, edge1Arr);
-	int edge2Arr[] { 0, 7, 2, 8 };
+	int edge2Arr[]{0, 7, 2, 8};
 	Matrix<int> mat2(2, 2, edge2Arr);
 	graph.addEdge(first, second, mat1);
 	graph.addEdge(second, third, mat2);
-	//second one gets removed
+	// second one gets removed
 	DegreeTwoReducer<int> twoReducer(&graph);
 	std::vector<PBQPGraph<int>*> result = twoReducer.reduce();
 	CHECK_EQ(result.size(), 1);
@@ -62,4 +61,4 @@ TEST_CASE("simpleCalculation") {
 	CHECK_EQ(sol.getSolution(secondIndex), 1);
 }
 
-}
+} // namespace pbqppapa

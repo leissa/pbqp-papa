@@ -5,13 +5,13 @@
 
 namespace pbqppapa {
 
-template<typename T>
+template <typename T>
 class PBQPGraph;
-template<typename T>
+template <typename T>
 class PBQPSolution;
-template<typename T>
+template <typename T>
 class PBQPSolver;
-template<typename T>
+template <typename T>
 class PBQPNode;
 
 /**
@@ -36,7 +36,7 @@ class PBQPNode;
  * By remembering the previous total cost and knowing which node we just changed the selection for in our gray code,
  * we only need to recalculate one node and all of its incident edges per iteration/solution.
  */
-template<typename T>
+template <typename T>
 class BruteForceSolver: public PBQPSolver<T> {
 
 private:
@@ -47,9 +47,9 @@ private:
 	 * Example: selection [5] = 3
 	 * means that the third element in the cost Vector of the node with index 5 was chosen for the solution.
 	 *
-	 * Not all indices in these arrays are actually used. Due to reduction steps some nodes might have been/removed added,
-	 * but to not waste time converting indices when calculating the cost of a solution, the index in this array is the index
-	 * of the node
+	 * Not all indices in these arrays are actually used. Due to reduction steps some nodes might have been/removed
+	 * added, but to not waste time converting indices when calculating the cost of a solution, the index in this array
+	 * is the index of the node
 	 */
 	std::vector<unsigned short> currentSelection;
 	std::vector<unsigned short> minimalSelection;
@@ -85,27 +85,22 @@ private:
 
 public:
 	BruteForceSolver(PBQPGraph<T>* graph) :
-			PBQPSolver<T>(graph), currentSelection(
-					std::vector<unsigned short>(
-							graph->getNodeIndexCounter(), 0)), minimalSelection(
-					std::vector<unsigned short>(
-							graph->getNodeIndexCounter(), 0)), size(
-					graph->getNodeIndexCounter()), nodes(
-					std::vector<PBQPNode<T>*>(graph->getNodeCount())), limits(
-					std::vector<unsigned short>(graph->getNodeCount())), trend(
-					std::vector<bool>(graph->getNodeCount(), true)) {
+			PBQPSolver<T>(graph), currentSelection(std::vector<unsigned short>(graph->getNodeIndexCounter(), 0)),
+			minimalSelection(std::vector<unsigned short>(graph->getNodeIndexCounter(), 0)),
+			size(graph->getNodeIndexCounter()), nodes(std::vector<PBQPNode<T>*>(graph->getNodeCount())),
+			limits(std::vector<unsigned short>(graph->getNodeCount())),
+			trend(std::vector<bool>(graph->getNodeCount(), true)) {
 		unsigned long index = 0;
-		//TODO Speed this up by completly copying the nodes to reduce the amount of reference lookup neccessary later on?
-		for (auto iter = graph->getNodeBegin(); iter != graph->getNodeEnd();
-				++iter) {
+		// TODO Speed this up by completly copying the nodes to reduce the amount of reference lookup neccessary later
+		// on?
+		for (auto iter = graph->getNodeBegin(); iter != graph->getNodeEnd(); ++iter) {
 			PBQPNode<T>* node = *iter;
 			nodes[index] = node;
 			limits[index++] = node->getVectorDegree() - 1;
 		}
 	}
 
-	~BruteForceSolver() {
-	}
+	~BruteForceSolver() {}
 
 	void solve() override {
 		minimalCost = calculateNewSolution();
@@ -118,14 +113,13 @@ public:
 			}
 			previousCost = currValue;
 		}
-		//copy solution
-		for(PBQPNode<T>* node : nodes) {
+		// copy solution
+		for (PBQPNode<T>* node : nodes) {
 			this->solution->setSolution(node->getIndex(), minimalSelection.at(node->getIndex()));
 		}
 	}
 
 private:
-
 	/**
 	 * Given the cost of the previous selection, the node which was changed and the previous selection
 	 * of the node changed, this method calculates the total cost of the current selection with
@@ -134,27 +128,20 @@ private:
 	T calculateDiffSolution() {
 		T sum = T();
 		PBQPNode<T>* nodeChanged = nodes[nodeLastUpdated];
-		unsigned short currentNodeSelection =
-				currentSelection[nodeChanged->getIndex()];
+		unsigned short currentNodeSelection = currentSelection[nodeChanged->getIndex()];
 		for (PBQPEdge<T>* edge : nodeChanged->getAdjacentEdges(false)) {
 			if (edge->getSource() == nodeChanged) {
-				sum += edge->getMatrix().get(currentNodeSelection,
-						currentSelection[edge->getTarget()->getIndex()]);
+				sum += edge->getMatrix().get(currentNodeSelection, currentSelection[edge->getTarget()->getIndex()]);
 				sum -= edge->getMatrix().get(
-						previousSelectionOfNodeLastUpdated,
-						currentSelection[edge->getTarget()->getIndex()]);
+						previousSelectionOfNodeLastUpdated, currentSelection[edge->getTarget()->getIndex()]);
 			} else {
-				sum += edge->getMatrix().get(
-						currentSelection[edge->getSource()->getIndex()],
-						currentNodeSelection);
+				sum += edge->getMatrix().get(currentSelection[edge->getSource()->getIndex()], currentNodeSelection);
 				sum -= edge->getMatrix().get(
-						currentSelection[edge->getSource()->getIndex()],
-						previousSelectionOfNodeLastUpdated);
+						currentSelection[edge->getSource()->getIndex()], previousSelectionOfNodeLastUpdated);
 			}
 		}
 		sum += nodeChanged->getVector().get(currentNodeSelection);
-		sum -= nodeChanged->getVector().get(
-				previousSelectionOfNodeLastUpdated);
+		sum -= nodeChanged->getVector().get(previousSelectionOfNodeLastUpdated);
 		return previousCost + sum;
 	}
 
@@ -167,8 +154,7 @@ private:
 		while (iter != this->graph->getEdgeEnd()) {
 			PBQPEdge<T>* edge = *iter++;
 			sum += edge->getMatrix().get(
-					currentSelection[edge->getSource()->getIndex()],
-					currentSelection[edge->getTarget()->getIndex()]);
+					currentSelection[edge->getSource()->getIndex()], currentSelection[edge->getTarget()->getIndex()]);
 		}
 		auto nodeIter = this->graph->getNodeBegin();
 		while (nodeIter != this->graph->getNodeEnd()) {
@@ -185,32 +171,30 @@ private:
 		for (unsigned int i = 0; i < this->graph->getNodeCount(); i++) {
 			unsigned int index = (nodes[i])->getIndex();
 			if (trend[i]) {
-				//ascending
+				// ascending
 				if (currentSelection[index] == limits[i]) {
-					//change trend, but don't change value
+					// change trend, but don't change value
 					trend[i] = false;
 				} else {
-					previousSelectionOfNodeLastUpdated =
-							currentSelection [index]++;
+					previousSelectionOfNodeLastUpdated = currentSelection[index]++;
 					return i;
 				}
 			} else {
-				//descending
+				// descending
 				if (currentSelection[index] == 0) {
-					//change trend, but don't change value
+					// change trend, but don't change value
 					trend[i] = true;
 				} else {
-					previousSelectionOfNodeLastUpdated =
-							currentSelection[index]--;
+					previousSelectionOfNodeLastUpdated = currentSelection[index]--;
 					return i;
 				}
 			}
 		}
-		//only happens once we did one full cycle
+		// only happens once we did one full cycle
 		return -1;
 	}
 };
 
-}
+} // namespace pbqppapa
 
 #endif /* SOLVE_BRUTEFORCESOLVER_HPP_ */

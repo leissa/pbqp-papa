@@ -3,8 +3,7 @@
 int a;
 char b;
 
-int main(void)
-{
+int main(void) {
 	if (a) {
 		int c = b++;
 		b %= a;

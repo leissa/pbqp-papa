@@ -4,42 +4,38 @@
 #include <vector>
 
 #include "graph/PBQPGraph.hpp"
-#include "reduction/solutions/NtoNDependentSolution.hpp"
 #include "graph/PBQPSolution.hpp"
 #include "math/InfinityWrapper.hpp"
+#include "reduction/solutions/NtoNDependentSolution.hpp"
 
 namespace pbqppapa {
 
-template<typename T>
+template <typename T>
 class PBQPGraph;
-template<typename T>
+template <typename T>
 class PBQPSolution;
-template<typename T>
+template <typename T>
 class PBQPNode;
-template<typename T>
+template <typename T>
 class InfinityWrapper;
 
 /**
  * Attempts to solve a PBQP instance through a branch and bound approach.
  * Note that this does not work for bigger graph or graphs with very little cost variation
  */
-template<typename T>
+template <typename T>
 class BranchBoundSolver {
 
 private:
-
 	PBQPGraph<InfinityWrapper<T>>* graph;
 	std::vector<PBQPNode<InfinityWrapper<T>>*> nodes;
 
 public:
-
 	/**
 	 * Creates a new instance to solve the given graph
 	 */
-	BranchBoundSolver(PBQPGraph<InfinityWrapper<T>>* graph) :
-			graph(graph) {
-		for (auto iter = graph->getNodeBegin(); iter != graph->getNodeEnd();
-				++iter) {
+	BranchBoundSolver(PBQPGraph<InfinityWrapper<T>>* graph) : graph(graph) {
+		for (auto iter = graph->getNodeBegin(); iter != graph->getNodeEnd(); ++iter) {
 			nodes.push_back(*iter);
 		}
 	}
@@ -52,24 +48,21 @@ public:
 	 */
 	[[nodiscard]] PBQPSolution<InfinityWrapper<T>>* solve() {
 		InfinityWrapper<T> localCost = InfinityWrapper<T>(0);
-		PBQPSolution<InfinityWrapper<T>>* localSolution = new PBQPSolution<
-				InfinityWrapper<T>>(graph->getNodeIndexCounter());
+		PBQPSolution<InfinityWrapper<T>>* localSolution =
+				new PBQPSolution<InfinityWrapper<T>>(graph->getNodeIndexCounter());
 		return recursiveSolve(localCost, localSolution, 0);
 	}
 
 private:
 	PBQPSolution<InfinityWrapper<T>>* recursiveSolve(
-			InfinityWrapper<T> currentCost,
-			PBQPSolution<InfinityWrapper<T>>* sol, unsigned int nodeCounter) {
-		PBQPSolution<InfinityWrapper<T>>* localSolution = new PBQPSolution<
-				InfinityWrapper<T>>(*sol);
+			InfinityWrapper<T> currentCost, PBQPSolution<InfinityWrapper<T>>* sol, unsigned int nodeCounter) {
+		PBQPSolution<InfinityWrapper<T>>* localSolution = new PBQPSolution<InfinityWrapper<T>>(*sol);
 		PBQPSolution<InfinityWrapper<T>>* minSolution = nullptr;
 		PBQPNode<InfinityWrapper<T>>* node = nodes.at(nodeCounter);
 		InfinityWrapper<T> localCost = InfinityWrapper<T>(0);
 		InfinityWrapper<T> localMin = InfinityWrapper<T>::getInfinite();
 		unsigned short minSelection = 0;
-		for (unsigned short index = 0; index < node->getVectorDegree();
-				index++) {
+		for (unsigned short index = 0; index < node->getVectorDegree(); index++) {
 			InfinityWrapper<T> value = node->getVector().get(index);
 			if (value.isInfinite()) {
 				continue;
@@ -81,11 +74,9 @@ private:
 				if (sol->hasSolution(otherEnd->getIndex())) {
 					InfinityWrapper<T> matrixValue;
 					if (edge->getSource() == node) {
-						matrixValue = edge->getMatrix().get(index,
-								sol->getSolution(otherEnd));
+						matrixValue = edge->getMatrix().get(index, sol->getSolution(otherEnd));
 					} else {
-						matrixValue = edge->getMatrix().get(
-								sol->getSolution(otherEnd), index);
+						matrixValue = edge->getMatrix().get(sol->getSolution(otherEnd), index);
 					}
 					if (matrixValue.isInfinite()) {
 						allowedViaEdges = false;
@@ -103,8 +94,8 @@ private:
 			if (nodeCounter == nodes.size() - 1) {
 				return localSolution;
 			}
-			PBQPSolution<InfinityWrapper<T>>* retSolution = recursiveSolve(
-					currentCost + localCost, localSolution, nodeCounter + 1);
+			PBQPSolution<InfinityWrapper<T>>* retSolution =
+					recursiveSolve(currentCost + localCost, localSolution, nodeCounter + 1);
 			if (retSolution == nullptr) {
 				continue;
 			}
@@ -125,6 +116,6 @@ private:
 	}
 };
 
-}
+} // namespace pbqppapa
 
 #endif /* MATH_BRANCHBOUNDSOLVER_HPP_ */

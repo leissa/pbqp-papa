@@ -1,21 +1,21 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#include <doctest/doctest.h>
-#include <stdlib.h>
 #include <algorithm>
 #include <array>
+
+#include <doctest/doctest.h>
 #include <stdlib.h>
 
-#include "graph/PBQPGraph.hpp"
 #include "graph/Matrix.hpp"
-#include "graph/PBQPNode.hpp"
 #include "graph/PBQPEdge.hpp"
+#include "graph/PBQPGraph.hpp"
+#include "graph/PBQPNode.hpp"
 
 namespace pbqppapa {
 
 /**
  * Generates a n x n matrix filled with only 1
  */
-template<typename T>
+template <typename T>
 Matrix<T> genMatrix(int n, int value) {
 	T* data = new T[n * n];
 	Matrix<T> mat = Matrix<T>(n, n, data);
@@ -26,7 +26,7 @@ Matrix<T> genMatrix(int n, int value) {
 	return mat;
 }
 
-template<typename T>
+template <typename T>
 Matrix<T> genMatrixAscending(int n, int value) {
 	T* data = new T[n * n];
 	Matrix<T> matrix = Matrix<T>(n, n, data);
@@ -50,15 +50,14 @@ Matrix<int> genMatrixRandom(int maxLength) {
 	return matrix;
 }
 
-//Not used anywhere at the moment, but intentionally left here, because it massively eases debugging
+// Not used anywhere at the moment, but intentionally left here, because it massively eases debugging
 void printMatrix(Matrix<int>& matrix) {
 	MESSAGE("---------");
 	MESSAGE("Rows" << matrix.getRowCount());
 	MESSAGE("Columns" << matrix.getColumnCount());
 	for (int row = 0; row < matrix.getRowCount(); row++) {
 		for (int column = 0; column < matrix.getColumnCount(); column++) {
-			MESSAGE(
-					"Column: " << column << " ; " << "Row: " << row << "  " << matrix.get(row, column));
+			MESSAGE("Column: " << column << " ; " << "Row: " << row << "  " << matrix.get(row, column));
 		}
 		MESSAGE("---");
 	}
@@ -90,8 +89,7 @@ TEST_CASE("matrixPlus") {
 	int counter = 0;
 	for (int row = 0; row < size; row++) {
 		for (int column = 0; column < size; column++) {
-			CHECK_EQ(matrix.get(row, column),
-					firstValue + secondValue + (counter++ * 2));
+			CHECK_EQ(matrix.get(row, column), firstValue + secondValue + (counter++ * 2));
 		}
 	}
 }
@@ -105,8 +103,7 @@ TEST_CASE("matrixMinus") {
 	matrix -= matrix2;
 	for (int row = 0; row < size; row++) {
 		for (int column = 0; column < size; column++) {
-			CHECK_EQ(matrix.get(row, column),
-					firstValue - secondValue);
+			CHECK_EQ(matrix.get(row, column), firstValue - secondValue);
 		}
 	}
 }
@@ -120,8 +117,7 @@ TEST_CASE("matrixMultiply") {
 	int counter = 0;
 	for (int row = 0; row < size; row++) {
 		for (int column = 0; column < size; column++) {
-			CHECK_EQ(matrix.get(row, column),
-					(value + counter++) * factor);
+			CHECK_EQ(matrix.get(row, column), (value + counter++) * factor);
 		}
 	}
 }
@@ -135,13 +131,12 @@ TEST_CASE("matrixDivide") {
 	int counter = 0;
 	for (int row = 0; row < size; row++) {
 		for (int column = 0; column < size; column++) {
-			CHECK_EQ(matrix.get(row, column),
-					(value + counter++) / divisor);
+			CHECK_EQ(matrix.get(row, column), (value + counter++) / divisor);
 		}
 	}
 }
 
-template<typename T>
+template <typename T>
 void checkMatrixTranspose(Matrix<T>& m1, Matrix<T>& m2) {
 	CHECK_EQ(m1.getColumnCount(), m2.getRowCount());
 	CHECK_EQ(m1.getRowCount(), m2.getColumnCount());
@@ -160,5 +155,4 @@ TEST_CASE("matrixTranspose") {
 	}
 }
 
-}
-
+} // namespace pbqppapa

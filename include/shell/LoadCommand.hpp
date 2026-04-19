@@ -7,23 +7,20 @@
 
 namespace pbqppapa {
 
-template<typename T>
+template <typename T>
 class Command;
-template<typename T>
+template <typename T>
 class CommandHandler;
-template<typename T>
+template <typename T>
 class PBQP_Serializer;
 
-template<typename T>
+template <typename T>
 class LoadCommand: public Command<T> {
 
 public:
-	LoadCommand() :
-			Command<T>("load") {
-	}
+	LoadCommand() : Command<T>("load") {}
 
-	~LoadCommand() {
-	}
+	~LoadCommand() {}
 
 	std::string run(std::string input, CommandHandler<T>* cmdHandler) override {
 		PBQP_Serializer<InfinityWrapper<T>> serial;
@@ -33,6 +30,6 @@ public:
 	}
 };
 
-}
+} // namespace pbqppapa
 
 #endif /* SHELL_LOADCOMMAND_HPP_ */

@@ -1,0 +1,77 @@
+---
+Language: Cpp
+Standard: c++20
+
+# Indentation
+UseTab: ForContinuationAndIndentation
+TabWidth: 4
+IndentWidth: 4
+ContinuationIndentWidth: 8
+
+# Braces
+BreakBeforeBraces: Attach
+
+# Line width
+ColumnLimit: 120
+
+# Namespaces
+NamespaceIndentation: None
+FixNamespaceComments: true
+
+# Classes
+AccessModifierOffset: -4
+SpaceBeforeInheritanceColon: false
+
+# Constructor initializer lists
+BreakConstructorInitializers: AfterColon
+ConstructorInitializerIndentWidth: 8
+PackConstructorInitializers: BinPack
+SpaceBeforeCtorInitializerColon: true
+
+# Pointers & references
+PointerAlignment: Left
+ReferenceAlignment: Left
+DerivePointerAlignment: false
+
+# Spacing
+SpaceBeforeParens: ControlStatements
+SpaceAfterCStyleCast: false
+SpaceBeforeRangeBasedForLoopColon: true
+SpacesInAngles: Never
+
+# Function arguments
+AlignAfterOpenBracket: DontAlign
+BinPackArguments: true
+BinPackParameters: true
+AllowAllParametersOfDeclarationOnNextLine: true
+
+# Short constructs
+AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+
+# Switch/case
+IndentCaseLabels: false
+IndentCaseBlocks: false
+
+# Templates
+AlwaysBreakTemplateDeclarations: Yes
+
+# Includes
+SortIncludes: CaseInsensitive
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '^<[a-z_]+>'
+    Priority: 1
+  - Regex: '^<.+>'
+    Priority: 2
+  - Regex: '^"'
+    Priority: 3
+
+# Misc
+AlignTrailingComments: true
+BreakStringLiterals: true
+InsertBraces: false
+...

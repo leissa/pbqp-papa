@@ -5,9 +5,9 @@
 
 namespace pbqppapa {
 
-template<typename T>
+template <typename T>
 class PBQPGraph;
-template<typename T>
+template <typename T>
 class PBQPSolution;
 
 struct UnsolvablePBQPException;
@@ -16,16 +16,18 @@ struct UnsolvablePBQPException;
  * Simplifies a PBQP by removing a part of it.
  *
  * A reduction takes a good look at a PBQP to determine a subset A of the PBQP P, where P could be solved perfectly,
- * if a solution for P \ A was known. The reduction removes A from P and passes P \ A on to further reductions or a solver.
+ * if a solution for P \ A was known. The reduction removes A from P and passes P \ A on to further reductions or a
+ * solver.
  *
  * Later on a solution for P \ A is given to the reduction instance and the instance is expected to add to the solution,
  * so it solves P completly
  *
- * The overall goal here is to simplify the PBQP for the final solving step, how exactly that is achieved is completly up
- * to the implementation. Adding/removing nodes, adding/removing edges and modifying cost matrices/Vectors is all allowed.
+ * The overall goal here is to simplify the PBQP for the final solving step, how exactly that is achieved is completly
+ * up to the implementation. Adding/removing nodes, adding/removing edges and modifying cost matrices/Vectors is all
+ * allowed.
  *
  */
-template<typename T>
+template <typename T>
 class PBQP_Reduction {
 protected:
 	PBQPGraph<T>* graph;
@@ -37,9 +39,7 @@ public:
 	 * completly or passed on as a result of the reduction. It is not needed anywhere else and this instance
 	 * has full power over it. If the graph isnt passed on, it must be deleted by the reduction.
 	 */
-	PBQP_Reduction(PBQPGraph<T>* graph) :
-			graph(graph) {
-	}
+	PBQP_Reduction(PBQPGraph<T>* graph) : graph(graph) {}
 	virtual ~PBQP_Reduction() = default;
 
 	/**
@@ -56,6 +56,6 @@ public:
 	virtual void solve(PBQPSolution<T>& solution) = 0;
 };
 
-}
+} // namespace pbqppapa
 
 #endif /* REDUCTION_PBQPREDUCTION_HPP_ */

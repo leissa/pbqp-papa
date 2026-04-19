@@ -1,8 +1,8 @@
 #ifndef DEBUG_GRAPHVISUALIZER_HPP_
 #define DEBUG_GRAPHVISUALIZER_HPP_
 
-
 #include <map>
+
 #include "io/PBQP_Serializer.hpp"
 
 #if PBQP_USE_GVC
@@ -10,11 +10,11 @@
 
 namespace pbqppapa {
 
-template<typename T>
+template <typename T>
 class PBQPGraph;
-template<typename T>
+template <typename T>
 class PBQPNode;
-template<typename T>
+template <typename T>
 class PBQPEdge;
 
 bool wasGvcInited = false;
@@ -31,16 +31,14 @@ void initializeGVC_PBQP() {
 }
 
 char* convertStringToC(std::string string) {
-	char * writable = new char[string.size() + 1];
+	char* writable = new char[string.size() + 1];
 	std::copy(string.begin(), string.end(), writable);
 	writable[string.size()] = '\0'; // don't forget the terminating 0
 	return writable;
 }
 
-template<typename T>
+template <typename T>
 class GraphVisualizer {
-
-
 
 public:
 	static void dump(PBQPGraph<T>* graph, std::string path, bool showVectors = false) {
@@ -56,22 +54,17 @@ public:
 		Agraph_t* graphVis = agopen(convertStringToC("g"), Agdirected, 0);
 		std::map<PBQPNode<T>*, Agnode_t*> nodeMapping;
 		PBQP_Serializer<T> serial;
-		agattr(graphVis, AGNODE, convertStringToC("URL"),
-				convertStringToC("URLVALUE"));
-		agattr(graphVis, AGNODE, convertStringToC("tooltip"),
-				convertStringToC("tooltipValue"));
-		for (auto iter = graph->getNodeBegin(); iter != graph->getNodeEnd();
-				++iter) {
+		agattr(graphVis, AGNODE, convertStringToC("URL"), convertStringToC("URLVALUE"));
+		agattr(graphVis, AGNODE, convertStringToC("tooltip"), convertStringToC("tooltipValue"));
+		for (auto iter = graph->getNodeBegin(); iter != graph->getNodeEnd(); ++iter) {
 			PBQPNode<T>* node = *iter;
 			char* name = convertStringToC(
-					"N " + std::to_string(node->getIndex()) + "\n"
-							+ serial.matrixToString(node->getVector()));
+					"N " + std::to_string(node->getIndex()) + "\n" + serial.matrixToString(node->getVector()));
 			Agnode_t* nodeVis;
 			if (showVectors) {
 				nodeVis = agnode(graphVis, name, 1);
 			} else {
-				nodeVis = agnode(graphVis,
-						convertStringToC(std::to_string(node->getIndex())), 1);
+				nodeVis = agnode(graphVis, convertStringToC(std::to_string(node->getIndex())), 1);
 			}
 			agset(nodeVis, convertStringToC("URL"), convertStringToC("URLVALUE"));
 			agset(nodeVis, convertStringToC("tooltip"), name);
@@ -80,27 +73,21 @@ public:
 		if (showVectors) {
 			agattr(graphVis, AGEDGE, convertStringToC("label"), convertStringToC("a"));
 		}
-		agattr(graphVis, AGEDGE, convertStringToC("URL"),
-				convertStringToC("URLVALUE"));
-		agattr(graphVis, AGEDGE, convertStringToC("edgetooltip"),
-				convertStringToC(""));
-		agattr(graphVis, AGEDGE, convertStringToC("penwidth"),
-				convertStringToC("1.0"));
-		for (auto iter = graph->getEdgeBegin(); iter != graph->getEdgeEnd();
-				++iter) {
+		agattr(graphVis, AGEDGE, convertStringToC("URL"), convertStringToC("URLVALUE"));
+		agattr(graphVis, AGEDGE, convertStringToC("edgetooltip"), convertStringToC(""));
+		agattr(graphVis, AGEDGE, convertStringToC("penwidth"), convertStringToC("1.0"));
+		for (auto iter = graph->getEdgeBegin(); iter != graph->getEdgeEnd(); ++iter) {
 			PBQPEdge<T>* edge = *iter;
 			Agnode_t* sourceVis = nodeMapping.find(edge->getSource())->second;
 			Agnode_t* targetVis = nodeMapping.find(edge->getTarget())->second;
-			char* name = convertStringToC(
-					serial.matrixToString(edge->getMatrix()));
+			char* name = convertStringToC(serial.matrixToString(edge->getMatrix()));
 			Agedge_t* edgeVis = agedge(graphVis, sourceVis, targetVis, name, 1);
 			if (showVectors) {
 				agset(edgeVis, convertStringToC("label"), name);
 			}
 			agset(edgeVis, convertStringToC("URL"), convertStringToC("URLVALUE"));
 			agset(edgeVis, convertStringToC("edgetooltip"), name);
-			agattr(graphVis, AGEDGE, convertStringToC("penwidth"),
-					convertStringToC("1.0"));
+			agattr(graphVis, AGEDGE, convertStringToC("penwidth"), convertStringToC("1.0"));
 		}
 		gvLayoutJobs(gvcGlobalContext, graphVis);
 		gvRenderJobs(gvcGlobalContext, graphVis);
@@ -108,7 +95,7 @@ public:
 		agclose(graphVis);
 	}
 };
-}
+} // namespace pbqppapa
 
 #endif
 

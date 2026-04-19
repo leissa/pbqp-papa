@@ -2,33 +2,30 @@
 #define REDUCTION_VectorDEGREEZEROREDUCTOR_HPP_
 
 #include <vector>
+
 #include <reduction/PBQPReduction.hpp>
 
 namespace pbqppapa {
 
-template<typename T>
+template <typename T>
 class PBQPGraph;
-template<typename T>
+template <typename T>
 class NtoNDependentSolution;
-template<typename T>
+template <typename T>
 class PBQPSolution;
-template<typename T>
+template <typename T>
 class PBQPNode;
 
 /**
  * Any nodes with a Vector degree of 0 can be deleted from the graph. No selection needs to be made for them
  */
-template<typename T>
+template <typename T>
 class VectorDegreeZeroReducer: public PBQP_Reduction<T> {
 private:
-
 public:
-	VectorDegreeZeroReducer(PBQPGraph<T>* graph) :
-			PBQP_Reduction<T>(graph) {
-	}
+	VectorDegreeZeroReducer(PBQPGraph<T>* graph) : PBQP_Reduction<T>(graph) {}
 
-	~VectorDegreeZeroReducer() {
-	}
+	~VectorDegreeZeroReducer() {}
 
 	std::vector<PBQPGraph<T>*>& reduce() {
 		auto iter = this->graph->getNodeBegin();
@@ -42,19 +39,18 @@ public:
 		return this->result;
 	}
 
-	void solve(PBQPSolution<T>* solution) {
-
-	}
+	void solve(PBQPSolution<T>* solution) {}
 
 	/**
 	 * Deletes the node as there is nothing to solve
 	 */
 	static void reduceVectorDegreeZero(PBQPNode<T>* node, PBQPGraph<T>* graph) {
-		//TODO: This leaves uninitialized values in the solution. How do we want to deal with unsolvable nodes in general?
+		// TODO: This leaves uninitialized values in the solution. How do we want to deal with unsolvable nodes in
+		// general?
 		graph->removeNode(node);
 	}
 };
 
-}
+} // namespace pbqppapa
 
 #endif /* REDUCTION_VectorDEGREEZEROREDUCTOR_HPP_ */

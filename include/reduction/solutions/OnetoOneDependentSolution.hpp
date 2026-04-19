@@ -3,21 +3,21 @@
 
 #include <vector>
 
-#include "reduction/solutions/DependentSolution.hpp"
 #include "graph/PBQPGraph.hpp"
+#include "reduction/solutions/DependentSolution.hpp"
 
 namespace pbqppapa {
 
-template<typename T>
+template <typename T>
 class PBQPSolution;
-template<typename T>
+template <typename T>
 class PBQPNode;
-template<typename T>
+template <typename T>
 class DependentSolution;
-template<typename T>
+template <typename T>
 class DependentGraph;
 
-template<typename T>
+template <typename T>
 class OnetoOneDependentSolution: public DependentSolution<T> {
 
 private:
@@ -30,8 +30,7 @@ private:
 
 public:
 	OnetoOneDependentSolution(PBQPNode<T>* toSolve, PBQPNode<T>* dependency) :
-			toSolve(toSolve), dependencyNode(dependency), dependencyVector(
-					dependency->getVector()) {
+			toSolve(toSolve), dependencyNode(dependency), dependencyVector(dependency->getVector()) {
 		assert(toSolve->getDegree() == 1);
 		selection.resize(dependency->getVectorDegree());
 		PBQPEdge<T>* edge = toSolve->getAdjacentEdges().at(0);
@@ -42,8 +41,7 @@ public:
 
 	~OnetoOneDependentSolution() = default;
 
-	void setSolutionSelection(unsigned short dependencySelection,
-			unsigned short solutionSelection) {
+	void setSolutionSelection(unsigned short dependencySelection, unsigned short solutionSelection) {
 		assert(dependencySelection < dependencyVector.getRowCount());
 		assert(dependencySelection >= 0);
 		assert(solutionSelection < toSolve->getVectorDegree());
@@ -51,7 +49,7 @@ public:
 		selection.at(dependencySelection) = solutionSelection;
 	}
 
-	void solve(PBQPSolution<T>* solution)  override {
+	void solve(PBQPSolution<T>* solution) override {
 		unsigned short dependencySelection = solution->getSolution(dependencyNode);
 		solution->setSolution(toSolve->getIndex(), selection.at(dependencySelection));
 	}
@@ -61,15 +59,15 @@ public:
 		graph->addNode(toSolve);
 		if (dependencyIsSource) {
 			graph->addEdge(dependencyNode, toSolve, edgeMatrix);
-		}
-		else {
-			graph->addEdge(toSolve, dependencyNode,  edgeMatrix);
+		} else {
+			graph->addEdge(toSolve, dependencyNode, edgeMatrix);
 		}
 	}
 
-	PBQPNode<T>* getReducedNode() override {return toSolve;}
-
+	PBQPNode<T>* getReducedNode() override {
+		return toSolve;
+	}
 };
-}
+} // namespace pbqppapa
 
 #endif /* REDUCTION_SOLUTIONS_ONETOONEDEPENDENTSOLUTION_HPP_ */

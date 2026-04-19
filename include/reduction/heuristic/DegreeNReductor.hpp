@@ -2,28 +2,28 @@
 #define REDUCTION_HEURISTIC_DEGREENREDUCTOR_HPP_
 
 #include <vector>
+
 #include <reduction/PBQPReduction.hpp>
 #include <reduction/solutions/DependentSolution.hpp>
 
 namespace pbqppapa {
 
-template<typename T>
+template <typename T>
 class PBQPGraph;
-template<typename T>
+template <typename T>
 class NtoNDependentSolution;
-template<typename T>
+template <typename T>
 class PBQPSolution;
-template<typename T>
+template <typename T>
 class PBQPNode;
-template<typename T>
+template <typename T>
 class PBQP_Reduction;
 
-template<typename T>
+template <typename T>
 class DegreeNReducer: PBQP_Reduction<T> {
 
 public:
-	static ImmediateSolution<T>* reduceRNEarlyDecision(PBQPNode<T>* node,
-			PBQPGraph<T>* graph) {
+	static ImmediateSolution<T>* reduceRNEarlyDecision(PBQPNode<T>* node, PBQPGraph<T>* graph) {
 		unsigned short minSelection = 0;
 		T minCost = node->getVector().get(0);
 		for (PBQPEdge<T>* edge : node->getAdjacentEdges()) {
@@ -58,8 +58,7 @@ public:
 					rowColMin += edge->getMatrix().get(0, i);
 				}
 				PBQPNode<T>* otherEnd = edge->getOtherEnd(node);
-				for (unsigned short k = 1; k < otherEnd->getVectorDegree();
-						k++) {
+				for (unsigned short k = 1; k < otherEnd->getVectorDegree(); k++) {
 					T localRowColMin = otherEnd->getVector().get(k);
 					if (isSource) {
 						localRowColMin += edge->getMatrix().get(i, k);
@@ -77,15 +76,14 @@ public:
 				minSelection = i;
 			}
 		}
-		//add to each adjacent node
+		// add to each adjacent node
 		for (PBQPEdge<T>* edge : node->getAdjacentEdges()) {
 			bool isSource = edge->isSource(node);
 			PBQPNode<T>* otherEnd = edge->getOtherEnd(node);
-			for(int i = 0; i < otherEnd->getVectorDegree(); i++) {
+			for (int i = 0; i < otherEnd->getVectorDegree(); i++) {
 				if (isSource) {
 					otherEnd->getVector().get(i) += edge->getMatrix().get(minSelection, i);
-				}
-				else {
+				} else {
 					otherEnd->getVector().get(i) += edge->getMatrix().get(i, minSelection);
 				}
 			}
@@ -94,9 +92,8 @@ public:
 		graph->removeNode(node);
 		return sol;
 	}
-
 };
 
-}
+} // namespace pbqppapa
 
 #endif /* REDUCTION_HEURISTIC_DEGREENREDUCTOR_HPP_ */

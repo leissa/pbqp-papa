@@ -6,13 +6,13 @@
 
 namespace pbqppapa {
 
-template<typename T>
+template <typename T>
 class PBQPGraph;
 
-template<typename T>
+template <typename T>
 class PBQPSolution;
 
-template<typename T>
+template <typename T>
 class PBQPHandler;
 
 /**
@@ -23,7 +23,7 @@ class PBQPHandler;
  *
  * How exactly this solution is determined and how good it is, is completely up to the implementation
  */
-template<typename T>
+template <typename T>
 class PBQPSolver: public PBQPHandler<T> {
 
 protected:
@@ -33,8 +33,7 @@ protected:
 
 public:
 	PBQPSolver(PBQPGraph<T>* graph) :
-			PBQPHandler<T>(graph), solution(new PBQPSolution<T>(graph->getNodeIndexCounter())) {
-	}
+			PBQPHandler<T>(graph), solution(new PBQPSolution<T>(graph->getNodeIndexCounter())) {}
 
 	virtual ~PBQPSolver() {}
 
@@ -44,9 +43,8 @@ public:
 		}
 		return solution;
 	}
-
 };
 
-}
+} // namespace pbqppapa
 
 #endif /* SOLVE_PBQPSOLVER_HPP_ */

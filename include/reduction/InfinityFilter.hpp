@@ -8,20 +8,18 @@
 
 namespace pbqppapa {
 
-template<typename T>
+template <typename T>
 class PBQP_Reduction;
-template<typename T>
+template <typename T>
 class PBQPGraph;
-template<typename T>
+template <typename T>
 class PBQPSolution;
 
-template<typename T>
+template <typename T>
 class InfinityFilter: public PBQP_Reduction<InfinityWrapper<T>> {
 
 public:
-	InfinityFilter(PBQPGraph<InfinityWrapper<T>>* graph) :
-			PBQP_Reduction<T>(graph) {
-	}
+	InfinityFilter(PBQPGraph<InfinityWrapper<T>>* graph) : PBQP_Reduction<T>(graph) {}
 
 	std::vector<PBQPGraph<InfinityWrapper<T>>*>& reduce() override {
 		auto iter = this->graph->getEdgeBegin();
@@ -45,23 +43,20 @@ public:
 				}
 			}
 			unsigned long targetMatrixSize = sourceFactor * targetFactor;
-			if (targetMatrixSize
-					== (source->getVectorDegree() * target->getVectorDegree())) {
+			if (targetMatrixSize == (source->getVectorDegree() * target->getVectorDegree())) {
 				continue;
 			}
 			InfinityWrapper<T>* targetData = new InfinityWrapper<T>[targetMatrixSize];
 			unsigned long counter = 0;
 			for (unsigned short i = 0; i < source->getVectorDegree(); i++) {
 				for (unsigned short k = 0; k < source->getVectorDegree(); k++) {
-					if (sourceVector->get(i).isInfinite()
-							|| targetVector->get(k).isInfinite()) {
+					if (sourceVector->get(i).isInfinite() || targetVector->get(k).isInfinite()) {
 						continue;
 					}
 					targetData[counter++] = valueMatrix->get(i, k);
 				}
 			}
-			edge->getMatrix() = Matrix<InfinityWrapper<T>>(sourceFactor,
-					targetFactor, targetData);
+			edge->getMatrix() = Matrix<InfinityWrapper<T>>(sourceFactor, targetFactor, targetData);
 		}
 		auto nodeIter = this->graph->getNodeBegin();
 		while (nodeIter != this->graph->getNodeEnd()) {
@@ -76,7 +71,7 @@ public:
 			unsigned short counter = 0;
 			for (unsigned short i = 0; i < vector->getRowCount(); i++) {
 				if (!vector->get(i).isInfinite()) {
-					newData [counter++] = vector->get(i);
+					newData[counter++] = vector->get(i);
 				}
 			}
 			(*iter)->getVector() = Vector<InfinityWrapper<T>>(length, newData);
@@ -87,11 +82,10 @@ public:
 	}
 
 	void solve(PBQPSolution<InfinityWrapper<T>>& solution) override {
-		//don't need to do anything
+		// don't need to do anything
 	}
-
 };
 
-}
+} // namespace pbqppapa
 
 #endif /* REDUCTION_INFINITYFILTER_HPP_ */

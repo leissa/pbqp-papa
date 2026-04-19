@@ -5,38 +5,32 @@
 
 namespace pbqppapa {
 
-template<typename T>
+template <typename T>
 class InfinityWrapper;
 
-template<class T>
+template <class T>
 class Matrix;
 
 /**
  * A matrix with only a single column.
  */
-template<class T>
+template <class T>
 class Vector: public Matrix<T> {
 public:
 	/**
 	 * Creates a new Vector (matrix with one column) with the given amount of rows. The given data
 	 * must be an array with matching length
 	 */
-	Vector(unsigned short length, T* data) :
-			Matrix<T>(length, 1, data) {
-	}
+	Vector(unsigned short length, T* data) : Matrix<T>(length, 1, data) {}
 
 	Vector() : Matrix<T>() {}
 
 	/**
 	 * Creates a new Vector with uninitialized content
 	 */
-	Vector(unsigned short length) :
-			Matrix<T>(length, 1) {
-	}
+	Vector(unsigned short length) : Matrix<T>(length, 1) {}
 
-	Vector(const Vector& vek) :
-			Matrix<T>(vek) {
-	}
+	Vector(const Vector& vek) : Matrix<T>(vek) {}
 
 	Vector& operator=(const Vector& vek) {
 		Matrix<T>::operator=(vek);
@@ -68,6 +62,6 @@ public:
 	}
 };
 
-}
+} // namespace pbqppapa
 
 #endif /* INCLUDE_GRAPH_Vector_HPP_ */

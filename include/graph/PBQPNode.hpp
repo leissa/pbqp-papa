@@ -1,19 +1,19 @@
 #ifndef PBQPNODE_H_
 #define PBQPNODE_H_
 
-#include <vector>
 #include <algorithm>
+#include <vector>
 
 #include "graph/Vector.hpp"
 
 namespace pbqppapa {
 
-template<typename T>
+template <typename T>
 class PBQPEdge;
-template<typename T>
+template <typename T>
 class Vector;
 
-template<typename T>
+template <typename T>
 class PBQPNode {
 private:
 	Vector<T> values;
@@ -26,22 +26,17 @@ public:
 	/**
 	 * Should only be used by PBQPGraph internally. Index counter is held by PBQPGraph instance
 	 */
-	PBQPNode(const unsigned int index, Vector<T>& values) :
-			values(values), index(index), deleted(false) {
-	}
+	PBQPNode(const unsigned int index, Vector<T>& values) : values(values), index(index), deleted(false) {}
 
 	/**
 	 * Copy constructor will not copy edges, that would not make sense
 	 */
-	PBQPNode(PBQPNode<T>* node) :
-			values(node->values), index(node->index), deleted(false) {
-	}
+	PBQPNode(PBQPNode<T>* node) : values(node->values), index(node->index), deleted(false) {}
 
 	/**
 	 * Gets all incident edges, optionally only the outgoing ones
 	 */
-	[[nodiscard]] const std::vector<PBQPEdge<T>*>& getAdjacentEdges(
-			const bool respectDirection = false) const {
+	[[nodiscard]] const std::vector<PBQPEdge<T>*>& getAdjacentEdges(const bool respectDirection = false) const {
 		if (respectDirection) {
 			return outgoingEdges;
 		} else {
@@ -52,12 +47,10 @@ public:
 	/**
 	 * Gets all adjacent nodes, optionally only the ones that are the target of the edge connecting them to this node
 	 */
-	[[nodiscard]] std::vector<PBQPNode<T>*> getAdjacentNodes(const bool respectDirection =
-			false) {
+	[[nodiscard]] std::vector<PBQPNode<T>*> getAdjacentNodes(const bool respectDirection = false) {
 		std::set<PBQPNode<T>*> resultSet;
 		std::vector<PBQPNode<T>*> nodes;
-		const std::vector<PBQPEdge<T>*>& edgesToLookAt = (
-				respectDirection ? outgoingEdges : incidentEdges);
+		const std::vector<PBQPEdge<T>*>& edgesToLookAt = (respectDirection ? outgoingEdges : incidentEdges);
 		for (PBQPEdge<T>* edge : edgesToLookAt) {
 			PBQPNode<T>* other = edge->getOtherEnd(this);
 			if (resultSet.insert(other).second) {
@@ -138,6 +131,6 @@ public:
 	}
 };
 
-}
+} // namespace pbqppapa
 
 #endif /* PBQPNODE_H_ */

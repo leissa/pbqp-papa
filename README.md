@@ -23,6 +23,18 @@ cmake -B build -DPBQP_USE_GVC=ON -DPBQP_USE_GUROBI=ON
 cmake --build build
 ```
 
+## Development setup
+
+Install the [pre-commit](https://pre-commit.com/) hook to enforce consistent
+formatting via `clang-format`:
+
+```sh
+pip install pre-commit   # if not already installed
+pre-commit install
+```
+
+Staged C/C++ files are automatically formatted on each commit.
+
 ## Dependencies
 
 All dependencies are included as git submodules:

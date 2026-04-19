@@ -3,7 +3,7 @@
 
 namespace pbqppapa {
 
-template<typename T>
+template <typename T>
 class PBQPGraph;
 
 /**
@@ -11,21 +11,18 @@ class PBQPGraph;
  * Not sure if making (abstract) parent classes like this really is the way to do things in C++
  * or just a habit I brought in from java
  */
-template<typename T>
+template <typename T>
 class PBQPHandler {
 
 protected:
 	PBQPGraph<T>* const graph;
 
 public:
-	PBQPHandler(PBQPGraph<T>* graph) :
-			graph(graph) {
-	}
+	PBQPHandler(PBQPGraph<T>* graph) : graph(graph) {}
 
-	virtual ~PBQPHandler() {
-	}
+	virtual ~PBQPHandler() {}
 };
 
-}
+} // namespace pbqppapa
 
 #endif /* ANALYSIS_GRAPHHANDLER_CPP_ */

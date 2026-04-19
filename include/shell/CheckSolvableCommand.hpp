@@ -1,32 +1,29 @@
 #ifndef SHELL_CHECKSOLVABLECOMMAND_HPP_
 #define SHELL_CHECKSOLVABLECOMMAND_HPP_
 
-#include "shell/Command.hpp"
 #include "io/TypeSerializers.hpp"
+#include "shell/Command.hpp"
 
 namespace pbqppapa {
 
-template<typename T>
+template <typename T>
 class Command;
-template<typename T>
+template <typename T>
 class CommandHandler;
-template<typename T>
+template <typename T>
 class PBQP_Serializer;
-template<typename T>
+template <typename T>
 class InfinityWrapper;
-template<typename T>
+template <typename T>
 class TypeSerializers;
 
-template<typename T>
+template <typename T>
 class CheckSolvableCommand: public Command<T> {
 
 public:
-	CheckSolvableCommand() :
-			Command<T>("check") {
-	}
+	CheckSolvableCommand() : Command<T>("check") {}
 
-	~CheckSolvableCommand() {
-	}
+	~CheckSolvableCommand() {}
 
 	std::string run(std::string input, CommandHandler<T>* cmdHandler) {
 		if (cmdHandler->getSolver()->isSolvable()) {
@@ -34,9 +31,8 @@ public:
 		}
 		return "PEO did not find a valid solution";
 	}
-
 };
 
-}
+} // namespace pbqppapa
 
 #endif /* SHELL_CHECKSOLVABLECOMMAND_HPP_ */

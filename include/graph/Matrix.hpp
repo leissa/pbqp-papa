@@ -16,10 +16,10 @@
 
 namespace pbqppapa {
 
-template<typename T>
+template <typename T>
 class InfinityWrapper;
 
-template<typename T>
+template <typename T>
 class Matrix {
 
 protected:
@@ -42,20 +42,15 @@ public:
 		std::copy(data, data + rows * columns, content);
 	}
 
-	Matrix() :
-			rows(0), columns(0), content(new T[0]) {
-	}
+	Matrix() : rows(0), columns(0), content(new T[0]) {}
 
 	/**
 	 * Creates a new matrix with uninitialized content
 	 */
 	Matrix(unsigned short rows, unsigned short columns) :
-			rows(rows), columns(columns), content(new T[rows * columns]) {
-	}
+			rows(rows), columns(columns), content(new T[rows * columns]) {}
 
-	Matrix(const Matrix& matrix) :
-			rows(matrix.rows), columns(matrix.columns), content(
-					new T[rows * columns]) {
+	Matrix(const Matrix& matrix) : rows(matrix.rows), columns(matrix.columns), content(new T[rows * columns]) {
 		std::copy(matrix.content, matrix.content + rows * columns, content);
 	}
 
@@ -100,8 +95,7 @@ public:
 	}
 
 	[[nodiscard]] bool operator==(const Matrix& other) const {
-		if (other.getRowCount() != this->getRowCount()
-				|| other.getColumnCount() != this->getColumnCount()) {
+		if (other.getRowCount() != this->getRowCount() || other.getColumnCount() != this->getColumnCount()) {
 			return false;
 		}
 		const unsigned long length = rows * columns;
@@ -233,10 +227,8 @@ public:
 		const unsigned long sectionLength = rowLength * multiplier;
 		for (unsigned short i = 0; i < rows; i++) {
 			for (unsigned short offset = 0; offset < multiplier; offset++) {
-				std::memcpy(
-						result.content + (rowLength * offset)
-								+ (sectionLength * i),
-						content + (rowLength * i), rowLength);
+				std::memcpy(result.content + (rowLength * offset) + (sectionLength * i), content + (rowLength * i),
+						rowLength);
 			}
 		}
 		return result;
@@ -256,8 +248,7 @@ public:
 	 *
 	 *
 	 */
-	[[nodiscard]] Matrix multiplyColumnsIndividually(
-			const unsigned short multiplier) const {
+	[[nodiscard]] Matrix multiplyColumnsIndividually(const unsigned short multiplier) const {
 		Matrix result(rows, columns * multiplier);
 		const unsigned long sectorLength = rows * columns;
 		for (unsigned long i = 0; i < rows * columns; i++) {
@@ -287,17 +278,14 @@ public:
 		const unsigned long rowDataLength = rowLength * multiplier;
 		for (unsigned short i = 0; i < rows; i++) {
 			for (int column = 0; column < multiplier; column++) {
-				std::memcpy(
-						result.content + (rowDataLength * i)
-								+ (column * rowLength),
-						content + (rowLength * i), rowLength);
+				std::memcpy(result.content + (rowDataLength * i) + (column * rowLength), content + (rowLength * i),
+						rowLength);
 			}
 		}
 		return result;
 	}
-
 };
 
-}
+} // namespace pbqppapa
 
 #endif /* GRAPH_MATRIX_H_ */

@@ -5,24 +5,24 @@
 
 namespace pbqppapa {
 
-template<typename T>
+template <typename T>
 class PBQPSolution;
-template<typename T>
+template <typename T>
 class PBQPNode;
-template<typename T>
+template <typename T>
 class DependentSolution;
 
-template<typename T>
+template <typename T>
 class ImmediateSolution: public DependentSolution<T> {
 
-private :
+private:
 	unsigned short selection;
 	PBQPNode<T>* node;
 	std::vector<PBQPEdge<T>> edges;
 
 public:
 	ImmediateSolution(PBQPNode<T>* node, unsigned short selection) : selection(selection), node(node) {
-		for(PBQPEdge<T>* edge : node->getAdjacentEdges()) {
+		for (PBQPEdge<T>* edge : node->getAdjacentEdges()) {
 			edges.push_back(*edge);
 		}
 	}
@@ -35,15 +35,15 @@ public:
 
 	void revertChange(PBQPGraph<T>* graph) override {
 		graph->addNode(node);
-		for(PBQPEdge<T> edge : edges) {
+		for (PBQPEdge<T> edge : edges) {
 			graph->addEdge(edge.getSource(), edge.getTarget(), edge.getMatrix());
 		}
 	}
 
-	PBQPNode<T>* getReducedNode() override {return node;}
-
-
+	PBQPNode<T>* getReducedNode() override {
+		return node;
+	}
 };
-}
+} // namespace pbqppapa
 
 #endif /* REDUCTION_SOLUTIONS_IMMEDIATESOLUTION_HPP_ */

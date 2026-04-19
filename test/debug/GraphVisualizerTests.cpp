@@ -2,34 +2,32 @@
 #define DEBUG_GRAPHVISUALIZERTESTS_CPP_
 
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#include <doctest/doctest.h>
 #include <algorithm>
 
-#include "graph/PBQPGraph.hpp"
-#include "util/TestUtils.hpp"
+#include <doctest/doctest.h>
+
 #include "debug/GraphVisualizer.hpp"
+#include "graph/PBQPGraph.hpp"
 #include "io/PBQP_Serializer.hpp"
+#include "util/TestUtils.hpp"
 
 namespace pbqppapa {
 
 TEST_CASE("basic") {
 #if PBQP_USE_GVC
 	PBQP_Serializer<InfinityWrapper<unsigned int>> serial;
-	PBQPGraph<InfinityWrapper<unsigned int>>* graph = serial.loadFromFile(
-			"test/testData/smallLibfirmGraph.json");
+	PBQPGraph<InfinityWrapper<unsigned int>>* graph = serial.loadFromFile("test/testData/smallLibfirmGraph.json");
 	GraphVisualizer<InfinityWrapper<unsigned int>>::dump(graph, "test_build/mintput.svg");
 }
 
 TEST_CASE("loaded") {
 	PBQP_Serializer<InfinityWrapper<unsigned int>> serial;
-	PBQPGraph<InfinityWrapper<unsigned int>>* graph = serial.loadFromFile(
-			"test/testData/normalLibfirmGraph.json");
+	PBQPGraph<InfinityWrapper<unsigned int>>* graph = serial.loadFromFile("test/testData/normalLibfirmGraph.json");
 	GraphVisualizer<InfinityWrapper<unsigned int>>::dump(graph, "test_build/basicOutput.svg");
 }
 
 TEST_CASE("manual") {
-	PBQPGraph<InfinityWrapper<unsigned int>>* graph = new PBQPGraph<
-			InfinityWrapper<unsigned int>>();
+	PBQPGraph<InfinityWrapper<unsigned int>>* graph = new PBQPGraph<InfinityWrapper<unsigned int>>();
 	InfinityWrapper<unsigned int> arr[2];
 	arr[0] = InfinityWrapper<unsigned int>(2);
 	arr[1] = InfinityWrapper<unsigned int>(3);
@@ -51,6 +49,6 @@ TEST_CASE("manual") {
 #endif
 }
 
-}
+} // namespace pbqppapa
 
 #endif /* DEBUG_GRAPHVISUALIZERTESTS_CPP_ */

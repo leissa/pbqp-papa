@@ -7,13 +7,13 @@
 
 namespace pbqppapa {
 
-template<typename T>
+template <typename T>
 class PBQPGraph;
 
 /**
  * Utility class for testing purposes which can generated randomized PBQP instances
  */
-template<typename T>
+template <typename T>
 class PBQPGenerator {
 
 private:
@@ -25,20 +25,13 @@ private:
 	mutable std::mt19937 rng;
 
 public:
-
-	PBQPGenerator(unsigned long nodeCount, float nodeDegree,
-			int upperValueBound, unsigned short upperVectorLengthBound,
+	PBQPGenerator(unsigned long nodeCount, float nodeDegree, int upperValueBound, unsigned short upperVectorLengthBound,
 			unsigned short lowerVectorLengthBound) :
-			nodeCount(nodeCount), nodeDegree(nodeDegree), upperValueBound(
-					upperValueBound), upperVectorLengthBound(
-					upperVectorLengthBound), lowerVectorLengthBound(
-					lowerVectorLengthBound),
-			rng(std::random_device{}()) {
-	}
+			nodeCount(nodeCount), nodeDegree(nodeDegree), upperValueBound(upperValueBound),
+			upperVectorLengthBound(upperVectorLengthBound), lowerVectorLengthBound(lowerVectorLengthBound),
+			rng(std::random_device{}()) {}
 
-	PBQPGenerator() :
-			PBQPGenerator(20, 2.5f, 100, 6, 2) {
-	}
+	PBQPGenerator() : PBQPGenerator(20, 2.5f, 100, 6, 2) {}
 
 	~PBQPGenerator() = default;
 
@@ -74,8 +67,7 @@ public:
 		PBQPNode<T>* sourceNode = nullptr;
 		PBQPNode<T>* targetNode = nullptr;
 		int counter = 0;
-		for (auto iter = graph->getNodeBegin(); iter != graph->getNodeEnd();
-				++iter) {
+		for (auto iter = graph->getNodeBegin(); iter != graph->getNodeEnd(); ++iter) {
 			PBQPNode<T>* node = *iter;
 			if (counter == firstIndex) {
 				sourceNode = node;
@@ -91,8 +83,7 @@ public:
 		if (sourceNode == nullptr || targetNode == nullptr) {
 			return;
 		}
-		Matrix<T> mat(sourceNode->getVectorDegree(),
-				targetNode->getVectorDegree());
+		Matrix<T> mat(sourceNode->getVectorDegree(), targetNode->getVectorDegree());
 		for (unsigned short i = 0; i < sourceNode->getVectorDegree(); i++) {
 			for (unsigned short k = 0; k < targetNode->getVectorDegree(); k++) {
 				mat.get(i, k) = genRandomNumber();
@@ -115,6 +106,6 @@ public:
 	}
 };
 
-}
+} // namespace pbqppapa
 
 #endif /* GENERATE_PBQPGENERATOR_HPP_ */

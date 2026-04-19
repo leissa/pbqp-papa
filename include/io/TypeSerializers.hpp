@@ -12,29 +12,26 @@ namespace pbqppapa {
  * I'm blaming C++ for this one
  */
 template <typename T>
-struct dummyType{};
+struct dummyType {};
 
+// 1
 
-
-//1
-
-template<typename T>
+template <typename T>
 std::string serializeElement(T t) {
 	return serializeElement2(dummyType<T>{}, t);
 }
 
-template<typename T>
+template <typename T>
 T deserializeElement(std::string serialized) {
 	return deserializeElement2(dummyType<T>{}, serialized);
 }
 
-template<typename T>
+template <typename T>
 std::string getTypeName() {
 	return getTypeName2(dummyType<T>{});
 }
 
-
-//2
+// 2
 std::string serializeElement2(dummyType<unsigned long>, unsigned long element);
 
 unsigned long deserializeElement2(dummyType<unsigned long>, std::string serialized);
@@ -71,18 +68,17 @@ unsigned short deserializeElement2(dummyType<signed short>, std::string serializ
 
 std::string getTypeName2(dummyType<signed short>);
 
+// InfinityWrapper
 
-//InfinityWrapper
-
-template<typename T>
+template <typename T>
 std::string serializeElement2(dummyType<InfinityWrapper<T>>, InfinityWrapper<T> number) {
 	if (number.isInfinite()) {
 		return "∞";
 	}
-	return serializeElement2(dummyType<T> {}, number.getValue());
+	return serializeElement2(dummyType<T>{}, number.getValue());
 }
 
-template<typename T>
+template <typename T>
 InfinityWrapper<T> deserializeElement2(dummyType<InfinityWrapper<T>>, std::string serialized) {
 	if (serialized == "∞" || serialized == "INF") {
 		return InfinityWrapper<T>::getInfinite();
@@ -90,11 +86,11 @@ InfinityWrapper<T> deserializeElement2(dummyType<InfinityWrapper<T>>, std::strin
 	return InfinityWrapper<T>(deserializeElement<T>(serialized));
 }
 
-template<typename T> std::string getTypeName2(dummyType<InfinityWrapper<T>>) {
+template <typename T>
+std::string getTypeName2(dummyType<InfinityWrapper<T>>) {
 	return "INF " + getTypeName<T>();
 }
 
-}
-
+} // namespace pbqppapa
 
 #endif /* IO_TYPESERIALIZERS_HPP_ */

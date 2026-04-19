@@ -1,45 +1,44 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <set>
+#include <vector>
+
 #include <doctest/doctest.h>
 
-#include <vector>
-#include <set>
-
-#include "graph/PBQPGraph.hpp"
-#include "graph/Vector.hpp"
-#include "graph/PBQPNode.hpp"
 #include "graph/PBQPEdge.hpp"
-#include "reduction/PBQPReduction.hpp"
-#include "reduction/ConnectedComponentSeparator.hpp"
+#include "graph/PBQPGraph.hpp"
+#include "graph/PBQPNode.hpp"
 #include "graph/PBQPSolution.hpp"
+#include "graph/Vector.hpp"
+#include "reduction/ConnectedComponentSeparator.hpp"
+#include "reduction/PBQPReduction.hpp"
 
 namespace pbqppapa {
 
 TEST_CASE("singleNodeTest") {
 	PBQPGraph<signed int> graph = PBQPGraph<signed int>();
-	signed int vekData [] = {2 ,2};
+	signed int vekData[] = {2, 2};
 	Vector<signed int> vek = Vector<signed int>(2, vekData);
 	graph.addNode(vek);
 	ConnectedComponentSeparator<signed int> sep = ConnectedComponentSeparator<signed int>(&graph);
 	std::vector<PBQPGraph<signed int>*> components = sep.reduce();
-	PBQPSolution<signed int> sol (0);
+	PBQPSolution<signed int> sol(0);
 	sep.solve(sol);
 	CHECK_EQ(components.size(), 1);
 	PBQPGraph<signed int>* retrievedGraph = components[0];
 	CHECK_EQ(0, retrievedGraph->getEdgeCount());
 	CHECK_EQ(1, retrievedGraph->getNodeCount());
-	CHECK_EQ((*(graph.getNodeBegin()))->getIndex(),
-			(*(retrievedGraph->getNodeBegin()))->getIndex());
+	CHECK_EQ((*(graph.getNodeBegin()))->getIndex(), (*(retrievedGraph->getNodeBegin()))->getIndex());
 	if (retrievedGraph != &graph) {
-		//not neccessary for our implementation, but just to make sure
+		// not neccessary for our implementation, but just to make sure
 		delete retrievedGraph;
 	}
 }
 
 TEST_CASE("emptyGraphTest") {
 	PBQPGraph<signed int> graph = PBQPGraph<signed int>();
-	ConnectedComponentSeparator<signed int> sep (&graph);
+	ConnectedComponentSeparator<signed int> sep(&graph);
 	std::vector<PBQPGraph<signed int>*> components = sep.reduce();
-	PBQPSolution<signed int> sol (0);
+	PBQPSolution<signed int> sol(0);
 	sep.solve(sol);
 	CHECK_EQ(components.size(), 1);
 	PBQPGraph<signed int>* retrievedGraph = components[0];
@@ -51,7 +50,7 @@ TEST_CASE("basicNodeTest") {
 	PBQPGraph<signed int> graph = PBQPGraph<signed int>();
 	int size = 50;
 	for (int i = 0; i < size; i++) {
-		int arr [] = {2, 2};
+		int arr[] = {2, 2};
 		Vector<signed int> vek = Vector<signed int>(2, arr);
 		graph.addNode(vek);
 	}
@@ -83,12 +82,12 @@ TEST_CASE("advancedNodeTest") {
 		edgeCount = 0;
 		std::vector<PBQPNode<int>*> otherNodes = std::vector<PBQPNode<int>*>();
 		for (int k = 0; k < localSize; k++) {
-			int arr [] = {2, 2};
+			int arr[] = {2, 2};
 			Vector<signed int> vek = Vector<signed int>(2, arr);
 			PBQPNode<signed int>* node = graph->addNode(vek);
 			otherNodes.push_back(node);
 			for (PBQPNode<signed int>* otherNode : otherNodes) {
-				int arr2 [] = {3, 2, 5, 8};
+				int arr2[] = {3, 2, 5, 8};
 				Matrix<signed int> mat = Matrix<int>(2, 2, arr2);
 				graph->addEdge(node, otherNode, mat);
 				edgeCount++;
@@ -105,9 +104,8 @@ TEST_CASE("advancedNodeTest") {
 		PBQPGraph<int>* retrievedGraph = components[i];
 		CHECK_EQ(edgeCount - localSize, retrievedGraph->getEdgeCount());
 		CHECK_EQ(localSize, retrievedGraph->getNodeCount());
-		//ensure each node is only in one subgraph
-		for (auto iter = retrievedGraph->getNodeBegin();
-				iter != retrievedGraph->getNodeEnd(); ++iter) {
+		// ensure each node is only in one subgraph
+		for (auto iter = retrievedGraph->getNodeBegin(); iter != retrievedGraph->getNodeEnd(); ++iter) {
 			unsigned int index = (*iter)->getIndex();
 			CHECK_EQ(0, nodeIndices.count(index));
 			nodeIndices.insert(index);
@@ -118,5 +116,4 @@ TEST_CASE("advancedNodeTest") {
 	}
 }
 
-}
-
+} // namespace pbqppapa

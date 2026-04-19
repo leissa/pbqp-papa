@@ -27,13 +27,12 @@ std::string StatKeeper::getGraphDescription() {
 	result += ", Edges: ";
 	result += std::to_string(edgeCount);
 	result += ", E/N ratio: ";
-	result += std::to_string((float) edgeCount / (float) nodeCount);
+	result += std::to_string((float)edgeCount / (float)nodeCount);
 	result += ", Avg. vector degree: ";
 	result += std::to_string(averageVectorDegree);
 	result += '\n';
 	return result;
 }
-
 
 void StatKeeper::applyR0() {
 	++r0Applied;
@@ -51,4 +50,4 @@ void StatKeeper::applyRNEarly() {
 	++rNEarlyApplied;
 }
 
-}
+} // namespace pbqppapa

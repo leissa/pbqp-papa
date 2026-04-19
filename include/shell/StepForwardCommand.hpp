@@ -7,21 +7,18 @@
 
 namespace pbqppapa {
 
-template<typename T>
+template <typename T>
 class Command;
-template<typename T>
+template <typename T>
 class CommandHandler;
 
-template<typename T>
+template <typename T>
 class StepForwardCommand: public Command<T> {
 
 public:
-	StepForwardCommand() :
-			Command<T>("forward") {
-	}
+	StepForwardCommand() : Command<T>("forward") {}
 
-	~StepForwardCommand() {
-	}
+	~StepForwardCommand() {}
 
 	std::string run(std::string input, CommandHandler<T>* cmdHandler) {
 		int count;
@@ -29,27 +26,24 @@ public:
 			count = 1;
 		} else {
 			try {
-			count = std::stoi(input);
-			}
-			catch (std::invalid_argument&) {
+				count = std::stoi(input);
+			} catch (std::invalid_argument&) {
 				return "Invalid number, could not parse " + input;
 			}
 		}
 		std::string result = "";
-		std::vector<PBQPNode<InfinityWrapper<T>>*> nodes =
-				cmdHandler->getSolver()->stepForward(count);
+		std::vector<PBQPNode<InfinityWrapper<T>>*> nodes = cmdHandler->getSolver()->stepForward(count);
 		for (PBQPNode<InfinityWrapper<T>>* node : nodes) {
 			if (node == 0) {
 				result += "Nothing was done, reduction already complete\n";
 			} else {
-				result += "Reduced node " + std::to_string(node->getIndex())
-						+ "\n";
+				result += "Reduced node " + std::to_string(node->getIndex()) + "\n";
 			}
 		}
 		return result;
 	}
 };
 
-}
+} // namespace pbqppapa
 
 #endif /* SHELL_STEPFORWARDCOMMAND_HPP_ */

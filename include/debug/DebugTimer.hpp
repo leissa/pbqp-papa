@@ -1,8 +1,8 @@
 #ifndef DEBUG_DEBUGTIMER_HPP_
 #define DEBUG_DEBUGTIMER_HPP_
 
-#include <string>
 #include <chrono>
+#include <string>
 
 namespace pbqppapa {
 
@@ -18,7 +18,6 @@ private:
 	bool isRunning = false;
 
 public:
-
 	/**
 	 * Creates a new timer. Does not start it
 	 */
@@ -46,13 +45,12 @@ public:
 	[[nodiscard]] double getDuration();
 
 	/**
-	 * Gets nicely formatted output including the timers name and elapsed time. Will use the current time if the timer has not been stopped yet
-	 * Optionally puts \n at the end of the output
+	 * Gets nicely formatted output including the timers name and elapsed time. Will use the current time if the timer
+	 * has not been stopped yet Optionally puts \n at the end of the output
 	 */
 	[[nodiscard]] std::string getOutput(bool newLine = true);
-
 };
 
-}
+} // namespace pbqppapa
 
 #endif /* DEBUG_DEBUGTIMER_HPP_ */

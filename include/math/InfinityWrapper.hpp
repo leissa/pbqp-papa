@@ -23,16 +23,15 @@ namespace pbqppapa {
  *
  * DOES NOT IMPLEMENT MULTIPLICATION OR DIVISION. DO NOT USE IT
  */
-template<typename T>
+template <typename T>
 class InfinityWrapper {
 private:
 	T wrappedValue;
-	//we assume that this is always the biggest displayable number in the template type
-	//TODO what if we reach infinite through convential ways, but dont overflow?
+	// we assume that this is always the biggest displayable number in the template type
+	// TODO what if we reach infinite through convential ways, but dont overflow?
 	static T magicInfiniteNumber;
 
 public:
-
 	InfinityWrapper() {
 		wrappedValue = T();
 	}
@@ -82,12 +81,12 @@ public:
 	}
 
 	inline InfinityWrapper<T>& operator-=(InfinityWrapper<T> rhs) {
-		//TODO: this is kinda sketchy, rethink maybe?
+		// TODO: this is kinda sketchy, rethink maybe?
 		if (this->isInfinite()) {
 			return *this;
 		}
 		if (rhs.isInfinite()) {
-			//do nothing for now
+			// do nothing for now
 			return *this;
 		}
 		this->wrappedValue -= rhs.wrappedValue;
@@ -101,59 +100,51 @@ public:
 	[[nodiscard]] inline bool isInfinite() const {
 		return wrappedValue == magicInfiniteNumber;
 	}
-
 };
 
-template<typename T>
-inline InfinityWrapper<T> operator+(InfinityWrapper<T> lhs,
-		const InfinityWrapper<T>& rhs) {
+template <typename T>
+inline InfinityWrapper<T> operator+(InfinityWrapper<T> lhs, const InfinityWrapper<T>& rhs) {
 	lhs += rhs;
 	return lhs;
 }
 
-template<typename T>
-inline InfinityWrapper<T> operator+(InfinityWrapper<T>& lhs,
-		const T& rhs) {
+template <typename T>
+inline InfinityWrapper<T> operator+(InfinityWrapper<T>& lhs, const T& rhs) {
 	return operator+(lhs, InfinityWrapper<T>(rhs));
 }
 
-template<typename T>
-inline InfinityWrapper<T> operator-(InfinityWrapper<T> lhs,
-		const InfinityWrapper<T>& rhs) {
+template <typename T>
+inline InfinityWrapper<T> operator-(InfinityWrapper<T> lhs, const InfinityWrapper<T>& rhs) {
 	lhs -= rhs;
 	return lhs;
 }
 
-template<typename T>
-inline InfinityWrapper<T> operator-(InfinityWrapper<T>& lhs,
-		const T& rhs) {
+template <typename T>
+inline InfinityWrapper<T> operator-(InfinityWrapper<T>& lhs, const T& rhs) {
 	return operator-(lhs, InfinityWrapper<T>(rhs));
 }
 
-template<typename T>
-inline bool operator==(const InfinityWrapper<T>& lhs,
-		const InfinityWrapper<T>& rhs) {
+template <typename T>
+inline bool operator==(const InfinityWrapper<T>& lhs, const InfinityWrapper<T>& rhs) {
 	return lhs.getValue() == rhs.getValue();
 }
 
-template<typename T>
-inline bool operator==(InfinityWrapper<T>& lhs,
-		const T& rhs) {
+template <typename T>
+inline bool operator==(InfinityWrapper<T>& lhs, const T& rhs) {
 	return operator==(lhs, InfinityWrapper<T>(rhs));
 }
 
-template<typename T>
+template <typename T>
 inline bool operator!=(const InfinityWrapper<T>& lhs, const InfinityWrapper<T>& rhs) {
 	return lhs.getValue() != rhs.getValue();
 }
 
-template<typename T>
-inline bool operator!=(InfinityWrapper<T>& lhs,
-		const T& rhs) {
+template <typename T>
+inline bool operator!=(InfinityWrapper<T>& lhs, const T& rhs) {
 	return operator!=(lhs, InfinityWrapper<T>(rhs));
 }
 
-template<typename T>
+template <typename T>
 inline bool operator<(const InfinityWrapper<T>& lhs, const InfinityWrapper<T>& rhs) {
 	if (lhs.isInfinite() && rhs.isInfinite()) {
 		return true;
@@ -161,53 +152,49 @@ inline bool operator<(const InfinityWrapper<T>& lhs, const InfinityWrapper<T>& r
 	return lhs.getValue() < rhs.getValue();
 }
 
-template<typename T>
-inline bool operator<(InfinityWrapper<T>& lhs,
-		const T& rhs) {
+template <typename T>
+inline bool operator<(InfinityWrapper<T>& lhs, const T& rhs) {
 	return operator<(lhs, InfinityWrapper<T>(rhs));
 }
 
-template<typename T>
+template <typename T>
 inline bool operator>(const InfinityWrapper<T>& lhs, const InfinityWrapper<T>& rhs) {
 	return operator<(rhs, lhs);
 }
 
-template<typename T>
-inline bool operator>(InfinityWrapper<T>& lhs,
-		const T& rhs) {
+template <typename T>
+inline bool operator>(InfinityWrapper<T>& lhs, const T& rhs) {
 	return operator>(lhs, InfinityWrapper<T>(rhs));
 }
 
-template<typename T>
+template <typename T>
 inline bool operator<=(const InfinityWrapper<T>& lhs, const InfinityWrapper<T>& rhs) {
-	//need special handling if both are infinite
+	// need special handling if both are infinite
 	if (lhs.getValue() == rhs.getValue()) {
 		return true;
 	}
 	return !operator>(lhs, rhs);
 }
 
-template<typename T>
-inline bool operator<=(InfinityWrapper<T>& lhs,
-		const T& rhs) {
+template <typename T>
+inline bool operator<=(InfinityWrapper<T>& lhs, const T& rhs) {
 	return operator<=(lhs, InfinityWrapper<T>(rhs));
 }
 
-template<typename T>
+template <typename T>
 inline bool operator>=(const InfinityWrapper<T>& lhs, const InfinityWrapper<T>& rhs) {
-	//need special handling if both are infinite
+	// need special handling if both are infinite
 	if (lhs.getValue() == rhs.getValue()) {
 		return true;
 	}
 	return !operator<(lhs, rhs);
 }
 
-template<typename T>
-inline bool operator>=(InfinityWrapper<T>& lhs,
-		const T& rhs) {
+template <typename T>
+inline bool operator>=(InfinityWrapper<T>& lhs, const T& rhs) {
 	return operator>=(lhs, InfinityWrapper<T>(rhs));
 }
 
-}
+} // namespace pbqppapa
 
 #endif /* MATH_INFINITYWRAPPER_HPP_ */

@@ -5,15 +5,15 @@
 
 namespace pbqppapa {
 
-template<typename T>
+template <typename T>
 class PBQPNode;
-template<typename T>
+template <typename T>
 class Matrix;
 
 /**
  * Represents a directed edge in a PBQP, leading from one node to another with an associated cost matrix.
  * The template type corresponds to the data type used in the cost matrix */
-template<typename T>
+template <typename T>
 class PBQPEdge {
 
 private:
@@ -22,7 +22,6 @@ private:
 	Matrix<T> matrix;
 
 public:
-
 	/**
 	 * Creates a new directed edge from the given source node to the given target node.
 	 * The matrix associated with this edge will be the one given.
@@ -32,8 +31,7 @@ public:
 	 * in the matrix must match the length of the Vector associated with the target node
 	 */
 	PBQPEdge(PBQPNode<T>* source, PBQPNode<T>* target, Matrix<T>& matrix) :
-			source(source), target(target), matrix(matrix) {
-	}
+			source(source), target(target), matrix(matrix) {}
 
 	/**
 	 * Creates a new directed edge from the given source node to the given target node.
@@ -44,8 +42,7 @@ public:
 	 * in the matrix must match the length of the Vector associated with the target node
 	 */
 	PBQPEdge(PBQPNode<T>* source, PBQPNode<T>* target, PBQPEdge<T>* edge) :
-			source(source), target(target), matrix(edge->matrix) {
-	}
+			source(source), target(target), matrix(edge->matrix) {}
 
 	/**
 	 * Checks whether the given node is the source of this edge and returns true in that case
@@ -100,6 +97,6 @@ public:
 	}
 };
 
-}
+} // namespace pbqppapa
 
 #endif /* PBQPEdge_H_ */

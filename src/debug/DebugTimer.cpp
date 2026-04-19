@@ -2,15 +2,9 @@
 
 namespace pbqppapa {
 
-DebugTimer::DebugTimer() :
-		DebugTimer("Timer") {
+DebugTimer::DebugTimer() : DebugTimer("Timer") {}
 
-}
-
-DebugTimer::DebugTimer(std::string name) :
-		name(name) {
-
-}
+DebugTimer::DebugTimer(std::string name) : name(name) {}
 
 void DebugTimer::startTimer() {
 	start = std::chrono::high_resolution_clock::now();
@@ -46,4 +40,4 @@ std::string DebugTimer::getOutput(bool newLine) {
 	return result;
 }
 
-}
+} // namespace pbqppapa

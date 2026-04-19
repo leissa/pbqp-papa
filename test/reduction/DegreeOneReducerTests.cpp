@@ -1,23 +1,22 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <set>
+#include <vector>
+
 #include <doctest/doctest.h>
 
-#include <vector>
-#include <set>
-
-#include "graph/PBQPGraph.hpp"
-#include "graph/Vector.hpp"
-#include "graph/PBQPNode.hpp"
 #include "graph/PBQPEdge.hpp"
-#include "reduction/PBQPReduction.hpp"
-#include "reduction/degree/DegreeOneReducer.hpp"
+#include "graph/PBQPGraph.hpp"
+#include "graph/PBQPNode.hpp"
 #include "graph/PBQPSolution.hpp"
-
+#include "graph/Vector.hpp"
+#include "reduction/degree/DegreeOneReducer.hpp"
+#include "reduction/PBQPReduction.hpp"
 #include "util/TestUtils.hpp"
 
 namespace pbqppapa {
 
 TEST_CASE("emptyGraphTest") {
-	//make sure this doesnt explode
+	// make sure this doesnt explode
 	PBQPGraph<int> graph;
 	DegreeOneReducer<int> oneReducer(&graph);
 	std::vector<PBQPGraph<int>*> result = oneReducer.reduce();
@@ -48,16 +47,16 @@ TEST_CASE("simpleNodeReductionCount") {
 
 TEST_CASE("simpleCalculation") {
 	PBQPGraph<int> graph = PBQPGraph<int>();
-	int node1Arr[] { 1, 2 };
-	int node2Arr[] { 2, 3 };
-	Vector<int> vek1 (2, node1Arr);
-	Vector<int> vek2 (2, node2Arr);
+	int node1Arr[]{1, 2};
+	int node2Arr[]{2, 3};
+	Vector<int> vek1(2, node1Arr);
+	Vector<int> vek2(2, node2Arr);
 	PBQPNode<int>* first = graph.addNode(vek1);
 	PBQPNode<int>* second = graph.addNode(vek2);
 	unsigned long firstIndex = first->getIndex();
 	unsigned long secondIndex = second->getIndex();
-	int edge1Arr[] {2,6,2,0};
-	Matrix<int> mat1 (2, 2, edge1Arr);
+	int edge1Arr[]{2, 6, 2, 0};
+	Matrix<int> mat1(2, 2, edge1Arr);
 	graph.addEdge(first, second, mat1);
 	OnetoOneDependentSolution<int>* retSol = DegreeOneReducer<int>::reduceDegreeOne(second, &graph);
 	CHECK_EQ(graph.getNodeCount(), 1);
@@ -65,14 +64,14 @@ TEST_CASE("simpleCalculation") {
 	CHECK_EQ(first->getVectorDegree(), 2);
 	CHECK_EQ(first->getVector().get(0), 5);
 	CHECK_EQ(first->getVector().get(1), 5);
-	PBQPSolution<int> sol (2);
+	PBQPSolution<int> sol(2);
 	sol.setSolution(firstIndex, 0);
 	retSol->solve(&sol);
 	CHECK_EQ(sol.getSolution(secondIndex), 0);
-	PBQPSolution<int> sol2 (2);
+	PBQPSolution<int> sol2(2);
 	sol2.setSolution(firstIndex, 1);
 	retSol->solve(&sol2);
 	CHECK_EQ(sol2.getSolution(secondIndex), 1);
 }
 
-}
+} // namespace pbqppapa

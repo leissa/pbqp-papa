@@ -1,38 +1,38 @@
 #ifndef PBQPGRAPH_H_
 #define PBQPGRAPH_H_
 
-#include <vector>
-#include <set>
+#include <iostream>
 #include <iterator>
 #include <map>
-#include <iostream>
+#include <set>
+#include <vector>
 
-#include "graph/PBQPNode.hpp"
 #include "graph/PBQPEdge.hpp"
+#include "graph/PBQPNode.hpp"
 
 namespace pbqppapa {
 
-template<typename T>
+template <typename T>
 class PBQPEdge;
-template<typename T>
+template <typename T>
 class PBQPSolution;
-template<typename T>
+template <typename T>
 class PBQPNode;
-template<typename T>
+template <typename T>
 class Matrix;
-template<typename T>
+template <typename T>
 class Vector;
 
 /**
  * A graph representing a PBQP. The template type represents the data type of the numbers in the cost vectors
  * and cost matrices. It is consistent throughout the entire graph; all edges and all nodes.
  * Note that deleted nodes are removed from the graph, but not deleted from memory.
- * To ease handling with them the deleted flag on them will be set to true and they will remain in memory until the graph that used
- * to hold them is deleted.
+ * To ease handling with them the deleted flag on them will be set to true and they will remain in memory until the
+ * graph that used to hold them is deleted.
  *
  * You should never manually deleted nodes or edges, leave that entirely to a graph instance
  */
-template<typename T>
+template <typename T>
 class PBQPGraph {
 private:
 	unsigned int indexMaximum = 0;
@@ -42,12 +42,10 @@ private:
 	std::vector<PBQPNode<T>*> peo;
 
 public:
-
 	/**
 	 * Create a new empty graph with no nodes
 	 */
-	PBQPGraph() {
-	}
+	PBQPGraph() {}
 
 	/**
 	 * Deletes all nodes and edges contained within the graph
@@ -59,8 +57,7 @@ public:
 	/**
 	 * Copy constructor deep copies all nodes, edges and PEO
 	 */
-	PBQPGraph(const PBQPGraph<T>* graph) :
-			indexMaximum(graph->indexMaximum) {
+	PBQPGraph(const PBQPGraph<T>* graph) : indexMaximum(graph->indexMaximum) {
 		std::map<PBQPNode<T>*, PBQPNode<T>*> nodeReMapping;
 		for (PBQPNode<T>* node : graph->nodes) {
 			PBQPNode<T>* createdNode = new PBQPNode<T>(node);
@@ -68,12 +65,9 @@ public:
 			nodeReMapping.insert({node, createdNode});
 		}
 		for (PBQPEdge<T>* edge : graph->edges) {
-			PBQPNode<T>* newSource =
-					nodeReMapping.find(edge->getSource())->second;
-			PBQPNode<T>* newTarget =
-					nodeReMapping.find(edge->getTarget())->second;
-			PBQPEdge<T>* createdEdge = new PBQPEdge<T>(newSource, newTarget,
-					edge);
+			PBQPNode<T>* newSource = nodeReMapping.find(edge->getSource())->second;
+			PBQPNode<T>* newTarget = nodeReMapping.find(edge->getTarget())->second;
+			PBQPEdge<T>* createdEdge = new PBQPEdge<T>(newSource, newTarget, edge);
 			addEdge(createdEdge);
 			newSource->addEdge(createdEdge);
 			newTarget->addEdge(createdEdge);
@@ -152,19 +146,18 @@ public:
 	 * If the source and target node are identical the diagonal of the given matrix will be added to this
 	 * node and nullptr will be returned
 	 */
-	PBQPEdge<T>* addEdge(PBQPNode<T>* source, PBQPNode<T>* target,
-			Matrix<T>& matrix) {
+	PBQPEdge<T>* addEdge(PBQPNode<T>* source, PBQPNode<T>* target, Matrix<T>& matrix) {
 		assert(source);
 		assert(target);
 		assert(source->getVectorDegree() == matrix.getRowCount());
 		assert(target->getVectorDegree() == matrix.getColumnCount());
 		if (source == target) {
-			for(unsigned short i = 0; i < source->getVectorDegree(); i++) {
+			for (unsigned short i = 0; i < source->getVectorDegree(); i++) {
 				source->getVector().get(i) += matrix.get(i, i);
 			}
 			return nullptr;
 		}
-		//add to existing edge if one exists
+		// add to existing edge if one exists
 		for (PBQPEdge<T>* edge : source->getAdjacentEdges(false)) {
 			if (edge->getOtherEnd(source) == target) {
 				if (edge->getSource() == source) {
@@ -196,8 +189,7 @@ public:
 	 * is up to the user when setting cleanUp to false
 	 */
 	void removeNode(PBQPNode<T>* node, bool cleanUp = true) {
-		for (PBQPEdge<T>* edge : std::vector<PBQPEdge<T>*>(
-				node->getAdjacentEdges(false))) {
+		for (PBQPEdge<T>* edge : std::vector<PBQPEdge<T>*>(node->getAdjacentEdges(false))) {
 			edges.erase(edge);
 			if (cleanUp) {
 				edge->getOtherEnd(node)->removeEdge(edge);
@@ -222,7 +214,6 @@ public:
 		edge->getTarget()->removeEdge(edge);
 		delete edge;
 	}
-
 
 	/*
 	 * Ok I know that the following is a weird iterator pattern but hear me out:
@@ -297,9 +288,9 @@ public:
 	}
 
 	[[nodiscard]] std::vector<PBQPNode<T>*>& getPEO() {
-		//this should return a const vector, but doesnt due because that'd make its
-		//iterators const_iterator which introduced problems in other places and led to
-		//code duplication
+		// this should return a const vector, but doesnt due because that'd make its
+		// iterators const_iterator which introduced problems in other places and led to
+		// code duplication
 		return peo;
 	}
 
@@ -310,6 +301,6 @@ public:
 		peo = newPeo;
 	}
 };
-}
+} // namespace pbqppapa
 
 #endif /* PBQPGRAPH_H_ */

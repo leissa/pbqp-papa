@@ -1,7 +1,7 @@
 #ifndef MATH_INFINITYWRAPPER_HPP_
 #define MATH_INFINITYWRAPPER_HPP_
 
-#include "limits.h"
+#include <climits>
 
 namespace pbqppapa {
 
@@ -33,20 +33,19 @@ private:
 
 public:
 
-	InfinityWrapper<T>() {
-		//this is needed, because if T is for example int, its default constructor would not be called
+	InfinityWrapper() {
 		wrappedValue = T();
 	}
 
-	InfinityWrapper<T>(T value) {
+	InfinityWrapper(T value) {
 		wrappedValue = value;
 	}
 
 	/**
 	 * Infinity for this template type
 	 */
-	static InfinityWrapper<T> getInfinite() {
-		InfinityWrapper<T> result;
+	[[nodiscard]] static InfinityWrapper getInfinite() {
+		InfinityWrapper result;
 		result.wrappedValue = magicInfiniteNumber;
 		return result;
 	}
@@ -54,16 +53,16 @@ public:
 	/**
 	 * True artithemtic value wrapped by this instance
 	 */
-	inline const T& getValue() const {
+	[[nodiscard]] inline const T& getValue() const {
 		return wrappedValue;
 	}
 
-	inline bool operator==(InfinityWrapper<T> rhs) {
+	[[nodiscard]] inline bool operator==(const InfinityWrapper& rhs) const {
 		return rhs.wrappedValue == this->wrappedValue;
 	}
 
-	inline bool operator==(T rhs) {
-		return operator==(InfinityWrapper<T>(rhs));
+	[[nodiscard]] inline bool operator==(const T& rhs) const {
+		return wrappedValue == rhs;
 	}
 
 	inline InfinityWrapper<T>& operator+=(InfinityWrapper<T> rhs) {
@@ -99,7 +98,7 @@ public:
 		return operator-=(InfinityWrapper<T>(rhs));
 	}
 
-	inline bool isInfinite() const {
+	[[nodiscard]] inline bool isInfinite() const {
 		return wrappedValue == magicInfiniteNumber;
 	}
 
@@ -174,7 +173,7 @@ inline bool operator>(const InfinityWrapper<T>& lhs, const InfinityWrapper<T>& r
 }
 
 template<typename T>
-inline InfinityWrapper<T> operator>(InfinityWrapper<T>& lhs,
+inline bool operator>(InfinityWrapper<T>& lhs,
 		const T& rhs) {
 	return operator>(lhs, InfinityWrapper<T>(rhs));
 }

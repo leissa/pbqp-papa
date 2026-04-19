@@ -65,8 +65,7 @@ public:
 		for (PBQPNode<T>* node : graph->nodes) {
 			PBQPNode<T>* createdNode = new PBQPNode<T>(node);
 			addNode(createdNode);
-			nodeReMapping.insert(
-					std::pair<PBQPNode<T>*, PBQPNode<T>*>(node, createdNode));
+			nodeReMapping.insert({node, createdNode});
 		}
 		for (PBQPEdge<T>* edge : graph->edges) {
 			PBQPNode<T>* newSource =
@@ -151,7 +150,7 @@ public:
 	 * edge which already exists, the cost of the matrix you gave will be added to the existing edge and
 	 * the preexisting edge will be returned.
 	 * If the source and target node are identical the diagonal of the given matrix will be added to this
-	 * node and 0 will be returned
+	 * node and nullptr will be returned
 	 */
 	PBQPEdge<T>* addEdge(PBQPNode<T>* source, PBQPNode<T>* target,
 			Matrix<T>& matrix) {
@@ -159,12 +158,11 @@ public:
 		assert(target);
 		assert(source->getVectorDegree() == matrix.getRowCount());
 		assert(target->getVectorDegree() == matrix.getColumnCount());
-		//add diagonal of matrix to node if it is a cycle
 		if (source == target) {
 			for(unsigned short i = 0; i < source->getVectorDegree(); i++) {
 				source->getVector().get(i) += matrix.get(i, i);
 			}
-			return 0;
+			return nullptr;
 		}
 		//add to existing edge if one exists
 		for (PBQPEdge<T>* edge : source->getAdjacentEdges(false)) {
@@ -278,14 +276,14 @@ public:
 	/**
 	 * Gets the amount of nodes currently in the graph
 	 */
-	unsigned int getNodeCount() const {
+	[[nodiscard]] unsigned int getNodeCount() const {
 		return nodes.size();
 	}
 
 	/**
 	 * Gets the amount of edges currently in the graph
 	 */
-	unsigned int getEdgeCount() const {
+	[[nodiscard]] unsigned int getEdgeCount() const {
 		return edges.size();
 	}
 
@@ -294,11 +292,11 @@ public:
 	 * will have an index smaller than this counter. To ensure that every node has a unique number, even
 	 * if we split up graphs and parallelize work on the smaller pieces, this counter is global
 	 */
-	unsigned int getNodeIndexCounter() const {
+	[[nodiscard]] unsigned int getNodeIndexCounter() const {
 		return indexMaximum;
 	}
 
-	std::vector<PBQPNode<T>*>& getPEO() {
+	[[nodiscard]] std::vector<PBQPNode<T>*>& getPEO() {
 		//this should return a const vector, but doesnt due because that'd make its
 		//iterators const_iterator which introduced problems in other places and led to
 		//code duplication

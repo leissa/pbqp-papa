@@ -39,20 +39,18 @@ public:
 	BranchBoundSolver(PBQPGraph<InfinityWrapper<T>>* graph) :
 			graph(graph) {
 		for (auto iter = graph->getNodeBegin(); iter != graph->getNodeEnd();
-				iter++) {
+				++iter) {
 			nodes.push_back(*iter);
 		}
 	}
 
-	~BranchBoundSolver() {
-
-	}
+	~BranchBoundSolver() = default;
 
 public:
 	/**
 	 * Attempts to find a solution. May not finish before the heat death of the universe if your graph is big
 	 */
-	PBQPSolution<InfinityWrapper<T>>* solve() {
+	[[nodiscard]] PBQPSolution<InfinityWrapper<T>>* solve() {
 		InfinityWrapper<T> localCost = InfinityWrapper<T>(0);
 		PBQPSolution<InfinityWrapper<T>>* localSolution = new PBQPSolution<
 				InfinityWrapper<T>>(graph->getNodeIndexCounter());
@@ -65,7 +63,7 @@ private:
 			PBQPSolution<InfinityWrapper<T>>* sol, unsigned int nodeCounter) {
 		PBQPSolution<InfinityWrapper<T>>* localSolution = new PBQPSolution<
 				InfinityWrapper<T>>(*sol);
-		PBQPSolution<InfinityWrapper<T>>* minSolution = 0;
+		PBQPSolution<InfinityWrapper<T>>* minSolution = nullptr;
 		PBQPNode<InfinityWrapper<T>>* node = nodes.at(nodeCounter);
 		InfinityWrapper<T> localCost = InfinityWrapper<T>(0);
 		InfinityWrapper<T> localMin = InfinityWrapper<T>::getInfinite();
@@ -76,7 +74,7 @@ private:
 			if (value.isInfinite()) {
 				continue;
 			}
-			boolean allowedViaEdges = true;
+			bool allowedViaEdges = true;
 			InfinityWrapper<T> edgeSum(0);
 			for (PBQPEdge<InfinityWrapper<T>>* edge : node->getAdjacentEdges()) {
 				PBQPNode<InfinityWrapper<T>>* otherEnd = nodes.at(nodeCounter);
@@ -107,14 +105,14 @@ private:
 			}
 			PBQPSolution<InfinityWrapper<T>>* retSolution = recursiveSolve(
 					currentCost + localCost, localSolution, nodeCounter + 1);
-			if (retSolution == 0) {
+			if (retSolution == nullptr) {
 				continue;
 			}
 			InfinityWrapper<T> possibleMin = retSolution->getCurrentCost(graph);
 			if (possibleMin < localMin) {
 				localMin = possibleMin;
 				minSelection = index;
-				if (!minSolution) {
+				if (minSolution) {
 					delete minSolution;
 				}
 				minSolution = retSolution;

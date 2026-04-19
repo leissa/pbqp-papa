@@ -19,7 +19,7 @@ namespace pbqppapa {
 
 
 TEST_CASE("reduction") {
-	PBQP_Serializer<unsigned long> serial ();
+	PBQP_Serializer<unsigned long> serial{};
 
 
 

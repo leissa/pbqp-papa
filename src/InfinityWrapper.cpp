@@ -1,5 +1,5 @@
 #include "math/InfinityWrapper.hpp"
-#include <limits.h>
+#include <climits>
 
 namespace pbqppapa {
 

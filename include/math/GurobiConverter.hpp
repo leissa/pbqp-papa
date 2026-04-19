@@ -141,7 +141,7 @@ private:
 		for (auto iter = graph->getEdgeBegin(); iter != graph->getEdgeEnd();
 				++iter) {
 			PBQPEdge<InfinityWrapper<T>>* edge = *iter;
-			unsigned const short rowCount = edge->getMatrix().getRowCount();
+			const unsigned short rowCount = edge->getMatrix().getRowCount();
 			for (unsigned short row = 0; row < rowCount; ++row) {
 				delete[] edgeSelections[counter][row];
 			}
@@ -158,9 +158,7 @@ private:
 		for (auto iter = graph->getNodeBegin(); iter != graph->getNodeEnd();
 				++iter) {
 			PBQPNode<InfinityWrapper<T>>* node = *iter;
-			nodeToGrbVarMap.insert(
-					std::pair<PBQPNode<InfinityWrapper<T>>*, unsigned int>(node,
-							counter));
+			nodeToGrbVarMap.insert({node, counter});
 			const unsigned short vecLength = node->getVectorDegree();
 			nodeSelections[counter] = new GRBVar[vecLength];
 			nodeVectorLengths[counter] = vecLength;
@@ -262,14 +260,14 @@ private:
 	}
 
 	void setupEdgeSelectionLinear(const PBQPGraph<InfinityWrapper<T>>* graph) {
-		unsigned const int edgeCount = graph->getEdgeCount();
+		const unsigned int edgeCount = graph->getEdgeCount();
 		edgeSelections = new GRBVar**[edgeCount];
 		unsigned int counter = 0;
 		for (auto iter = graph->getEdgeBegin(); iter != graph->getEdgeEnd();
 				++iter) {
 			PBQPEdge<InfinityWrapper<T>>* edge = *iter;
-			unsigned const short rowCount = edge->getMatrix().getRowCount();
-			unsigned const short columnCount =
+			const unsigned short rowCount = edge->getMatrix().getRowCount();
+			const unsigned short columnCount =
 					edge->getMatrix().getColumnCount();
 			edgeSelections[counter] = new GRBVar*[rowCount];
 			for (unsigned short row = 0; row < rowCount; ++row) {
@@ -291,8 +289,8 @@ private:
 		for (auto iter = graph->getEdgeBegin(); iter != graph->getEdgeEnd();
 				++iter) {
 			PBQPEdge<InfinityWrapper<T>>* edge = *iter;
-			unsigned const short rowCount = edge->getMatrix().getRowCount();
-			unsigned const short columnCount =
+			const unsigned short rowCount = edge->getMatrix().getRowCount();
+			const unsigned short columnCount =
 					edge->getMatrix().getColumnCount();
 			for (unsigned short row = 0; row < rowCount; ++row) {
 				for (unsigned short column = 0; column < columnCount;
@@ -323,8 +321,8 @@ private:
 			PBQPNode<InfinityWrapper<T>>* target = edge->getTarget();
 			unsigned int sourceGrbIndex = nodeToGrbVarMap.find(source)->second;
 			unsigned int targetGrbIndex = nodeToGrbVarMap.find(target)->second;
-			unsigned const short rowCount = edge->getMatrix().getRowCount();
-			unsigned const short columnCount =
+			const unsigned short rowCount = edge->getMatrix().getRowCount();
+			const unsigned short columnCount =
 					edge->getMatrix().getColumnCount();
 			//sum of row selections equals selection in that row in the source node
 			for (unsigned short row = 0; row < rowCount; ++row) {

@@ -97,7 +97,7 @@ public:
 		unsigned long index = 0;
 		//TODO Speed this up by completly copying the nodes to reduce the amount of reference lookup neccessary later on?
 		for (auto iter = graph->getNodeBegin(); iter != graph->getNodeEnd();
-				iter++) {
+				++iter) {
 			PBQPNode<T>* node = *iter;
 			nodes[index] = node;
 			limits[index++] = node->getVectorDegree() - 1;
@@ -172,7 +172,7 @@ private:
 		}
 		auto nodeIter = this->graph->getNodeBegin();
 		while (nodeIter != this->graph->getNodeEnd()) {
-			PBQPNode<T>* node = (PBQPNode<T>*) *nodeIter++;
+			PBQPNode<T>* node = *nodeIter++;
 			sum += node->getVector().get(currentSelection[node->getIndex()]);
 		}
 		return sum;

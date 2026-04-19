@@ -57,7 +57,7 @@ private:
 public:
 
 	CommandHandler(PBQPGraph<InfinityWrapper<T>>* graph) :
-			solver(std::unique_ptr<StepByStepSolver<T>>(new StepByStepSolver<T>(graph))) {
+			solver(std::make_unique<StepByStepSolver<T>>(graph)) {
 		registerCommand(new DumpCommand<T>());
 		registerCommand(new StepForwardCommand<T>());
 		registerCommand(new StepBackwardCommand<T>());
@@ -90,12 +90,10 @@ public:
 	}
 
 	void registerCommand(Command<T>* command) {
-		commands.insert(
-				std::pair<std::string, Command<T>*>(command->getIdentifier(),
-						command));
+		commands.insert({command->getIdentifier(), command});
 	}
 
-	StepByStepSolver<T>* getSolver() {
+	[[nodiscard]] StepByStepSolver<T>* getSolver() {
 		return solver.get();
 	}
 

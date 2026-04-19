@@ -32,8 +32,8 @@ public:
 
 	std::vector<PBQPGraph<T>*>& reduce() override {
 		while (true) {
-			std::set<PBQPNode<T>*> foundNodes = std::set<PBQPNode<T>*>();
-			std::vector<PBQPNode<T>*> todoStack = std::vector<PBQPNode<T>*>();
+			std::set<PBQPNode<T>*> foundNodes;
+			std::vector<PBQPNode<T>*> todoStack;
 			if (this->graph->getNodeCount() > 0) {
 				auto iter = this->graph->getNodeBegin();
 				todoStack.push_back(*iter);
@@ -41,13 +41,13 @@ public:
 			while (!todoStack.empty()) {
 				PBQPNode<T>* node = todoStack.back();
 				todoStack.pop_back();
-				if (foundNodes.count(node) > 0) {
+				if (foundNodes.contains(node)) {
 					continue;
 				}
 
 				foundNodes.insert(node);
 				for (PBQPNode<T>* adjacentNode : node->getAdjacentNodes()) {
-					if (foundNodes.count(adjacentNode) == 0) {
+					if (!foundNodes.contains(adjacentNode)) {
 						todoStack.push_back(adjacentNode);
 					}
 				}

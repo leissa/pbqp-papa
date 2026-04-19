@@ -37,13 +37,10 @@ public:
 	 * completly or passed on as a result of the reduction. It is not needed anywhere else and this instance
 	 * has full power over it. If the graph isnt passed on, it must be deleted by the reduction.
 	 */
-	PBQP_Reduction(PBQPGraph<T>* graph) {
-		this->graph = graph;
-		result = std::vector<PBQPGraph<T>*>();
+	PBQP_Reduction(PBQPGraph<T>* graph) :
+			graph(graph) {
 	}
-	virtual ~PBQP_Reduction() {
-
-	}
+	virtual ~PBQP_Reduction() = default;
 
 	/**
 	 * Applies whatever logic this instance implements to simplify the PBQP. Result is a vector to allow splitting

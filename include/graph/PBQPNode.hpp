@@ -19,14 +19,14 @@ private:
 	Vector<T> values;
 	std::vector<PBQPEdge<T>*> incidentEdges;
 	std::vector<PBQPEdge<T>*> outgoingEdges;
-	unsigned const int index;
+	const unsigned int index;
 	bool deleted;
 
 public:
 	/**
 	 * Should only be used by PBQPGraph internally. Index counter is held by PBQPGraph instance
 	 */
-	PBQPNode(unsigned const int index, Vector<T>& values) :
+	PBQPNode(const unsigned int index, Vector<T>& values) :
 			values(values), index(index), deleted(false) {
 	}
 
@@ -40,7 +40,7 @@ public:
 	/**
 	 * Gets all incident edges, optionally only the outgoing ones
 	 */
-	const std::vector<PBQPEdge<T>*>& getAdjacentEdges(
+	[[nodiscard]] const std::vector<PBQPEdge<T>*>& getAdjacentEdges(
 			const bool respectDirection = false) const {
 		if (respectDirection) {
 			return outgoingEdges;
@@ -52,7 +52,7 @@ public:
 	/**
 	 * Gets all adjacent nodes, optionally only the ones that are the target of the edge connecting them to this node
 	 */
-	std::vector<PBQPNode<T>*> getAdjacentNodes(const bool respectDirection =
+	[[nodiscard]] std::vector<PBQPNode<T>*> getAdjacentNodes(const bool respectDirection =
 			false) {
 		std::set<PBQPNode<T>*> resultSet;
 		std::vector<PBQPNode<T>*> nodes;
@@ -70,28 +70,28 @@ public:
 	/**
 	 * Index identifies this node uniquely in the graph it was created in, even after the node is deleted
 	 */
-	unsigned int getIndex() const {
+	[[nodiscard]] unsigned int getIndex() const {
 		return index;
 	}
 
 	/**
 	 * Gets the length (amount of rows) of the cost Vector
 	 */
-	unsigned short getVectorDegree() const {
+	[[nodiscard]] unsigned short getVectorDegree() const {
 		return values.getRowCount();
 	}
 
 	/**
 	 * Gets the amount of edges connected to this node
 	 */
-	unsigned int getDegree() const {
+	[[nodiscard]] unsigned int getDegree() const {
 		return incidentEdges.size();
 	}
 
 	/**
 	 * Gets the cost Vector associated with this node
 	 */
-	Vector<T>& getVector() {
+	[[nodiscard]] Vector<T>& getVector() {
 		return values;
 	}
 
@@ -123,14 +123,9 @@ public:
 	 * Should only be used by PBQPGraph internally.
 	 */
 	void removeEdge(PBQPEdge<T>* edge) {
-		//Erase�remove idiom
-		incidentEdges.erase(
-				std::remove(incidentEdges.begin(), incidentEdges.end(), edge),
-				incidentEdges.end());
+		std::erase(incidentEdges, edge);
 		if (edge->getSource() == this) {
-			outgoingEdges.erase(
-					std::remove(outgoingEdges.begin(), outgoingEdges.end(),
-							edge), outgoingEdges.end());
+			std::erase(outgoingEdges, edge);
 		}
 	}
 
@@ -138,7 +133,7 @@ public:
 		deleted = state;
 	}
 
-	bool isDeleted() {
+	[[nodiscard]] bool isDeleted() const {
 		return deleted;
 	}
 };

@@ -35,7 +35,7 @@ double DebugTimer::getDuration() {
 	return elapsed.count();
 }
 
-std::string DebugTimer::getOutput(bool newLine = true) {
+std::string DebugTimer::getOutput(bool newLine) {
 	std::string result(name);
 	result += ": ";
 	result += std::to_string(getDuration());

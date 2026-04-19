@@ -41,7 +41,7 @@ public:
 		}
 	}
 
-	std::vector<PBQPGraph<T>*>& reduce() {
+	std::vector<PBQPGraph<T>*>& reduce() override {
 		auto iter = this->graph->getNodeBegin();
 		while (iter != this->graph->getNodeEnd()) {
 			PBQPNode<T>* node = *iter++;
@@ -55,7 +55,7 @@ public:
 		return this->result;
 	}
 
-	void solve(PBQPSolution<T>& solution) {
+	void solve(PBQPSolution<T>& solution) override {
 		auto iter = solutions.rbegin();
 		while (iter != solutions.rend()) {
 			NtoNDependentSolution<T>* sol = *iter++;
@@ -221,7 +221,7 @@ public:
 			}
 		}
 		if (!foundSolution) {
-			return 0;
+			return nullptr;
 		}
 		graph->removeNode(node);
 		graph->addEdge(firstNode, secondNode, resultMatrix);

@@ -43,13 +43,13 @@ public:
 	 * Can only be used after starting the timer. Will use the current time if the timer has not been stopped yet.
 	 * Returned time is in seconds
 	 */
-	double getDuration();
+	[[nodiscard]] double getDuration();
 
 	/**
 	 * Gets nicely formatted output including the timers name and elapsed time. Will use the current time if the timer has not been stopped yet
 	 * Optionally puts \n at the end of the output
 	 */
-	std::string getOutput(bool newLine);
+	[[nodiscard]] std::string getOutput(bool newLine = true);
 
 };
 

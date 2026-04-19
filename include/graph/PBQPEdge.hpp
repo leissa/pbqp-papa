@@ -1,9 +1,9 @@
 #ifndef PBQPEdge_H_
 #define PBQPEdge_H_
 
-namespace pbqppapa {
-
 #include "graph/Matrix.hpp"
+
+namespace pbqppapa {
 
 template<typename T>
 class PBQPNode;
@@ -50,7 +50,7 @@ public:
 	/**
 	 * Checks whether the given node is the source of this edge and returns true in that case
 	 */
-	bool isSource(const PBQPNode<T>* node) const {
+	[[nodiscard]] bool isSource(const PBQPNode<T>* node) const {
 		return node == source;
 	}
 
@@ -60,7 +60,7 @@ public:
 	 *
 	 * If the given node is not part of this edge, the edges source will be returned
 	 */
-	PBQPNode<T>* getOtherEnd(const PBQPNode<T>* node) const {
+	[[nodiscard]] PBQPNode<T>* getOtherEnd(const PBQPNode<T>* node) const {
 		if (node == source) {
 			return target;
 		}
@@ -70,32 +70,32 @@ public:
 	/**
 	 * Gets the cost matrix associated with this edge
 	 */
-	Matrix<T>& getMatrix() {
+	[[nodiscard]] Matrix<T>& getMatrix() {
 		return matrix;
 	}
 
 	/**
 	 * Gets the source node of this edge. May be identical to the target in case of a cycle
 	 */
-	PBQPNode<T>* getSource() const {
+	[[nodiscard]] PBQPNode<T>* getSource() const {
 		return source;
 	}
 
 	/**
 	 * Gets the target node of this edge. May be identical to the source in case of a cycle
 	 */
-	PBQPNode<T>* getTarget() const {
+	[[nodiscard]] PBQPNode<T>* getTarget() const {
 		return target;
 	}
 
 	/**
 	 * Checks whether this edge is a cycle, meaning source and target are identical
 	 */
-	bool isCycle() const {
+	[[nodiscard]] bool isCycle() const {
 		return source == target;
 	}
 
-	bool operator==(const PBQPNode<T>& e) const {
+	bool operator==(const PBQPEdge<T>& e) const {
 		return this == &e;
 	}
 };

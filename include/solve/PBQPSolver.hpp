@@ -2,7 +2,6 @@
 #define SOLVE_PBQPSOLVER_HPP_
 
 #include "analysis/PBQPHandler.hpp"
-#include "analysis/PBQPHandler.hpp"
 #include "graph/PBQPSolution.hpp"
 
 namespace pbqppapa {
@@ -39,7 +38,7 @@ public:
 
 	virtual ~PBQPSolver() {}
 
-	PBQPSolution<T>* calcSolution() {
+	[[nodiscard]] PBQPSolution<T>* calcSolution() {
 		if (this->graph->getNodeCount() != 0) {
 			solve();
 		}

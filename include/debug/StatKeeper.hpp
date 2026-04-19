@@ -25,10 +25,10 @@ public:
 		nodeCount = graph->getNodeCount();
 		edgeCount = graph->getEdgeCount();
 		float vectorDegreeSum = 0;
-		for(auto iter = graph->getNodeBegin(); iter != graph->getNodeEnd(); iter++) {
-			vectorDegreeSum += (float) ((*iter)->getVectorDegree());
+		for(auto iter = graph->getNodeBegin(); iter != graph->getNodeEnd(); ++iter) {
+			vectorDegreeSum += static_cast<float>((*iter)->getVectorDegree());
 		}
-		averageVectorDegree = vectorDegreeSum / (float) nodeCount;
+		averageVectorDegree = vectorDegreeSum / static_cast<float>(nodeCount);
 	}
 
 	void applyR0();
@@ -39,9 +39,9 @@ public:
 
 	void applyRNEarly();
 
-	std::string getSumUp();
+	[[nodiscard]] std::string getSumUp();
 
-	std::string getGraphDescription();
+	[[nodiscard]] std::string getGraphDescription();
 
 };
 

@@ -53,7 +53,7 @@ public:
 		return this->result;
 	}
 
-	void solve(PBQPSolution<T>& solution) {
+	void solve(PBQPSolution<T>& solution) override {
 		auto iter = solutions.rbegin();
 		while (iter != solutions.rend()) {
 			OnetoOneDependentSolution<T>* sol = *iter++;
@@ -151,13 +151,6 @@ public:
 			otherEnd->getVector().get(i) = minimum;
 		}
 		graph->removeNode(node);
-		bool found = false;
-		for (unsigned short i = 0; i < otherEndDegree; i++) {
-			if (!otherEnd->getVector().get(i).isInfinite()) {
-				found = true;
-				break;
-			}
-		}
 		return solution;
 	}
 };

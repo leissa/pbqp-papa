@@ -27,15 +27,13 @@ public:
 		}
 	}
 
-	~ImmediateSolution() {
-
-	}
+	~ImmediateSolution() = default;
 
 	void solve(PBQPSolution<T>* solution) override {
 		solution->setSolution(node->getIndex(), selection);
 	}
 
-	void revertChange(PBQPGraph<T>* graph) const {
+	void revertChange(PBQPGraph<T>* graph) override {
 		graph->addNode(node);
 		for(PBQPEdge<T> edge : edges) {
 			graph->addEdge(edge.getSource(), edge.getTarget(), edge.getMatrix());

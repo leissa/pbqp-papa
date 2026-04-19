@@ -32,13 +32,12 @@ public:
 	}
 
 	std::vector<PBQPGraph<T>*>& reduce() override {
-		std::vector<PBQPNode<T>*> targetNodes = std::vector<PBQPNode<T>*>();
-		std::vector<unsigned short> nodeSolution =
-				std::vector<unsigned short>();
+		std::vector<PBQPNode<T>*> targetNodes;
+		std::vector<unsigned short> nodeSolution;
 		auto iter = this->graph->getNodeBegin();
 		while (iter != this->graph->getNodeEnd()) {
 			PBQPNode<T>* node = *iter;
-			iter++;
+			++iter;
 			if (node->getDegree() == 0) {
 				nodeSolution.push_back(
 						node->getVector().getIndexOfSmallestElement());
@@ -46,9 +45,8 @@ public:
 				this->graph->removeNode(node);
 			}
 		}
-		solution = std::unique_ptr<NtoNDependentSolution<T>>(
-				new NtoNDependentSolution<T>(std::vector<PBQPNode<T>*>(0),
-						targetNodes));
+		solution = std::make_unique<NtoNDependentSolution<T>>(std::vector<PBQPNode<T>*>(),
+						targetNodes);
 		solution->setSolution(emptyIntVector, nodeSolution);
 		this->result.push_back(this->graph);
 		return this->result;
@@ -64,13 +62,12 @@ public:
 	 */
 	static NtoNDependentSolution<T>* reduceDegreeZero(PBQPNode<T>* node,
 			PBQPGraph<T>* graph) {
-		std::vector<PBQPNode<T>*> dependencyNodes = std::vector<PBQPNode<T>*>();
-		std::vector<PBQPNode<T>*> solutionNodes = std::vector<PBQPNode<T>*>();
+		std::vector<PBQPNode<T>*> dependencyNodes;
+		std::vector<PBQPNode<T>*> solutionNodes;
 		solutionNodes.push_back(node);
 		NtoNDependentSolution<T>* solution = new NtoNDependentSolution<T>(
 				dependencyNodes, solutionNodes);
-		std::vector<unsigned short> nodeSolution =
-				std::vector<unsigned short>();
+		std::vector<unsigned short> nodeSolution;
 		nodeSolution.push_back(node->getVector().getIndexOfSmallestElement());
 		solution->setSolution(emptyIntVector, nodeSolution);
 		graph->removeNode(node);
@@ -93,8 +90,7 @@ public:
 
 //dark magic to initialize static members of a template
 template<typename T>
-const std::vector<unsigned short> DegreeZeroReducer<T>::emptyIntVector =
-		std::vector<unsigned short>(0);
+const std::vector<unsigned short> DegreeZeroReducer<T>::emptyIntVector;
 }
 
 #endif /* VALIDATION_DEGREEZEROREDUCTOR_HPP_ */

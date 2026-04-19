@@ -2,7 +2,7 @@
 #define GRAPH_PBQPSolution_HPP_
 
 #include <vector>
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
 
 #include "graph/PBQPGraph.hpp"
@@ -38,9 +38,9 @@ public:
 	 * of any node for which a solution will be put in this instance
 	 */
 	PBQPSolution(unsigned int length) :
-			selection(std::vector<unsigned short>(length))
+			selection(length)
 #ifndef NDEBUG
-			,selectionsConfirmed(std::vector<bool>(length, false))
+			,selectionsConfirmed(length, false)
 #endif
 
 	{
@@ -79,7 +79,7 @@ public:
 	 * Gets the selection solution for the node with the given index. Use 'hasSolutution()' first if you are not
 	 * sure whether this node was solved!
 	 */
-	unsigned short getSolution(unsigned int nodeIndex) const {
+	[[nodiscard]] unsigned short getSolution(unsigned int nodeIndex) const {
 		assert(nodeIndex < selection.size());
 		assert(selectionsConfirmed.at(nodeIndex));
 		return selection.at(nodeIndex);
@@ -89,7 +89,7 @@ public:
 	 * Gets the selection solution for the node given. Use 'hasSolutution()' first if you are not
 	 * sure whether this node was solved!
 	 */
-	unsigned short getSolution(PBQPNode<T>* node) const {
+	[[nodiscard]] unsigned short getSolution(PBQPNode<T>* node) const {
 		assert(node);
 		return getSolution(node->getIndex());
 	}
@@ -98,17 +98,17 @@ public:
 	 * Assumes all nodes in the given graph are solved and calculates the total cost created by this solution in the given graph.
 	 * Will explode if not all nodes in the given graph have a selection assigned in this instance
 	 */
-	virtual T getTotalCost(const PBQPGraph<T>* graph) const {
+	[[nodiscard]] virtual T getTotalCost(const PBQPGraph<T>* graph) const {
 		T result = T();
 		for (auto iter = graph->getNodeBegin(); iter != graph->getNodeEnd();
-				iter++) {
+				++iter) {
 			PBQPNode<T>* node = *iter;
 			assert(selectionsConfirmed.at(node->getIndex()));
 			unsigned short chosenSelection = selection.at(node->getIndex());
 			result += node->getVector().get(chosenSelection);
 		}
 		for (auto iter = graph->getEdgeBegin(); iter != graph->getEdgeEnd();
-				iter++) {
+				++iter) {
 			PBQPEdge<T>* edge = *iter;
 			unsigned short sourceSelection = selection.at(
 					edge->getSource()->getIndex());
@@ -124,10 +124,10 @@ public:
 	 * Calculates the total cost created by the nodes which currently have a selection assigned in this instance.
 	 * Nodes not assigned a selection will be ignored and edges which dont have both sides solved will as well be ignored
 	 */
-	virtual T getCurrentCost(const PBQPGraph<T>* graph) const {
+	[[nodiscard]] virtual T getCurrentCost(const PBQPGraph<T>* graph) const {
 		T result = T();
 		for (auto iter = graph->getNodeBegin(); iter != graph->getNodeEnd();
-				iter++) {
+				++iter) {
 			PBQPNode<T>* node = *iter;
 			if (!selectionsConfirmed.at(node->getIndex())) {
 				continue;
@@ -136,7 +136,7 @@ public:
 			result += node->getVector().get(chosenSelection);
 		}
 		for (auto iter = graph->getEdgeBegin(); iter != graph->getEdgeEnd();
-				iter++) {
+				++iter) {
 			PBQPEdge<T>* edge = *iter;
 			unsigned short sourceSelection = selection.at(
 					edge->getSource()->getIndex());
@@ -156,14 +156,14 @@ public:
 	/**
 	 * Checks whether the node with the given index had a selection assigned yet
 	 */
-	bool hasSolution(unsigned int nodeIndex) const {
+	[[nodiscard]] bool hasSolution(unsigned int nodeIndex) const {
 		return selectionsConfirmed.at(nodeIndex);
 	}
 
 	/**
 	 * Checks whether the given node had a selection assigned yet
 	 */
-	bool hasSolution(PBQPNode<T>* node) const {
+	[[nodiscard]] bool hasSolution(PBQPNode<T>* node) const {
 		assert(node);
 		return selectionsConfirmed.at(node->getIndex());
 	}
@@ -175,7 +175,7 @@ public:
 	 * is assigned multiple times
 	 * If NDEBUG is set, the counter will only be incremented when a node not given a selection yet is given a selection
 	 */
-	unsigned int getNodesSolvedCount() {
+	[[nodiscard]] unsigned int getNodesSolvedCount() const {
 		return solvedCount;
 	}
 };

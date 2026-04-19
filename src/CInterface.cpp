@@ -11,9 +11,9 @@
 	#include "math/GurobiConverter.hpp"
 #endif
 
-#include <stdio.h>
+#include <cstdio>
 #include <vector>
-#include <time.h>
+#include <ctime>
 #include <iostream>
 #include <algorithm>
 
@@ -152,6 +152,10 @@ extern "C" struct pbqp_ ## SHORTNAME ## _solution* pbqp_ ## SHORTNAME ## _solveG
 }
 #endif
 
+} // namespace pbqppapa
+
+using namespace pbqppapa;
+
 CINTERFACEIMPL(unsigned int, uint)
 
 CINTERFACEIMPL(unsigned short, ushort)
@@ -163,5 +167,3 @@ CGUROBI(unsigned int, uint)
 CGUROBI(unsigned short, ushort)
 CGUROBI(unsigned long, ulong)
 #endif
-
-}

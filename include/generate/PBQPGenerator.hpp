@@ -1,7 +1,7 @@
 #ifndef GENERATE_PBQPGENERATOR_HPP_
 #define GENERATE_PBQPGENERATOR_HPP_
 
-#include <stdlib.h>
+#include <random>
 
 #include "graph/PBQPGraph.hpp"
 
@@ -22,6 +22,7 @@ private:
 	int upperValueBound;
 	unsigned short upperVectorLengthBound;
 	unsigned short lowerVectorLengthBound;
+	mutable std::mt19937 rng;
 
 public:
 
@@ -31,20 +32,17 @@ public:
 			nodeCount(nodeCount), nodeDegree(nodeDegree), upperValueBound(
 					upperValueBound), upperVectorLengthBound(
 					upperVectorLengthBound), lowerVectorLengthBound(
-					lowerVectorLengthBound) {
-		srand(time(NULL));
+					lowerVectorLengthBound),
+			rng(std::random_device{}()) {
 	}
 
 	PBQPGenerator() :
 			PBQPGenerator(20, 2.5f, 100, 6, 2) {
-
 	}
 
-	~PBQPGenerator() {
+	~PBQPGenerator() = default;
 
-	}
-
-	PBQPGraph<T>* generate() const {
+	[[nodiscard]] PBQPGraph<T>* generate() const {
 		PBQPGraph<T>* graph = new PBQPGraph<T>();
 		for (unsigned long i = 0; i < nodeCount; i++) {
 			addRandomNode(graph);
@@ -57,8 +55,8 @@ public:
 	}
 
 	void addRandomNode(PBQPGraph<T>* graph) const {
-		int length = rand() % (upperVectorLengthBound - lowerVectorLengthBound);
-		length += lowerVectorLengthBound;
+		std::uniform_int_distribution<int> lengthDist(0, upperVectorLengthBound - lowerVectorLengthBound - 1);
+		int length = lengthDist(rng) + lowerVectorLengthBound;
 		Vector<T> vec(length);
 		for (unsigned short i = 0; i < length; i++) {
 			vec.get(i) = genRandomNumber();
@@ -70,14 +68,14 @@ public:
 		if (graph->getNodeCount() < 2) {
 			return;
 		}
-		int firstIndex = rand() % (graph->getNodeCount());
-		int secondIndex = rand() % (graph->getNodeCount());
-		PBQPNode<T>* sourceNode = NULL;
-		PBQPNode<T>* targetNode = NULL;
+		std::uniform_int_distribution<int> nodeDist(0, graph->getNodeCount() - 1);
+		int firstIndex = nodeDist(rng);
+		int secondIndex = nodeDist(rng);
+		PBQPNode<T>* sourceNode = nullptr;
+		PBQPNode<T>* targetNode = nullptr;
 		int counter = 0;
-		//TODO O(n) sucks
 		for (auto iter = graph->getNodeBegin(); iter != graph->getNodeEnd();
-				iter++) {
+				++iter) {
 			PBQPNode<T>* node = *iter;
 			if (counter == firstIndex) {
 				sourceNode = node;
@@ -85,12 +83,12 @@ public:
 			if (counter == secondIndex) {
 				targetNode = node;
 			}
-			if (sourceNode != NULL && targetNode != NULL) {
+			if (sourceNode != nullptr && targetNode != nullptr) {
 				break;
 			}
 			counter++;
 		}
-		if (sourceNode == NULL || targetNode == NULL) {
+		if (sourceNode == nullptr || targetNode == nullptr) {
 			return;
 		}
 		Matrix<T> mat(sourceNode->getVectorDegree(),
@@ -103,16 +101,16 @@ public:
 		graph->addEdge(sourceNode, targetNode, mat);
 	}
 
-	T genRandomNumber() const {
-		int randomNum = rand() % upperValueBound;
-		return static_cast<T>(randomNum);
+	[[nodiscard]] T genRandomNumber() const {
+		std::uniform_int_distribution<int> valueDist(0, upperValueBound - 1);
+		return static_cast<T>(valueDist(rng));
 	}
 
-	unsigned long& getNodeCount() const {
+	[[nodiscard]] unsigned long getNodeCount() const {
 		return nodeCount;
 	}
 
-	float& getNodeDegree() const {
+	[[nodiscard]] float getNodeDegree() const {
 		return nodeDegree;
 	}
 };

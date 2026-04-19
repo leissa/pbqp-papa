@@ -80,9 +80,8 @@ public:
 	}
 
 private:
-	StepByStepSolver<T>* operator=(const StepByStepSolver<T>& other) {
-		return 0;
-	}
+	StepByStepSolver(const StepByStepSolver&) = delete;
+	StepByStepSolver& operator=(const StepByStepSolver&) = delete;
 
 public:
 	PBQPNode<InfinityWrapper<T>>* stepForward() {
@@ -102,7 +101,7 @@ public:
 					//entire peo has been solved
 					backtrackIndex = localSolutions.size() - 1;
 					isBackTracking = true;
-					return 0;
+					return nullptr;
 				} else {
 					if (nodeIndex >= nodeVector.size()) {
 						useRnAlready = true;
@@ -172,11 +171,11 @@ public:
 		lastReduction = RN;
 	}
 
-	Reduction getLastReductionType() {
+	[[nodiscard]] Reduction getLastReductionType() const {
 		return lastReduction;
 	}
 
-	PBQPSolution<InfinityWrapper<T>>* solveFully() {
+	[[nodiscard]] PBQPSolution<InfinityWrapper<T>>* solveFully() {
 		while(stepForward()) {
 		}
 		return retrieveSolution();
@@ -191,8 +190,8 @@ public:
 	}
 
 	PBQPNode<InfinityWrapper<T>>* stepBackward() {
-		if (localSolutions.size() == 0) {
-			return 0;
+		if (localSolutions.empty()) {
+			return nullptr;
 		}
 		unsigned int index = localSolutions.size() - 1;
 		DependentSolution<InfinityWrapper<T>>* sol = localSolutions.at(index);
@@ -241,11 +240,11 @@ public:
 		//TODO
 	}
 
-	bool isBacktracking() {
+	[[nodiscard]] bool isBacktracking() const {
 		return isBackTracking;
 	}
 
-	PBQPSolution<InfinityWrapper<T>>* retrieveSolution() {
+	[[nodiscard]] PBQPSolution<InfinityWrapper<T>>* retrieveSolution() {
 		PBQPSolution<InfinityWrapper<T>>* solution = new PBQPSolution<InfinityWrapper<T>>(
 				this->graph->getNodeIndexCounter());
 		for (int i =  localSolutions.size() -1 ; i >= 0; i--) {
@@ -255,15 +254,15 @@ public:
 		return solution;
 	}
 
-	PBQPGraph<InfinityWrapper<T>>* getGraph() {
+	[[nodiscard]] PBQPGraph<InfinityWrapper<T>>* getGraph() {
 		return graph;
 	}
 
-	PBQPGraph<InfinityWrapper<T>>* getOriginalGraph() {
+	[[nodiscard]] PBQPGraph<InfinityWrapper<T>>* getOriginalGraph() {
 		return originalGraph;
 	}
 
-	bool isSolvable() {
+	[[nodiscard]] bool isSolvable() {
 		PBQPSolution<InfinityWrapper<T>>* solution = new PBQPSolution<InfinityWrapper<T>>(
 						this->graph->getNodeIndexCounter());
 		unsigned int localPeoIndex = this->peoIndex;
@@ -310,7 +309,7 @@ public:
 		std::cout << std::to_string(solution->getCurrentCost(originalGraph).getValue()) << "\n";
 		std::cout << " ---\n";
 		for (auto iter = localSolutions.rbegin(); iter != localSolutions.rend();
-				iter++) {
+				++iter) {
 			auto soluti = *iter;
 			(*iter)->solve(solution);
 			InfinityWrapper<T> costX = solution->getCurrentCost(originalGraph);

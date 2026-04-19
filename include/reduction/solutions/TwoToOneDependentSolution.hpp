@@ -62,9 +62,7 @@ public:
 		}
 	}
 
-	~TwotoOneDependentSolution() {
-
-	}
+	~TwotoOneDependentSolution() = default;
 
 	void setSolutionSelection(unsigned short dependency1Selection,
 			unsigned short dependency2Selection,
@@ -121,7 +119,7 @@ public:
 	}
 
 private:
-	unsigned long inline resolveIndex(unsigned short first,
+	inline unsigned long resolveIndex(unsigned short first,
 			unsigned short second) const {
 		return first * dependencyNode1->getVectorDegree() + second;
 	}

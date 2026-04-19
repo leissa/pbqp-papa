@@ -35,18 +35,17 @@ public:
 	~VectorDegreeOneReducer() {
 	}
 
-	std::vector<PBQPGraph<T>*>& reduce() {
+	std::vector<PBQPGraph<T>*>& reduce() override {
 		std::vector<PBQPNode<T>*> dependencyNodes;
 		std::vector<PBQPNode<T>*> solutionNodes;
 		for (auto iter = this->graph->getNodeBegin();
-				iter != this->graph->getNodeEnd(); iter++) {
-			PBQPNode<T>* node = (PBQPNode<T>*) *iter;
+				iter != this->graph->getNodeEnd(); ++iter) {
+			PBQPNode<T>* node = *iter;
 			if (node->getVectorDegree() == 1) {
 				solutionNodes.push_back(node);
 			}
 		}
-		solution = std::unique_ptr<NtoNDependentSolution<T>>(
-				new NtoNDependentSolution<T>(dependencyNodes, solutionNodes));
+		solution = std::make_unique<NtoNDependentSolution<T>>(dependencyNodes, solutionNodes);
 		std::vector<unsigned short> dependencySelection;
 		std::vector<unsigned short> solutionSelection(solutionNodes.size(),
 				0);
@@ -73,7 +72,7 @@ public:
 };
 
 template<typename T>
-const std::vector<unsigned short> VectorDegreeOneReducer<T>::emptyIntVector = std::vector<unsigned short>(0);
+const std::vector<unsigned short> VectorDegreeOneReducer<T>::emptyIntVector;
 }
 
 #endif /* REDUCTION_VectorDEGREE_VectorDEGREEONEREDUCTOR_HPP_ */

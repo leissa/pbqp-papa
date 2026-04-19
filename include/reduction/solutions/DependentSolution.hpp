@@ -15,14 +15,13 @@ class DependentSolution {
 
 public:
 
-	virtual ~DependentSolution() {};
+	virtual ~DependentSolution() = default;
 
+	virtual void solve([[maybe_unused]] PBQPSolution<T>* solution) {}
 
-	virtual void solve(PBQPSolution<T>* solution) {}
+	virtual void revertChange([[maybe_unused]] PBQPGraph<T>* graph) {}
 
-	virtual void revertChange(PBQPGraph<T>* graph) {}
-
-	virtual PBQPNode<T>* getReducedNode() {return 0;}
+	virtual PBQPNode<T>* getReducedNode() {return nullptr;}
 };
 
 }

@@ -75,8 +75,7 @@ public:
 			}
 			agset(nodeVis, convertStringToC("URL"), convertStringToC("URLVALUE"));
 			agset(nodeVis, convertStringToC("tooltip"), name);
-			nodeMapping.insert(
-					std::pair<PBQPNode<T>*, Agnode_t*>(node, nodeVis));
+			nodeMapping.insert({node, nodeVis});
 		}
 		if (showVectors) {
 			agattr(graphVis, AGEDGE, convertStringToC("label"), convertStringToC("a"));

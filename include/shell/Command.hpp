@@ -30,7 +30,7 @@ public:
 
 	virtual std::string run(std::string input, CommandHandler<T>* cmdHandler) {return "Should not see this";}
 
-	const std::string getIdentifier() {
+	[[nodiscard]] const std::string& getIdentifier() const {
 		return identifier;
 	}
 };

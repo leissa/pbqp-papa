@@ -40,9 +40,7 @@ public:
 		dependencyIsSource = edge->getSource() == dependency;
 	}
 
-	~OnetoOneDependentSolution() {
-
-	}
+	~OnetoOneDependentSolution() = default;
 
 	void setSolutionSelection(unsigned short dependencySelection,
 			unsigned short solutionSelection) {

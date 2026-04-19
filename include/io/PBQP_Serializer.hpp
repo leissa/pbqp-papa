@@ -78,22 +78,21 @@ private:
 	static PBQPGraph<T>* jsonToGraph(nlohmann::json json) {
 		nlohmann::json metaJson = json["meta"];
 		std::string parsedType = metaJson["type"];
-		if (parsedType.compare(getTypeName<T>()) != 0) {
+		if (parsedType != getTypeName<T>()) {
 			std::cout << "Invalid type loading, expected type: "
 					<< getTypeName<T>() << ", but got type: " << parsedType
 					<< "\nAttempting to load anyway...\n";
 
 		}
 		PBQPGraph<T>* graph = new PBQPGraph<T>();
-		std::map<unsigned int, PBQPNode<T>*> nodeByIndex = std::map<
-				unsigned int, PBQPNode<T>*>();
+		std::map<unsigned int, PBQPNode<T>*> nodeByIndex;
 		nlohmann::json nodeJson = json["nodes"];
 		for (nlohmann::json singleNodeJson : nodeJson) {
 			unsigned int index = singleNodeJson["index"];
 			Vector<T> vek = parseVector(singleNodeJson["cost"]);
 			PBQPNode<T>* node = new PBQPNode<T>(index, vek);
 			graph->addNode(node);
-			nodeByIndex.insert(std::make_pair(index, node));
+			nodeByIndex.insert({index, node});
 		}
 		nlohmann::json edgeJson = json["edges"];
 		for (nlohmann::json singleEdgeJson : edgeJson) {
@@ -117,7 +116,7 @@ private:
 	}
 
 	static Vector<T> parseVector(nlohmann::json json) {
-		Vector<T> vek = Vector<T>((unsigned short) json.size());
+		Vector<T> vek = Vector<T>(static_cast<unsigned short>(json.size()));
 		for (unsigned short i = 0; i < json.size(); i++) {
 			vek.get(i) = deserializeElement<T>(json[i]);
 		}
@@ -140,7 +139,7 @@ private:
 		json["meta"] = serializeMeta(graph);
 		nlohmann::json nodeJsons = nlohmann::json::array();
 		for (auto iter = graph->getNodeBegin(); iter != graph->getNodeEnd();
-				iter++) {
+				++iter) {
 			nlohmann::json nodeJson;
 			PBQPNode<T>* node = *iter;
 			nodeJson["index"] = node->getIndex();
@@ -164,7 +163,7 @@ private:
 		json["nodes"] = nodeJsons;
 		nlohmann::json edgeJsons = nlohmann::json::array();
 		for (auto iter = graph->getEdgeBegin(); iter != graph->getEdgeEnd();
-				iter++) {
+				++iter) {
 			PBQPEdge<T>* edge = *iter;
 			nlohmann::json edgeJson;
 			edgeJson["source"] = edge->getSource()->getIndex();

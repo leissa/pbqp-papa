@@ -8,7 +8,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 option(PBQP_USE_GUROBI "Enable Gurobi solver support" OFF)
 option(PBQP_USE_GVC "Enable Graphviz visualization support" ON)
 
-# --- Core library ---
 add_library(pbqp-core STATIC
     src/CInterface.cpp
     src/debug/DebugTimer.cpp
@@ -28,15 +27,14 @@ else()
     target_compile_options(pbqp-core PRIVATE -Wall -Wextra)
 endif()
 
-# --- Optional: Graphviz ---
+# Graphviz
 if(PBQP_USE_GVC)
-    find_package(PkgConfig REQUIRED)
-    pkg_check_modules(GVC REQUIRED IMPORTED_TARGET libgvc)
-    target_link_libraries(pbqp-core PUBLIC PkgConfig::GVC)
+    add_subdirectory(submodules/graphviz)
+    target_link_libraries(pbqp-core PUBLIC gvc cgraph)
     target_compile_definitions(pbqp-core PUBLIC PBQP_USE_GVC=1)
 endif()
 
-# --- Optional: Gurobi ---
+# Gurobi
 if(PBQP_USE_GUROBI)
     if(NOT DEFINED ENV{GUROBI_HOME})
         message(FATAL_ERROR "GUROBI_HOME environment variable not set")
@@ -47,7 +45,6 @@ if(PBQP_USE_GUROBI)
     target_compile_definitions(pbqp-core PUBLIC PBQP_USE_GUROBI=1)
 endif()
 
-# --- Tests ---
 enable_testing()
 
 set(TESTS

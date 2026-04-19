@@ -20,6 +20,20 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Install bison on macOS
+        if: runner.os == 'macOS'
+        run: |
+          brew update
+          brew install bison
+          echo "$(brew --prefix bison)/bin" >> $GITHUB_PATH
+
+      - name: Install bison on Windows
+        if: runner.os == 'Windows'
+        run: |
+          choco install winflexbison3 -y
+          echo "C:\ProgramData\chocolatey\lib\winflexbison3\tools" >> $env:GITHUB_PATH
+        shell: pwsh
+
       - name: Configure
         run: cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
 

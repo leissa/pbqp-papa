@@ -1,5 +1,9 @@
 # pbqp-papa
 
+[![CI](https://github.com/leissa/pbqp-papa/actions/workflows/ci.yml/badge.svg)](https://github.com/leissa/pbqp-papa/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.txt)
+[![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://en.cppreference.com/w/cpp/20)
+
 Solver and analysing tool for Partitioned Boolean Quadratic Problems
 
 ## Building Instructions

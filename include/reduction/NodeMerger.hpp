@@ -35,12 +35,7 @@ public:
 		}
 		for (PBQPEdge<T>* edge : remaining->getAdjacentEdges()) {
 			if (edge->getOtherEnd(remaining) == toRemove) {
-				Matrix<T> refMat;
-				if (edge->isSource(remaining)) {
-					refMat = edge->getMatrix().transpose();
-				} else {
-					refMat = edge->getMatrix();
-				}
+				Matrix<T> refMat = edge->isSource(remaining) ? edge->getMatrix().transpose() : edge->getMatrix();
 				for (unsigned long i = 0; i < refMat.getElementCount(); i++) {
 					resultVector.get(i) += refMat.getRaw(i);
 				}

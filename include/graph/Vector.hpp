@@ -32,8 +32,10 @@ public:
 
 	Vector(const Vector& vek) : Matrix<T>(vek) {}
 
-	Vector& operator=(const Vector& vek) {
-		Matrix<T>::operator=(vek);
+	Vector(Vector&& vek) noexcept : Matrix<T>(std::move(vek)) {}
+
+	Vector& operator=(Vector vek) noexcept {
+		swap(*this, vek);
 		return *this;
 	}
 

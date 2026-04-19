@@ -54,17 +54,23 @@ public:
 		std::copy(matrix.content, matrix.content + rows * columns, content);
 	}
 
+	Matrix(Matrix&& other) noexcept : Matrix() {
+		swap(*this, other);
+	}
+
 	~Matrix() {
 		delete[] content;
 	}
 
-	Matrix& operator=(const Matrix& other) {
-		if (this == &other) return *this;
-		rows = other.rows;
-		columns = other.columns;
-		delete[] content;
-		content = new T[rows * columns];
-		std::copy(other.content, other.content + rows * columns, content);
+	friend void swap(Matrix& a, Matrix& b) noexcept {
+		using std::swap;
+		swap(a.rows, b.rows);
+		swap(a.columns, b.columns);
+		swap(a.content, b.content);
+	}
+
+	Matrix& operator=(Matrix other) noexcept {
+		swap(*this, other);
 		return *this;
 	}
 

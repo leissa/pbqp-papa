@@ -62,6 +62,7 @@ public:
 		originalGraph = new PBQPGraph<InfinityWrapper<T>>(graph);
 		assert(graph->getPEO().size() == graph->getNodeCount());
 		localSolutions.reserve(graph->getNodeCount());
+		nodeVector.reserve(graph->getNodeCount());
 		// copy all nodes in a vector to allow going back on reduction steps
 		for (auto nodeIter = graph->getNodeBegin(); nodeIter != graph->getNodeEnd(); ++nodeIter) {
 			nodeVector.push_back(*nodeIter);

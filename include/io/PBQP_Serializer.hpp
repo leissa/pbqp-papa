@@ -36,7 +36,7 @@ public:
 	 * Optionally additional debug information can written out, which is useful for humans sometimes
 	 * This debug information is ignored when reading PBQP instances from files
 	 */
-	static void saveToFile(std::string path, PBQPGraph<T>* graph, bool debug = false) {
+	static void saveToFile(const std::string& path, PBQPGraph<T>* graph, bool debug = false) {
 		std::ofstream out(path);
 		nlohmann::json json = graphToJson(graph, debug);
 		out << json << std::endl;
@@ -47,7 +47,7 @@ public:
 	 * Loads a PBQP instances from a json file. No checks are done whether the given path is valid or if
 	 * it contains a proper JSON PBQP. If not, this will explode
 	 */
-	static PBQPGraph<T>* loadFromFile(std::string path) {
+	static PBQPGraph<T>* loadFromFile(const std::string& path) {
 		std::ifstream in(path);
 		nlohmann::json json;
 		in >> json;
@@ -58,7 +58,7 @@ public:
 	/**
 	 * Gets a nice printable version of a matrix. Useful for debugging
 	 */
-	static std::string matrixToString(Matrix<T> matrix, std::string separator = " ") {
+	static std::string matrixToString(const Matrix<T>& matrix, const std::string& separator = " ") {
 		std::string output;
 		for (unsigned short row = 0; row < matrix.getRowCount(); row++) {
 			for (unsigned short column = 0; column < matrix.getColumnCount(); column++) {
@@ -71,7 +71,7 @@ public:
 	}
 
 private:
-	static PBQPGraph<T>* jsonToGraph(nlohmann::json json) {
+	static PBQPGraph<T>* jsonToGraph(const nlohmann::json& json) {
 		nlohmann::json metaJson = json["meta"];
 		std::string parsedType = metaJson["type"];
 		if (parsedType != getTypeName<T>()) {
@@ -81,7 +81,7 @@ private:
 		PBQPGraph<T>* graph = new PBQPGraph<T>();
 		std::map<unsigned int, PBQPNode<T>*> nodeByIndex;
 		nlohmann::json nodeJson = json["nodes"];
-		for (nlohmann::json singleNodeJson : nodeJson) {
+		for (const nlohmann::json& singleNodeJson : nodeJson) {
 			unsigned int index = singleNodeJson["index"];
 			Vector<T> vek = parseVector(singleNodeJson["cost"]);
 			PBQPNode<T>* node = new PBQPNode<T>(index, vek);
@@ -89,25 +89,25 @@ private:
 			nodeByIndex.insert({index, node});
 		}
 		nlohmann::json edgeJson = json["edges"];
-		for (nlohmann::json singleEdgeJson : edgeJson) {
+		for (const nlohmann::json& singleEdgeJson : edgeJson) {
 			Matrix<T> mat = parseMatrix(singleEdgeJson);
 			PBQPNode<T>* source = nodeByIndex.find(singleEdgeJson["source"])->second;
 			PBQPNode<T>* target = nodeByIndex.find(singleEdgeJson["target"])->second;
 			graph->addEdge(source, target, mat);
 		}
 		if (json.find("peo") != json.end()) {
-			nlohmann::json peoJson = json["peo"];
+			const nlohmann::json& peoJson = json["peo"];
 			std::vector<PBQPNode<T>*> peoVector;
+			peoVector.reserve(peoJson.size());
 			for (unsigned int i = 0; i < peoJson.size(); i++) {
-				PBQPNode<T>* peoNode = nodeByIndex.find(peoJson[i])->second;
-				peoVector.push_back(peoNode);
+				peoVector.push_back(nodeByIndex.find(peoJson[i])->second);
 			}
 			graph->setPEO(peoVector);
 		}
 		return graph;
 	}
 
-	static Vector<T> parseVector(nlohmann::json json) {
+	static Vector<T> parseVector(const nlohmann::json& json) {
 		Vector<T> vek = Vector<T>(static_cast<unsigned short>(json.size()));
 		for (unsigned short i = 0; i < json.size(); i++) {
 			vek.get(i) = deserializeElement<T>(json[i]);
@@ -115,7 +115,7 @@ private:
 		return vek;
 	}
 
-	static Matrix<T> parseMatrix(nlohmann::json json) {
+	static Matrix<T> parseMatrix(const nlohmann::json& json) {
 		unsigned short rows = json["rows"];
 		unsigned short columns = json["columns"];
 		nlohmann::json valueJson = json["cost"];

@@ -10,11 +10,18 @@ Made as part of my bachelor thesis at KIT in February 2019
 
 `git clone --recursive https://github.com/leissa/pbqp-papa.git`
 
-`make` will build the core functionality and run the tests involving it
+```sh
+cmake -B build
+cmake --build build
+ctest --test-dir build
+```
 
-`make all` will build everything, but requires you to have [graphviz](https://graphviz.gitlab.io/) and [Gurobi](http://www.gurobi.com/) installed
+To build with Graphviz and Gurobi support:
 
-Compiler flags for toggling asserts, gurobi etc. are all located under `include/graph/Matrix.hpp`
+```sh
+cmake -B build -DPBQP_USE_GVC=ON -DPBQP_USE_GUROBI=ON
+cmake --build build
+```
 
 ## Dependencies
 

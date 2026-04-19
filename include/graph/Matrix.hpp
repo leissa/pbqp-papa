@@ -6,8 +6,12 @@
 #include <iterator>
 #include <cstring>
 
+#ifndef PBQP_USE_GUROBI
 #define PBQP_USE_GUROBI 0
+#endif
+#ifndef PBQP_USE_GVC
 #define PBQP_USE_GVC 0
+#endif
 //#define NDEBUG
 
 #include <assert.h>

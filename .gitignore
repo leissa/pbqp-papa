@@ -42,7 +42,6 @@
 build/
 test_build/
 
-
 #CMake
 CMakeFiles/
 CMakeCache.txt
@@ -50,5 +49,4 @@ CMakeCache.txt
 Testing/
 bin/
 lib/
-MakeFile
-*/**/Makefile
+compile_commands.json

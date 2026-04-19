@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(PBQP_USE_GUROBI "Enable Gurobi solver support" OFF)
-option(PBQP_USE_GVC "Enable Graphviz visualization support" OFF)
+option(PBQP_USE_GVC "Enable Graphviz visualization support" ON)
 
 # --- Core library ---
 add_library(pbqp-core STATIC

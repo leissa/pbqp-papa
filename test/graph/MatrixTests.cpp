@@ -1,6 +1,5 @@
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE MatrixTests
-#include <boost/test/unit_test.hpp>
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <doctest/doctest.h>
 #include <stdlib.h>
 #include <algorithm>
 #include <array>
@@ -53,35 +52,35 @@ Matrix<int> genMatrixRandom(int maxLength) {
 
 //Not used anywhere at the moment, but intentionally left here, because it massively eases debugging
 void printMatrix(Matrix<int>& matrix) {
-	BOOST_TEST_MESSAGE("---------");
-	BOOST_TEST_MESSAGE("Rows" << matrix.getRowCount());
-	BOOST_TEST_MESSAGE("Columns" << matrix.getColumnCount());
+	MESSAGE("---------");
+	MESSAGE("Rows" << matrix.getRowCount());
+	MESSAGE("Columns" << matrix.getColumnCount());
 	for (int row = 0; row < matrix.getRowCount(); row++) {
 		for (int column = 0; column < matrix.getColumnCount(); column++) {
-			BOOST_TEST_MESSAGE(
+			MESSAGE(
 					"Column: " << column << " ; " << "Row: " << row << "  " << matrix.get(row, column));
 		}
-		BOOST_TEST_MESSAGE("---");
+		MESSAGE("---");
 	}
 }
 
-BOOST_AUTO_TEST_CASE(basicMatrixGeneration) {
+TEST_CASE("basicMatrixGeneration") {
 	for (int i = 0; i <= 15; i++) {
 		Matrix<int> matrix = genMatrix<int>(i, i);
-		BOOST_CHECK_EQUAL(matrix.getColumnCount(), i);
-		BOOST_CHECK_EQUAL(matrix.getRowCount(), i);
-		BOOST_CHECK_EQUAL(matrix.getElementCount(), i * i);
+		CHECK_EQ(matrix.getColumnCount(), i);
+		CHECK_EQ(matrix.getRowCount(), i);
+		CHECK_EQ(matrix.getElementCount(), i * i);
 		int count = 0;
 		for (int row = 0; row < i; row++) {
 			for (int column = 0; column < i; column++) {
-				BOOST_CHECK_EQUAL(matrix.get(row, column), i);
-				BOOST_CHECK_EQUAL(matrix.getRaw(count++), i);
+				CHECK_EQ(matrix.get(row, column), i);
+				CHECK_EQ(matrix.getRaw(count++), i);
 			}
 		}
 	}
 }
 
-BOOST_AUTO_TEST_CASE(matrixPlus) {
+TEST_CASE("matrixPlus") {
 	int size = 15;
 	int firstValue = 2358;
 	int secondValue = 2734;
@@ -91,13 +90,13 @@ BOOST_AUTO_TEST_CASE(matrixPlus) {
 	int counter = 0;
 	for (int row = 0; row < size; row++) {
 		for (int column = 0; column < size; column++) {
-			BOOST_CHECK_EQUAL(matrix.get(row, column),
+			CHECK_EQ(matrix.get(row, column),
 					firstValue + secondValue + (counter++ * 2));
 		}
 	}
 }
 
-BOOST_AUTO_TEST_CASE(matrixMinus) {
+TEST_CASE("matrixMinus") {
 	int size = 15;
 	int firstValue = 473235;
 	int secondValue = 9284736;
@@ -106,13 +105,13 @@ BOOST_AUTO_TEST_CASE(matrixMinus) {
 	matrix -= matrix2;
 	for (int row = 0; row < size; row++) {
 		for (int column = 0; column < size; column++) {
-			BOOST_CHECK_EQUAL(matrix.get(row, column),
+			CHECK_EQ(matrix.get(row, column),
 					firstValue - secondValue);
 		}
 	}
 }
 
-BOOST_AUTO_TEST_CASE(matrixMultiply) {
+TEST_CASE("matrixMultiply") {
 	int size = 15;
 	int value = 425327;
 	int factor = 18;
@@ -121,13 +120,13 @@ BOOST_AUTO_TEST_CASE(matrixMultiply) {
 	int counter = 0;
 	for (int row = 0; row < size; row++) {
 		for (int column = 0; column < size; column++) {
-			BOOST_CHECK_EQUAL(matrix.get(row, column),
+			CHECK_EQ(matrix.get(row, column),
 					(value + counter++) * factor);
 		}
 	}
 }
 
-BOOST_AUTO_TEST_CASE(matrixDivide) {
+TEST_CASE("matrixDivide") {
 	int size = 15;
 	int value = 38482;
 	int divisor = 3;
@@ -136,7 +135,7 @@ BOOST_AUTO_TEST_CASE(matrixDivide) {
 	int counter = 0;
 	for (int row = 0; row < size; row++) {
 		for (int column = 0; column < size; column++) {
-			BOOST_CHECK_EQUAL(matrix.get(row, column),
+			CHECK_EQ(matrix.get(row, column),
 					(value + counter++) / divisor);
 		}
 	}
@@ -144,16 +143,16 @@ BOOST_AUTO_TEST_CASE(matrixDivide) {
 
 template<typename T>
 void checkMatrixTranspose(Matrix<T>& m1, Matrix<T>& m2) {
-	BOOST_CHECK_EQUAL(m1.getColumnCount(), m2.getRowCount());
-	BOOST_CHECK_EQUAL(m1.getRowCount(), m2.getColumnCount());
+	CHECK_EQ(m1.getColumnCount(), m2.getRowCount());
+	CHECK_EQ(m1.getRowCount(), m2.getColumnCount());
 	for (int row = 0; row < m1.getRowCount(); row++) {
 		for (int column = 0; column < m1.getColumnCount(); column++) {
-			BOOST_CHECK_EQUAL(m1.get(row, column), m2.get(column, row));
+			CHECK_EQ(m1.get(row, column), m2.get(column, row));
 		}
 	}
 }
 
-BOOST_AUTO_TEST_CASE(matrixTranspose) {
+TEST_CASE("matrixTranspose") {
 	for (int i = 0; i < 20; i++) {
 		Matrix<int> matrix = genMatrixRandom(20);
 		Matrix<int> transposed = matrix.transpose();

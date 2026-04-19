@@ -1,6 +1,5 @@
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE DegreeTwoReducerTests
-#include <boost/test/unit_test.hpp>
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <doctest/doctest.h>
 
 #include <vector>
 #include <set>
@@ -17,14 +16,14 @@
 
 namespace pbqppapa {
 
-BOOST_AUTO_TEST_CASE(emptyGraphTest) {
+TEST_CASE("emptyGraphTest") {
 	//make sure this doesnt explode
 	PBQPGraph<int> graph;
 	DegreeTwoReducer<int> twoReducer(&graph);
 	std::vector<PBQPGraph<int>*> result = twoReducer.reduce();
 }
 
-BOOST_AUTO_TEST_CASE(simpleCalculation) {
+TEST_CASE("simpleCalculation") {
 	PBQPGraph<int> graph = PBQPGraph<int>();
 	int node1Arr[] { 1, 2 };
 	int node2Arr[] { 5, 3 };
@@ -47,20 +46,20 @@ BOOST_AUTO_TEST_CASE(simpleCalculation) {
 	//second one gets removed
 	DegreeTwoReducer<int> twoReducer(&graph);
 	std::vector<PBQPGraph<int>*> result = twoReducer.reduce();
-	BOOST_CHECK_EQUAL(result.size(), 1);
+	CHECK_EQ(result.size(), 1);
 	PBQPGraph<int>* resultGraph = result[0];
-	BOOST_CHECK_EQUAL(resultGraph->getNodeCount(), 2);
-	BOOST_CHECK_EQUAL(resultGraph->getEdgeCount(), 1);
+	CHECK_EQ(resultGraph->getNodeCount(), 2);
+	CHECK_EQ(resultGraph->getEdgeCount(), 1);
 	PBQPEdge<int>* edge = *(resultGraph->getEdgeBegin());
-	BOOST_CHECK_EQUAL(edge->getMatrix().get(0, 0), 6);
-	BOOST_CHECK_EQUAL(edge->getMatrix().get(0, 1), 12);
-	BOOST_CHECK_EQUAL(edge->getMatrix().get(1, 0), 10);
-	BOOST_CHECK_EQUAL(edge->getMatrix().get(1, 1), 16);
+	CHECK_EQ(edge->getMatrix().get(0, 0), 6);
+	CHECK_EQ(edge->getMatrix().get(0, 1), 12);
+	CHECK_EQ(edge->getMatrix().get(1, 0), 10);
+	CHECK_EQ(edge->getMatrix().get(1, 1), 16);
 	PBQPSolution<int> sol(3);
 	sol.setSolution(firstIndex, 0);
 	sol.setSolution(thirdIndex, 0);
 	twoReducer.solve(sol);
-	BOOST_CHECK_EQUAL(sol.getSolution(secondIndex), 1);
+	CHECK_EQ(sol.getSolution(secondIndex), 1);
 }
 
 }

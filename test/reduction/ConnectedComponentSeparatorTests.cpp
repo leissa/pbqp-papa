@@ -1,6 +1,5 @@
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE ConnectedComponentSeparatorTests
-#include <boost/test/unit_test.hpp>
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <doctest/doctest.h>
 
 #include <vector>
 #include <set>
@@ -15,7 +14,7 @@
 
 namespace pbqppapa {
 
-BOOST_AUTO_TEST_CASE(singleNodeTest) {
+TEST_CASE("singleNodeTest") {
 	PBQPGraph<signed int> graph = PBQPGraph<signed int>();
 	signed int vekData [] = {2 ,2};
 	Vector<signed int> vek = Vector<signed int>(2, vekData);
@@ -24,11 +23,11 @@ BOOST_AUTO_TEST_CASE(singleNodeTest) {
 	std::vector<PBQPGraph<signed int>*> components = sep.reduce();
 	PBQPSolution<signed int> sol (0);
 	sep.solve(sol);
-	BOOST_CHECK_EQUAL(components.size(), 1);
+	CHECK_EQ(components.size(), 1);
 	PBQPGraph<signed int>* retrievedGraph = components[0];
-	BOOST_CHECK_EQUAL(0, retrievedGraph->getEdgeCount());
-	BOOST_CHECK_EQUAL(1, retrievedGraph->getNodeCount());
-	BOOST_CHECK_EQUAL((*(graph.getNodeBegin()))->getIndex(),
+	CHECK_EQ(0, retrievedGraph->getEdgeCount());
+	CHECK_EQ(1, retrievedGraph->getNodeCount());
+	CHECK_EQ((*(graph.getNodeBegin()))->getIndex(),
 			(*(retrievedGraph->getNodeBegin()))->getIndex());
 	if (retrievedGraph != &graph) {
 		//not neccessary for our implementation, but just to make sure
@@ -36,19 +35,19 @@ BOOST_AUTO_TEST_CASE(singleNodeTest) {
 	}
 }
 
-BOOST_AUTO_TEST_CASE(emptyGraphTest) {
+TEST_CASE("emptyGraphTest") {
 	PBQPGraph<signed int> graph = PBQPGraph<signed int>();
 	ConnectedComponentSeparator<signed int> sep (&graph);
 	std::vector<PBQPGraph<signed int>*> components = sep.reduce();
 	PBQPSolution<signed int> sol (0);
 	sep.solve(sol);
-	BOOST_CHECK_EQUAL(components.size(), 1);
+	CHECK_EQ(components.size(), 1);
 	PBQPGraph<signed int>* retrievedGraph = components[0];
-	BOOST_CHECK_EQUAL(0, retrievedGraph->getEdgeCount());
-	BOOST_CHECK_EQUAL(0, retrievedGraph->getNodeCount());
+	CHECK_EQ(0, retrievedGraph->getEdgeCount());
+	CHECK_EQ(0, retrievedGraph->getNodeCount());
 }
 
-BOOST_AUTO_TEST_CASE(basicNodeTest) {
+TEST_CASE("basicNodeTest") {
 	PBQPGraph<signed int> graph = PBQPGraph<signed int>();
 	int size = 50;
 	for (int i = 0; i < size; i++) {
@@ -60,14 +59,14 @@ BOOST_AUTO_TEST_CASE(basicNodeTest) {
 	std::vector<PBQPGraph<signed int>*> components = sep.reduce();
 	PBQPSolution<signed int> sol = PBQPSolution<int>(0);
 	sep.solve(sol);
-	BOOST_CHECK_EQUAL(components.size(), size);
+	CHECK_EQ(components.size(), size);
 	std::set<signed int> nodeIndices = std::set<signed int>();
 	for (int i = 0; i < size; i++) {
 		PBQPGraph<signed int>* retrievedGraph = components[i];
-		BOOST_CHECK_EQUAL(0, retrievedGraph->getEdgeCount());
-		BOOST_CHECK_EQUAL(1, retrievedGraph->getNodeCount());
+		CHECK_EQ(0, retrievedGraph->getEdgeCount());
+		CHECK_EQ(1, retrievedGraph->getNodeCount());
 		unsigned int index = (*(retrievedGraph->getNodeBegin()))->getIndex();
-		BOOST_CHECK_EQUAL(0, nodeIndices.count(index));
+		CHECK_EQ(0, nodeIndices.count(index));
 		nodeIndices.insert(index);
 		if (retrievedGraph != &graph) {
 			delete retrievedGraph;
@@ -75,7 +74,7 @@ BOOST_AUTO_TEST_CASE(basicNodeTest) {
 	}
 }
 
-BOOST_AUTO_TEST_CASE(advancedNodeTest) {
+TEST_CASE("advancedNodeTest") {
 	PBQPGraph<signed int>* graph = new PBQPGraph<int>();
 	int subgraphs = 10;
 	int localSize = 10;
@@ -100,17 +99,17 @@ BOOST_AUTO_TEST_CASE(advancedNodeTest) {
 	std::vector<PBQPGraph<int>*> components = sep.reduce();
 	PBQPSolution<int> sol = PBQPSolution<int>(0);
 	sep.solve(sol);
-	BOOST_CHECK_EQUAL(components.size(), subgraphs);
+	CHECK_EQ(components.size(), subgraphs);
 	std::set<int> nodeIndices = std::set<int>();
 	for (int i = 0; i < subgraphs; i++) {
 		PBQPGraph<int>* retrievedGraph = components[i];
-		BOOST_CHECK_EQUAL(edgeCount - localSize, retrievedGraph->getEdgeCount());
-		BOOST_CHECK_EQUAL(localSize, retrievedGraph->getNodeCount());
+		CHECK_EQ(edgeCount - localSize, retrievedGraph->getEdgeCount());
+		CHECK_EQ(localSize, retrievedGraph->getNodeCount());
 		//ensure each node is only in one subgraph
 		for (auto iter = retrievedGraph->getNodeBegin();
 				iter != retrievedGraph->getNodeEnd(); ++iter) {
 			unsigned int index = (*iter)->getIndex();
-			BOOST_CHECK_EQUAL(0, nodeIndices.count(index));
+			CHECK_EQ(0, nodeIndices.count(index));
 			nodeIndices.insert(index);
 		}
 	}

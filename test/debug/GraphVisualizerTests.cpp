@@ -1,9 +1,8 @@
 #ifndef DEBUG_GRAPHVISUALIZERTESTS_CPP_
 #define DEBUG_GRAPHVISUALIZERTESTS_CPP_
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE GraphVisualizerTests
-#include <boost/test/unit_test.hpp>
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <doctest/doctest.h>
 #include <algorithm>
 
 #include "graph/PBQPGraph.hpp"
@@ -13,7 +12,7 @@
 
 namespace pbqppapa {
 
-BOOST_AUTO_TEST_CASE(basic) {
+TEST_CASE("basic") {
 #if PBQP_USE_GVC
 	PBQP_Serializer<InfinityWrapper<unsigned int>> serial;
 	PBQPGraph<InfinityWrapper<unsigned int>>* graph = serial.loadFromFile(
@@ -21,14 +20,14 @@ BOOST_AUTO_TEST_CASE(basic) {
 	GraphVisualizer<InfinityWrapper<unsigned int>>::dump(graph, "test_build/mintput.svg");
 }
 
-BOOST_AUTO_TEST_CASE(loaded) {
+TEST_CASE("loaded") {
 	PBQP_Serializer<InfinityWrapper<unsigned int>> serial;
 	PBQPGraph<InfinityWrapper<unsigned int>>* graph = serial.loadFromFile(
 			"test/testData/normalLibfirmGraph.json");
 	GraphVisualizer<InfinityWrapper<unsigned int>>::dump(graph, "test_build/basicOutput.svg");
 }
 
-BOOST_AUTO_TEST_CASE(manual) {
+TEST_CASE("manual") {
 	PBQPGraph<InfinityWrapper<unsigned int>>* graph = new PBQPGraph<
 			InfinityWrapper<unsigned int>>();
 	InfinityWrapper<unsigned int> arr[2];

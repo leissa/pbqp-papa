@@ -1,6 +1,5 @@
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE InfinityFilterTests
-#include <boost/test/unit_test.hpp>
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <doctest/doctest.h>
 
 #include <vector>
 #include <set>
@@ -19,7 +18,7 @@
 namespace pbqppapa {
 
 
-BOOST_AUTO_TEST_CASE(reduction) {
+TEST_CASE("reduction") {
 	PBQP_Serializer<unsigned long> serial ();
 
 
@@ -32,9 +31,9 @@ BOOST_AUTO_TEST_CASE(reduction) {
 	}
 	DegreeZeroReducer<unsigned long> zeroReducer(&graph);
 	std::vector<PBQPGraph<unsigned long>*> result = zeroReducer.reduce();
-	BOOST_CHECK_EQUAL(result.size(), 1);
+	CHECK_EQ(result.size(), 1);
 	PBQPGraph<unsigned long>* resultGraph = result [0];
-	BOOST_CHECK_EQUAL(resultGraph->getNodeCount(), 0);
+	CHECK_EQ(resultGraph->getNodeCount(), 0);
 }
 
 

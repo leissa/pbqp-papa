@@ -1,6 +1,5 @@
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE GurobiConverterTests
-#include <boost/test/unit_test.hpp>
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <doctest/doctest.h>
 
 #include "math/GurobiConverter.hpp"
 #include "io/PBQP_Serializer.hpp"
@@ -11,7 +10,7 @@
 namespace pbqppapa {
 
 //we need to at least have an empty test case if gurobi is not enabled, otherwise the test suite will fail entirely
-BOOST_AUTO_TEST_CASE(empty) {
+TEST_CASE("empty") {
 #if PBQP_USE_GUROBI
 	PBQP_Serializer<InfinityWrapper<unsigned int>> serial;
 	std::vector<std::string> paths;

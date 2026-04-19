@@ -1,6 +1,5 @@
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE BruteForceSolverTests
-#include <boost/test/unit_test.hpp>
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <doctest/doctest.h>
 
 #include <vector>
 #include <set>
@@ -19,7 +18,7 @@
 
 namespace pbqppapa {
 
-BOOST_AUTO_TEST_CASE(emptyGraphTest) {
+TEST_CASE("emptyGraphTest") {
 	//make sure this doesnt explode
 	PBQPGraph<int> graph;
 	BruteForceSolver<int> solver(&graph);
@@ -27,7 +26,7 @@ BOOST_AUTO_TEST_CASE(emptyGraphTest) {
 	delete sol;
 }
 
-BOOST_AUTO_TEST_CASE(simpleNodeNoEdgesTest) {
+TEST_CASE("simpleNodeNoEdgesTest") {
 	PBQPGraph<int> graph;
 	int arr [] { 3, 1, 2};
 	Vector<int> vek (3, arr);
@@ -40,13 +39,13 @@ BOOST_AUTO_TEST_CASE(simpleNodeNoEdgesTest) {
 	PBQPNode<int>* node3 = graph.addNode(vek3);
 	BruteForceSolver<int> solver(&graph);
 	PBQPSolution<int>* sol = solver.calcSolution();
-	BOOST_CHECK_EQUAL(sol->getSolution(node1->getIndex()), 1);
-	BOOST_CHECK_EQUAL(sol->getSolution(node2->getIndex()), 3);
-	BOOST_CHECK_EQUAL(sol->getSolution(node3->getIndex()), 2);
+	CHECK_EQ(sol->getSolution(node1->getIndex()), 1);
+	CHECK_EQ(sol->getSolution(node2->getIndex()), 3);
+	CHECK_EQ(sol->getSolution(node3->getIndex()), 2);
 	delete sol;
 }
 
-BOOST_AUTO_TEST_CASE(simpleEdge) {
+TEST_CASE("simpleEdge") {
 	PBQPGraph<int> graph;
 	int arr [] { 3, 1, 1};
 	Vector<int> vek (3, arr);
@@ -59,8 +58,8 @@ BOOST_AUTO_TEST_CASE(simpleEdge) {
 	graph.addEdge(node1, node2, mat);
 	BruteForceSolver<int> solver(&graph);
 	PBQPSolution<int>* sol = solver.calcSolution();
-	BOOST_CHECK_EQUAL(sol->getSolution(node1->getIndex()), 1);
-	BOOST_CHECK_EQUAL(sol->getSolution(node2->getIndex()), 2);
+	CHECK_EQ(sol->getSolution(node1->getIndex()), 1);
+	CHECK_EQ(sol->getSolution(node2->getIndex()), 2);
 	delete sol;
 }
 

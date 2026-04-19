@@ -1,21 +1,20 @@
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE InfinityWrapperTests
-#include <boost/test/unit_test.hpp>
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <doctest/doctest.h>
 
 #include "math/InfinityWrapper.hpp"
 
 namespace pbqppapa {
 
 
-BOOST_AUTO_TEST_CASE(infinityLimitTest) {
+TEST_CASE("infinityLimitTest") {
 
 	InfinityWrapper<unsigned int> inful = InfinityWrapper<unsigned int>::getInfinite();
 	InfinityWrapper<unsigned int> inful2 (4294967295);
-	BOOST_CHECK(inful == inful2);
-	BOOST_CHECK(inful.isInfinite());
-	BOOST_CHECK(inful2.isInfinite());
-	BOOST_TEST_MESSAGE(std::to_string(inful.getValue()));
-	BOOST_TEST_MESSAGE(std::to_string(inful2.getValue()));
+	CHECK(inful == inful2);
+	CHECK(inful.isInfinite());
+	CHECK(inful2.isInfinite());
+	MESSAGE(std::to_string(inful.getValue()));
+	MESSAGE(std::to_string(inful2.getValue()));
 }
 
 

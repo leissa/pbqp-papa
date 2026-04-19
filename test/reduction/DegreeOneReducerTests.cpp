@@ -1,6 +1,5 @@
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE DegreeOneReducerTests
-#include <boost/test/unit_test.hpp>
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <doctest/doctest.h>
 
 #include <vector>
 #include <set>
@@ -17,7 +16,7 @@
 
 namespace pbqppapa {
 
-BOOST_AUTO_TEST_CASE(emptyGraphTest) {
+TEST_CASE("emptyGraphTest") {
 	//make sure this doesnt explode
 	PBQPGraph<int> graph;
 	DegreeOneReducer<int> oneReducer(&graph);
@@ -25,7 +24,7 @@ BOOST_AUTO_TEST_CASE(emptyGraphTest) {
 }
 
 /*
-BOOST_AUTO_TEST_CASE(simpleNodeReductionCount) {
+TEST_CASE("simpleNodeReductionCount") {
 	PBQPGraph<int> graph = PBQPGraph<int>();
 	for (int i = 0; i < 100; i++) {
 		int arr[] { 3, 1 };
@@ -47,7 +46,7 @@ BOOST_AUTO_TEST_CASE(simpleNodeReductionCount) {
 	BOOST_CHECK_EQUAL(resultGraph->getNodeCount(), 1);
 } */
 
-BOOST_AUTO_TEST_CASE(simpleCalculation) {
+TEST_CASE("simpleCalculation") {
 	PBQPGraph<int> graph = PBQPGraph<int>();
 	int node1Arr[] { 1, 2 };
 	int node2Arr[] { 2, 3 };
@@ -61,19 +60,19 @@ BOOST_AUTO_TEST_CASE(simpleCalculation) {
 	Matrix<int> mat1 (2, 2, edge1Arr);
 	graph.addEdge(first, second, mat1);
 	OnetoOneDependentSolution<int>* retSol = DegreeOneReducer<int>::reduceDegreeOne(second, &graph);
-	BOOST_CHECK_EQUAL(graph.getNodeCount(), 1);
-	BOOST_CHECK_EQUAL(graph.getEdgeCount(), 0);
-	BOOST_CHECK_EQUAL(first->getVectorDegree(), 2);
-	BOOST_CHECK_EQUAL(first->getVector().get(0), 5);
-	BOOST_CHECK_EQUAL(first->getVector().get(1), 5);
+	CHECK_EQ(graph.getNodeCount(), 1);
+	CHECK_EQ(graph.getEdgeCount(), 0);
+	CHECK_EQ(first->getVectorDegree(), 2);
+	CHECK_EQ(first->getVector().get(0), 5);
+	CHECK_EQ(first->getVector().get(1), 5);
 	PBQPSolution<int> sol (2);
 	sol.setSolution(firstIndex, 0);
 	retSol->solve(&sol);
-	BOOST_CHECK_EQUAL(sol.getSolution(secondIndex), 0);
+	CHECK_EQ(sol.getSolution(secondIndex), 0);
 	PBQPSolution<int> sol2 (2);
 	sol2.setSolution(firstIndex, 1);
 	retSol->solve(&sol2);
-	BOOST_CHECK_EQUAL(sol2.getSolution(secondIndex), 1);
+	CHECK_EQ(sol2.getSolution(secondIndex), 1);
 }
 
 }

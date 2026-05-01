@@ -16,10 +16,10 @@ cmake --build build
 ctest --test-dir build
 ```
 
-To build with Graphviz and Gurobi support:
+Graphviz support is enabled by default. To add Gurobi support as well:
 
 ```sh
-cmake -B build -DPBQP_USE_GVC=ON -DPBQP_USE_GUROBI=ON
+cmake -B build -DPBQP_USE_GUROBI=ON
 cmake --build build
 ```
 
@@ -41,7 +41,7 @@ All dependencies are included as git submodules:
 
 - [nlohmann/json](https://github.com/nlohmann/json) — JSON parsing
 - [doctest](https://github.com/doctest/doctest) — unit testing
-- [graphviz](https://gitlab.com/graphviz/graphviz) — graph visualization (only for `make all`)
+- [graphviz](https://gitlab.com/graphviz/graphviz) — graph visualization
 
 ## Credits
 

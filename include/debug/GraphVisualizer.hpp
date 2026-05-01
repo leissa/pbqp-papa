@@ -2,11 +2,13 @@
 #define DEBUG_GRAPHVISUALIZER_HPP_
 
 #include <map>
+#include <stdexcept>
 
 #include "io/PBQP_Serializer.hpp"
 
 #if PBQP_USE_GVC
 #include <gvc.h>
+#include <gvcext.h>
 
 namespace pbqppapa {
 
@@ -17,20 +19,38 @@ class PBQPNode;
 template <typename T>
 class PBQPEdge;
 
-bool wasGvcInited = false;
-GVC_t* gvcGlobalContext;
+#if defined(GVDLL)
+#define PBQP_GRAPHVIZ_IMPORT __declspec(dllimport)
+#else
+#define PBQP_GRAPHVIZ_IMPORT
+#endif
 
-void initializeGVC_PBQP() {
+extern "C" {
+PBQP_GRAPHVIZ_IMPORT extern gvplugin_library_t gvplugin_dot_layout_LTX_library;
+PBQP_GRAPHVIZ_IMPORT extern gvplugin_library_t gvplugin_core_LTX_library;
+}
+
+#undef PBQP_GRAPHVIZ_IMPORT
+
+inline bool wasGvcInited = false;
+inline GVC_t* gvcGlobalContext = nullptr;
+inline lt_symlist_t gvcBuiltins[] = {
+		{"gvplugin_dot_layout_LTX_library", &gvplugin_dot_layout_LTX_library},
+		{"gvplugin_core_LTX_library", &gvplugin_core_LTX_library},
+		{0, 0},
+};
+
+inline void initializeGVC_PBQP() {
 	if (!wasGvcInited) {
 		wasGvcInited = true;
 		/* set up a graphviz context - but only once even for multiple graphs */
 		if (!gvcGlobalContext) {
-			gvcGlobalContext = gvContext();
+			gvcGlobalContext = gvContextPlugins(gvcBuiltins, false);
 		}
 	}
 }
 
-char* convertStringToC(std::string string) {
+inline char* convertStringToC(const std::string& string) {
 	char* writable = new char[string.size() + 1];
 	std::copy(string.begin(), string.end(), writable);
 	writable[string.size()] = '\0'; // don't forget the terminating 0
@@ -43,14 +63,6 @@ class GraphVisualizer {
 public:
 	static void dump(PBQPGraph<T>* graph, std::string path, bool showVectors = false) {
 		initializeGVC_PBQP();
-		int arguments = 4;
-		char** args = new char*[arguments];
-		args[0] = convertStringToC("-Tsvg");
-		args[1] = convertStringToC("-o" + path);
-		args[2] = convertStringToC("-Kdot");
-		args[3] = convertStringToC("-Tsvg");
-		gvParseArgs(gvcGlobalContext, arguments, args);
-		delete[] args;
 		Agraph_t* graphVis = agopen(convertStringToC("g"), Agdirected, 0);
 		std::map<PBQPNode<T>*, Agnode_t*> nodeMapping;
 		PBQP_Serializer<T> serial;
@@ -89,8 +101,15 @@ public:
 			agset(edgeVis, convertStringToC("edgetooltip"), name);
 			agattr(graphVis, AGEDGE, convertStringToC("penwidth"), convertStringToC("1.0"));
 		}
-		gvLayoutJobs(gvcGlobalContext, graphVis);
-		gvRenderJobs(gvcGlobalContext, graphVis);
+		if (gvLayout(gvcGlobalContext, graphVis, "dot") != 0) {
+			agclose(graphVis);
+			throw std::runtime_error("Graphviz failed to compute a dot layout");
+		}
+		if (gvRenderFilename(gvcGlobalContext, graphVis, "svg", path.c_str()) != 0) {
+			gvFreeLayout(gvcGlobalContext, graphVis);
+			agclose(graphVis);
+			throw std::runtime_error("Graphviz failed to render SVG output");
+		}
 		gvFreeLayout(gvcGlobalContext, graphVis);
 		agclose(graphVis);
 	}

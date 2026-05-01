@@ -29,8 +29,13 @@ endif()
 
 # Graphviz
 if(PBQP_USE_GVC)
+    set(ENABLE_TCL OFF CACHE STRING "Build TCL components" FORCE)
+    set(ENABLE_SWIG OFF CACHE STRING "Build language bindings" FORCE)
+    set(WITH_GVEDIT OFF CACHE STRING "Build GVEdit interactive graph editor" FORCE)
+    set(WITH_SMYRNA OFF CACHE STRING "Build Smyrna large graph viewer" FORCE)
+    set(GRAPHVIZ_CLI OFF CACHE BOOL "Build Graphviz command line tools" FORCE)
     add_subdirectory(submodules/graphviz)
-    target_link_libraries(pbqp-core PUBLIC gvc cgraph)
+    target_link_libraries(pbqp-core PUBLIC gvc cgraph gvplugin_core gvplugin_dot_layout)
     target_compile_definitions(pbqp-core PUBLIC PBQP_USE_GVC=1)
 endif()
 

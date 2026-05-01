@@ -84,6 +84,15 @@ foreach(test_source ${TESTS})
     target_include_directories(${test_name} PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/submodules/doctest
     )
+    if(WIN32 AND PBQP_USE_GVC)
+        add_custom_command(
+            TARGET ${test_name} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                $<TARGET_RUNTIME_DLLS:${test_name}>
+                $<TARGET_FILE_DIR:${test_name}>
+            COMMAND_EXPAND_LISTS
+        )
+    endif()
 
     add_test(
         NAME ${test_name}

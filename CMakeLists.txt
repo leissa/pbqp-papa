@@ -37,6 +37,9 @@ if(PBQP_USE_GVC)
     add_subdirectory(submodules/graphviz)
     target_link_libraries(pbqp-core PUBLIC gvc cgraph gvplugin_core gvplugin_dot_layout)
     target_compile_definitions(pbqp-core PUBLIC PBQP_USE_GVC=1)
+    if(WIN32)
+        target_compile_definitions(pbqp-core PUBLIC GVDLL)
+    endif()
 endif()
 
 # Gurobi

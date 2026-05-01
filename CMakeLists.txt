@@ -29,6 +29,7 @@ endif()
 
 # Graphviz
 if(PBQP_USE_GVC)
+    set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries" FORCE)
     set(ENABLE_TCL OFF CACHE STRING "Build TCL components" FORCE)
     set(ENABLE_SWIG OFF CACHE STRING "Build language bindings" FORCE)
     set(WITH_GVEDIT OFF CACHE STRING "Build GVEdit interactive graph editor" FORCE)
@@ -37,18 +38,6 @@ if(PBQP_USE_GVC)
     add_subdirectory(submodules/graphviz)
     target_link_libraries(pbqp-core PUBLIC gvc cgraph gvplugin_core gvplugin_dot_layout)
     target_compile_definitions(pbqp-core PUBLIC PBQP_USE_GVC=1)
-    if(WIN32)
-        target_compile_definitions(pbqp-core PUBLIC GVDLL)
-        if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-            set(PBQP_GRAPHVIZ_WINDOWS_DEP_BIN
-                "${CMAKE_CURRENT_SOURCE_DIR}/submodules/graphviz/windows/dependencies/libraries/vcpkg/installed/x64-windows/bin")
-        else()
-            set(PBQP_GRAPHVIZ_WINDOWS_DEP_BIN
-                "${CMAKE_CURRENT_SOURCE_DIR}/submodules/graphviz/windows/dependencies/libraries/vcpkg/installed/x86-windows/bin")
-        endif()
-        file(GLOB PBQP_GRAPHVIZ_WINDOWS_DEP_DLLS
-            "${PBQP_GRAPHVIZ_WINDOWS_DEP_BIN}/*.dll")
-    endif()
 endif()
 
 # Gurobi
@@ -93,21 +82,6 @@ foreach(test_source ${TESTS})
     target_include_directories(${test_name} PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/submodules/doctest
     )
-    if(WIN32 AND PBQP_USE_GVC)
-        add_custom_command(
-            TARGET ${test_name} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                $<TARGET_FILE:gvc>
-                $<TARGET_FILE:cgraph>
-                $<TARGET_FILE:cdt>
-                $<TARGET_FILE:gvplugin_core>
-                $<TARGET_FILE:gvplugin_dot_layout>
-                $<TARGET_RUNTIME_DLLS:${test_name}>
-                ${PBQP_GRAPHVIZ_WINDOWS_DEP_DLLS}
-                $<TARGET_FILE_DIR:${test_name}>
-            COMMAND_EXPAND_LISTS
-        )
-    endif()
 
     add_test(
         NAME ${test_name}

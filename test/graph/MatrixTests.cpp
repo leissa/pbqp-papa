@@ -1,6 +1,7 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include <algorithm>
 #include <array>
+#include <memory>
 
 #include <doctest/doctest.h>
 #include <stdlib.h>
@@ -17,9 +18,8 @@ namespace pbqppapa {
  */
 template <typename T>
 Matrix<T> genMatrix(int n, int value) {
-	T* data = new T[n * n];
-	Matrix<T> mat = Matrix<T>(n, n, data);
-	delete data;
+	auto data = std::make_unique<T[]>(n * n);
+	Matrix<T> mat = Matrix<T>(n, n, data.get());
 	for (int i = 0; i < n * n; i++) {
 		mat.getRaw(i) = value;
 	}
@@ -28,9 +28,8 @@ Matrix<T> genMatrix(int n, int value) {
 
 template <typename T>
 Matrix<T> genMatrixAscending(int n, int value) {
-	T* data = new T[n * n];
-	Matrix<T> matrix = Matrix<T>(n, n, data);
-	delete data;
+	auto data = std::make_unique<T[]>(n * n);
+	Matrix<T> matrix = Matrix<T>(n, n, data.get());
 	for (int i = 0; i < n * n; i++) {
 		matrix.getRaw(i) = value++;
 	}

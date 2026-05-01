@@ -1,6 +1,7 @@
 #ifndef REDUCTION_HEURISTIC_DEGREENREDUCTOR_HPP_
 #define REDUCTION_HEURISTIC_DEGREENREDUCTOR_HPP_
 
+#include <memory>
 #include <vector>
 
 #include <reduction/PBQPReduction.hpp>
@@ -88,9 +89,9 @@ public:
 				}
 			}
 		}
-		ImmediateSolution<T>* sol = new ImmediateSolution<T>(node, minSelection);
+		auto sol = std::make_unique<ImmediateSolution<T>>(node, minSelection);
 		graph->removeNode(node);
-		return sol;
+		return sol.release();
 	}
 };
 

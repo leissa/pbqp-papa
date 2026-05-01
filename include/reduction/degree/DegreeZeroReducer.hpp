@@ -61,12 +61,12 @@ public:
 		std::vector<PBQPNode<T>*> dependencyNodes;
 		std::vector<PBQPNode<T>*> solutionNodes;
 		solutionNodes.push_back(node);
-		NtoNDependentSolution<T>* solution = new NtoNDependentSolution<T>(dependencyNodes, solutionNodes);
+		auto solution = std::make_unique<NtoNDependentSolution<T>>(dependencyNodes, solutionNodes);
 		std::vector<unsigned short> nodeSolution;
 		nodeSolution.push_back(node->getVector().getIndexOfSmallestElement());
 		solution->setSolution(emptyIntVector, nodeSolution);
 		graph->removeNode(node);
-		return solution;
+		return solution.release();
 	}
 
 	static ImmediateSolution<InfinityWrapper<T>>* reduceDegreeZeroInf(
@@ -74,9 +74,9 @@ public:
 		unsigned short minimum = node->getVector().getIndexOfSmallestElement();
 		if (node->getVector().get(minimum).isInfinite()) {
 		}
-		ImmediateSolution<InfinityWrapper<T>>* solution = new ImmediateSolution<InfinityWrapper<T>>(node, minimum);
+		auto solution = std::make_unique<ImmediateSolution<InfinityWrapper<T>>>(node, minimum);
 		graph->removeNode(node);
-		return solution;
+		return solution.release();
 	}
 };
 

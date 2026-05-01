@@ -2,6 +2,7 @@
 #define DEBUG_GRAPHVISUALIZER_HPP_
 
 #include <map>
+#include <memory>
 #include <stdexcept>
 
 #include "io/PBQP_Serializer.hpp"
@@ -50,9 +51,9 @@ inline void initializeGVC_PBQP() {
 	}
 }
 
-inline char* convertStringToC(const std::string& string) {
-	char* writable = new char[string.size() + 1];
-	std::copy(string.begin(), string.end(), writable);
+inline std::unique_ptr<char[]> convertStringToC(const std::string& string) {
+	auto writable = std::make_unique<char[]>(string.size() + 1);
+	std::copy(string.begin(), string.end(), writable.get());
 	writable[string.size()] = '\0'; // don't forget the terminating 0
 	return writable;
 }
@@ -63,43 +64,66 @@ class GraphVisualizer {
 public:
 	static void dump(PBQPGraph<T>* graph, std::string path, bool showVectors = false) {
 		initializeGVC_PBQP();
-		Agraph_t* graphVis = agopen(convertStringToC("g"), Agdirected, 0);
+		auto graphName = convertStringToC("g");
+		Agraph_t* graphVis = agopen(graphName.get(), Agdirected, 0);
 		std::map<PBQPNode<T>*, Agnode_t*> nodeMapping;
 		PBQP_Serializer<T> serial;
-		agattr(graphVis, AGNODE, convertStringToC("URL"), convertStringToC("URLVALUE"));
-		agattr(graphVis, AGNODE, convertStringToC("tooltip"), convertStringToC("tooltipValue"));
+		auto nodeUrlAttr = convertStringToC("URL");
+		auto nodeUrlValue = convertStringToC("URLVALUE");
+		auto nodeTooltipAttr = convertStringToC("tooltip");
+		auto nodeTooltipValue = convertStringToC("tooltipValue");
+		agattr(graphVis, AGNODE, nodeUrlAttr.get(), nodeUrlValue.get());
+		agattr(graphVis, AGNODE, nodeTooltipAttr.get(), nodeTooltipValue.get());
 		for (auto iter = graph->getNodeBegin(); iter != graph->getNodeEnd(); ++iter) {
 			PBQPNode<T>* node = *iter;
-			char* name = convertStringToC(
+			auto name = convertStringToC(
 					"N " + std::to_string(node->getIndex()) + "\n" + serial.matrixToString(node->getVector()));
 			Agnode_t* nodeVis;
 			if (showVectors) {
-				nodeVis = agnode(graphVis, name, 1);
+				nodeVis = agnode(graphVis, name.get(), 1);
 			} else {
-				nodeVis = agnode(graphVis, convertStringToC(std::to_string(node->getIndex())), 1);
+				auto shortName = convertStringToC(std::to_string(node->getIndex()));
+				nodeVis = agnode(graphVis, shortName.get(), 1);
 			}
-			agset(nodeVis, convertStringToC("URL"), convertStringToC("URLVALUE"));
-			agset(nodeVis, convertStringToC("tooltip"), name);
+			auto urlAttr = convertStringToC("URL");
+			auto urlValue = convertStringToC("URLVALUE");
+			auto tooltipAttr = convertStringToC("tooltip");
+			agset(nodeVis, urlAttr.get(), urlValue.get());
+			agset(nodeVis, tooltipAttr.get(), name.get());
 			nodeMapping.insert({node, nodeVis});
 		}
 		if (showVectors) {
-			agattr(graphVis, AGEDGE, convertStringToC("label"), convertStringToC("a"));
+			auto edgeLabelAttr = convertStringToC("label");
+			auto edgeLabelDefault = convertStringToC("a");
+			agattr(graphVis, AGEDGE, edgeLabelAttr.get(), edgeLabelDefault.get());
 		}
-		agattr(graphVis, AGEDGE, convertStringToC("URL"), convertStringToC("URLVALUE"));
-		agattr(graphVis, AGEDGE, convertStringToC("edgetooltip"), convertStringToC(""));
-		agattr(graphVis, AGEDGE, convertStringToC("penwidth"), convertStringToC("1.0"));
+		auto edgeUrlAttr = convertStringToC("URL");
+		auto edgeUrlValue = convertStringToC("URLVALUE");
+		auto edgeTooltipAttr = convertStringToC("edgetooltip");
+		auto edgeTooltipValue = convertStringToC("");
+		auto penWidthAttr = convertStringToC("penwidth");
+		auto penWidthValue = convertStringToC("1.0");
+		agattr(graphVis, AGEDGE, edgeUrlAttr.get(), edgeUrlValue.get());
+		agattr(graphVis, AGEDGE, edgeTooltipAttr.get(), edgeTooltipValue.get());
+		agattr(graphVis, AGEDGE, penWidthAttr.get(), penWidthValue.get());
 		for (auto iter = graph->getEdgeBegin(); iter != graph->getEdgeEnd(); ++iter) {
 			PBQPEdge<T>* edge = *iter;
 			Agnode_t* sourceVis = nodeMapping.find(edge->getSource())->second;
 			Agnode_t* targetVis = nodeMapping.find(edge->getTarget())->second;
-			char* name = convertStringToC(serial.matrixToString(edge->getMatrix()));
-			Agedge_t* edgeVis = agedge(graphVis, sourceVis, targetVis, name, 1);
+			auto name = convertStringToC(serial.matrixToString(edge->getMatrix()));
+			Agedge_t* edgeVis = agedge(graphVis, sourceVis, targetVis, name.get(), 1);
 			if (showVectors) {
-				agset(edgeVis, convertStringToC("label"), name);
+				auto labelAttr = convertStringToC("label");
+				agset(edgeVis, labelAttr.get(), name.get());
 			}
-			agset(edgeVis, convertStringToC("URL"), convertStringToC("URLVALUE"));
-			agset(edgeVis, convertStringToC("edgetooltip"), name);
-			agattr(graphVis, AGEDGE, convertStringToC("penwidth"), convertStringToC("1.0"));
+			auto urlAttr = convertStringToC("URL");
+			auto urlValue = convertStringToC("URLVALUE");
+			auto tooltipAttr = convertStringToC("edgetooltip");
+			auto localPenWidthAttr = convertStringToC("penwidth");
+			auto localPenWidthValue = convertStringToC("1.0");
+			agset(edgeVis, urlAttr.get(), urlValue.get());
+			agset(edgeVis, tooltipAttr.get(), name.get());
+			agattr(graphVis, AGEDGE, localPenWidthAttr.get(), localPenWidthValue.get());
 		}
 		if (gvLayout(gvcGlobalContext, graphVis, "dot") != 0) {
 			agclose(graphVis);

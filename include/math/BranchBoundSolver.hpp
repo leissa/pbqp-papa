@@ -1,6 +1,7 @@
 #ifndef MATH_BRANCHBOUNDSOLVER_HPP_
 #define MATH_BRANCHBOUNDSOLVER_HPP_
 
+#include <memory>
 #include <vector>
 
 #include "graph/PBQPGraph.hpp"
@@ -48,16 +49,15 @@ public:
 	 */
 	[[nodiscard]] PBQPSolution<InfinityWrapper<T>>* solve() {
 		InfinityWrapper<T> localCost = InfinityWrapper<T>(0);
-		PBQPSolution<InfinityWrapper<T>>* localSolution =
-				new PBQPSolution<InfinityWrapper<T>>(graph->getNodeIndexCounter());
-		return recursiveSolve(localCost, localSolution, 0);
+		auto localSolution = std::make_unique<PBQPSolution<InfinityWrapper<T>>>(graph->getNodeIndexCounter());
+		return recursiveSolve(localCost, localSolution.get(), 0);
 	}
 
 private:
 	PBQPSolution<InfinityWrapper<T>>* recursiveSolve(
 			InfinityWrapper<T> currentCost, PBQPSolution<InfinityWrapper<T>>* sol, unsigned int nodeCounter) {
-		PBQPSolution<InfinityWrapper<T>>* localSolution = new PBQPSolution<InfinityWrapper<T>>(*sol);
-		PBQPSolution<InfinityWrapper<T>>* minSolution = nullptr;
+		auto localSolution = std::make_unique<PBQPSolution<InfinityWrapper<T>>>(*sol);
+		std::unique_ptr<PBQPSolution<InfinityWrapper<T>>> minSolution;
 		PBQPNode<InfinityWrapper<T>>* node = nodes.at(nodeCounter);
 		InfinityWrapper<T> localCost = InfinityWrapper<T>(0);
 		InfinityWrapper<T> localMin = InfinityWrapper<T>::getInfinite();
@@ -92,10 +92,10 @@ private:
 			localCost += value;
 			localCost += edgeSum;
 			if (nodeCounter == nodes.size() - 1) {
-				return localSolution;
+				return localSolution.release();
 			}
-			PBQPSolution<InfinityWrapper<T>>* retSolution =
-					recursiveSolve(currentCost + localCost, localSolution, nodeCounter + 1);
+			auto retSolution = std::unique_ptr<PBQPSolution<InfinityWrapper<T>>>(
+					recursiveSolve(currentCost + localCost, localSolution.get(), nodeCounter + 1));
 			if (retSolution == nullptr) {
 				continue;
 			}
@@ -103,16 +103,10 @@ private:
 			if (possibleMin < localMin) {
 				localMin = possibleMin;
 				minSelection = index;
-				if (minSolution) {
-					delete minSolution;
-				}
-				minSolution = retSolution;
-			} else {
-				delete retSolution;
+				minSolution = std::move(retSolution);
 			}
 		}
-		delete localSolution;
-		return minSolution;
+		return minSolution.release();
 	}
 };
 

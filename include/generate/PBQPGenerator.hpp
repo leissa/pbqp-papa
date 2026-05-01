@@ -1,6 +1,7 @@
 #ifndef GENERATE_PBQPGENERATOR_HPP_
 #define GENERATE_PBQPGENERATOR_HPP_
 
+#include <memory>
 #include <random>
 
 #include "graph/PBQPGraph.hpp"
@@ -36,15 +37,15 @@ public:
 	~PBQPGenerator() = default;
 
 	[[nodiscard]] PBQPGraph<T>* generate() const {
-		PBQPGraph<T>* graph = new PBQPGraph<T>();
+		auto graph = std::make_unique<PBQPGraph<T>>();
 		for (unsigned long i = 0; i < nodeCount; i++) {
-			addRandomNode(graph);
+			addRandomNode(graph.get());
 		}
 		const long edgeCount = nodeCount * static_cast<long>(nodeDegree);
 		for (int i = 0; i < edgeCount; i++) {
-			genRandomEdge(graph);
+			genRandomEdge(graph.get());
 		}
-		return graph;
+		return graph.release();
 	}
 
 	void addRandomNode(PBQPGraph<T>* graph) const {

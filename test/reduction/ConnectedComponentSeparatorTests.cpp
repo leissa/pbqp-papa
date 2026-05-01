@@ -1,4 +1,5 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <memory>
 #include <set>
 #include <vector>
 
@@ -30,7 +31,7 @@ TEST_CASE("singleNodeTest") {
 	CHECK_EQ((*(graph.getNodeBegin()))->getIndex(), (*(retrievedGraph->getNodeBegin()))->getIndex());
 	if (retrievedGraph != &graph) {
 		// not neccessary for our implementation, but just to make sure
-		delete retrievedGraph;
+		std::unique_ptr<PBQPGraph<signed int>> ownedGraph(retrievedGraph);
 	}
 }
 
@@ -68,13 +69,13 @@ TEST_CASE("basicNodeTest") {
 		CHECK_EQ(0, nodeIndices.count(index));
 		nodeIndices.insert(index);
 		if (retrievedGraph != &graph) {
-			delete retrievedGraph;
+			std::unique_ptr<PBQPGraph<signed int>> ownedGraph(retrievedGraph);
 		}
 	}
 }
 
 TEST_CASE("advancedNodeTest") {
-	PBQPGraph<signed int>* graph = new PBQPGraph<int>();
+	auto graph = std::make_unique<PBQPGraph<int>>();
 	int subgraphs = 10;
 	int localSize = 10;
 	int edgeCount = 0;
@@ -94,7 +95,7 @@ TEST_CASE("advancedNodeTest") {
 			}
 		}
 	}
-	ConnectedComponentSeparator<int> sep = ConnectedComponentSeparator<int>(graph);
+	ConnectedComponentSeparator<int> sep = ConnectedComponentSeparator<int>(graph.get());
 	std::vector<PBQPGraph<int>*> components = sep.reduce();
 	PBQPSolution<int> sol = PBQPSolution<int>(0);
 	sep.solve(sol);
@@ -112,7 +113,9 @@ TEST_CASE("advancedNodeTest") {
 		}
 	}
 	for (PBQPGraph<int>* subGraph : components) {
-		delete subGraph;
+		if (subGraph != graph.get()) {
+			std::unique_ptr<PBQPGraph<int>> ownedGraph(subGraph);
+		}
 	}
 }
 

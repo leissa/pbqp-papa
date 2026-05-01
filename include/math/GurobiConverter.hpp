@@ -7,6 +7,8 @@
 
 #include <iostream>
 #include <map>
+#include <memory>
+#include <vector>
 
 #include <gurobi_c++.h>
 
@@ -36,9 +38,10 @@ class GurobiConverter {
 private:
 	GRBEnv env;
 	GRBModel model = GRBModel(env);
-	GRBVar** nodeSelections;
-	GRBVar*** edgeSelections;
-	unsigned short* nodeVectorLengths;
+	std::vector<std::unique_ptr<GRBVar[]>> nodeSelections;
+	std::vector<std::unique_ptr<GRBVar[]>> edgeSelections;
+	std::vector<unsigned short> nodeVectorLengths;
+	std::vector<unsigned short> edgeSelectionColumnCounts;
 	std::map<PBQPNode<InfinityWrapper<T>>*, unsigned int> nodeToGrbVarMap;
 	unsigned int nodeCount;
 	const PBQPGraph<InfinityWrapper<T>>* graph;
@@ -121,31 +124,27 @@ public:
 private:
 	void setup(const PBQPGraph<InfinityWrapper<T>>* graph) {
 		nodeCount = graph->getNodeCount();
-		nodeSelections = new GRBVar*[nodeCount];
-		nodeVectorLengths = new unsigned short[nodeCount];
+		nodeSelections.clear();
+		nodeSelections.resize(nodeCount);
+		nodeVectorLengths.clear();
+		nodeVectorLengths.resize(nodeCount);
 		nodeToGrbVarMap.clear();
 	}
 
 	void tearDown() {
-		for (unsigned int i = 0; i < nodeCount; ++i) {
-			delete[] nodeSelections[i];
-		}
-		delete[] nodeVectorLengths;
+		nodeSelections.clear();
+		nodeVectorLengths.clear();
 		nodeToGrbVarMap.clear();
 	}
 
 	void tearDownEdgesLinear(const PBQPGraph<InfinityWrapper<T>>* graph) {
-		unsigned int counter = 0;
-		for (auto iter = graph->getEdgeBegin(); iter != graph->getEdgeEnd(); ++iter) {
-			PBQPEdge<InfinityWrapper<T>>* edge = *iter;
-			const unsigned short rowCount = edge->getMatrix().getRowCount();
-			for (unsigned short row = 0; row < rowCount; ++row) {
-				delete[] edgeSelections[counter][row];
-			}
-			delete[] edgeSelections[counter];
-			counter++;
-		}
-		delete[] edgeSelections;
+		(void)graph;
+		edgeSelections.clear();
+		edgeSelectionColumnCounts.clear();
+	}
+
+	[[nodiscard]] GRBVar& getEdgeSelection(unsigned int edgeIndex, unsigned short row, unsigned short column) const {
+		return edgeSelections[edgeIndex][row * edgeSelectionColumnCounts[edgeIndex] + column];
 	}
 
 	void createNodeSelection(const PBQPGraph<InfinityWrapper<T>>* graph) {
@@ -156,7 +155,7 @@ private:
 			PBQPNode<InfinityWrapper<T>>* node = *iter;
 			nodeToGrbVarMap.insert({node, counter});
 			const unsigned short vecLength = node->getVectorDegree();
-			nodeSelections[counter] = new GRBVar[vecLength];
+			nodeSelections[counter] = std::make_unique<GRBVar[]>(vecLength);
 			nodeVectorLengths[counter] = vecLength;
 			for (int i = 0; i < vecLength; i++) {
 				nodeSelections[counter][i] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
@@ -226,7 +225,7 @@ private:
 	}
 
 	PBQPSolution<InfinityWrapper<T>>* retrieveSolution(const PBQPGraph<InfinityWrapper<T>>* graph) {
-		PBQPSolution<InfinityWrapper<T>>* solution = new PBQPSolution<InfinityWrapper<T>>(graph->getNodeIndexCounter());
+		auto solution = std::make_unique<PBQPSolution<InfinityWrapper<T>>>(graph->getNodeIndexCounter());
 		unsigned int inc = 0;
 		unsigned int loops = 0;
 		for (auto iter = graph->getNodeBegin(); iter != graph->getNodeEnd(); ++iter) {
@@ -240,22 +239,25 @@ private:
 				loops++;
 			}
 		}
-		return solution;
+		return solution.release();
 	}
 
 	void setupEdgeSelectionLinear(const PBQPGraph<InfinityWrapper<T>>* graph) {
 		const unsigned int edgeCount = graph->getEdgeCount();
-		edgeSelections = new GRBVar**[edgeCount];
+		edgeSelections.clear();
+		edgeSelections.resize(edgeCount);
+		edgeSelectionColumnCounts.clear();
+		edgeSelectionColumnCounts.resize(edgeCount);
 		unsigned int counter = 0;
 		for (auto iter = graph->getEdgeBegin(); iter != graph->getEdgeEnd(); ++iter) {
 			PBQPEdge<InfinityWrapper<T>>* edge = *iter;
 			const unsigned short rowCount = edge->getMatrix().getRowCount();
 			const unsigned short columnCount = edge->getMatrix().getColumnCount();
-			edgeSelections[counter] = new GRBVar*[rowCount];
+			edgeSelections[counter] = std::make_unique<GRBVar[]>(rowCount * columnCount);
+			edgeSelectionColumnCounts[counter] = columnCount;
 			for (unsigned short row = 0; row < rowCount; ++row) {
-				edgeSelections[counter][row] = new GRBVar[columnCount];
 				for (unsigned short column = 0; column < columnCount; ++column) {
-					edgeSelections[counter][row][column] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+					getEdgeSelection(counter, row, column) = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
 				}
 			}
 			++counter;
@@ -274,10 +276,10 @@ private:
 					InfinityWrapper<T> selectionCost = edge->getMatrix().get(row, column);
 					if (selectionCost.isInfinite()) {
 						GRBLinExpr tempSum = 0;
-						tempSum += edgeSelections[counter][row][column];
+						tempSum += getEdgeSelection(counter, row, column);
 						model.addConstr(tempSum, GRB_EQUAL, 0.0);
 					} else {
-						totalCost += edgeSelections[counter][row][column] * selectionCost.getValue();
+						totalCost += getEdgeSelection(counter, row, column) * selectionCost.getValue();
 					}
 				}
 			}
@@ -300,7 +302,7 @@ private:
 			for (unsigned short row = 0; row < rowCount; ++row) {
 				GRBLinExpr cost = 0;
 				for (unsigned short column = 0; column < columnCount; ++column) {
-					cost += edgeSelections[counter][row][column];
+					cost += getEdgeSelection(counter, row, column);
 				}
 				cost -= nodeSelections[sourceGrbIndex][row];
 				model.addConstr(cost, GRB_EQUAL, 0.0);
@@ -309,7 +311,7 @@ private:
 			for (unsigned short column = 0; column < columnCount; ++column) {
 				GRBLinExpr cost = 0;
 				for (unsigned short row = 0; row < rowCount; ++row) {
-					cost += edgeSelections[counter][row][column];
+					cost += getEdgeSelection(counter, row, column);
 				}
 				cost -= nodeSelections[targetGrbIndex][column];
 				model.addConstr(cost, GRB_EQUAL, 0.0);

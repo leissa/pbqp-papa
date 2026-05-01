@@ -4,6 +4,7 @@
 #include <iostream>
 #include <iterator>
 #include <map>
+#include <memory>
 #include <set>
 #include <vector>
 
@@ -60,17 +61,19 @@ public:
 	PBQPGraph(const PBQPGraph<T>* graph) : indexMaximum(graph->indexMaximum) {
 		std::map<PBQPNode<T>*, PBQPNode<T>*> nodeReMapping;
 		for (PBQPNode<T>* node : graph->nodes) {
-			PBQPNode<T>* createdNode = new PBQPNode<T>(node);
-			addNode(createdNode);
-			nodeReMapping.insert({node, createdNode});
+			auto createdNode = std::make_unique<PBQPNode<T>>(node);
+			addNode(createdNode.get());
+			nodeReMapping.insert({node, createdNode.get()});
+			createdNode.release();
 		}
 		for (PBQPEdge<T>* edge : graph->edges) {
 			PBQPNode<T>* newSource = nodeReMapping.find(edge->getSource())->second;
 			PBQPNode<T>* newTarget = nodeReMapping.find(edge->getTarget())->second;
-			PBQPEdge<T>* createdEdge = new PBQPEdge<T>(newSource, newTarget, edge);
-			addEdge(createdEdge);
-			newSource->addEdge(createdEdge);
-			newTarget->addEdge(createdEdge);
+			auto createdEdge = std::make_unique<PBQPEdge<T>>(newSource, newTarget, edge);
+			addEdge(createdEdge.get());
+			newSource->addEdge(createdEdge.get());
+			newTarget->addEdge(createdEdge.get());
+			createdEdge.release();
 		}
 		for (PBQPNode<T>* oldNode : graph->peo) {
 			PBQPNode<T>* newNode = nodeReMapping.find(oldNode)->second;
@@ -102,9 +105,11 @@ public:
 	 * The new node will not have any edges initially
 	 */
 	PBQPNode<T>* addNode(Vector<T>& vector) {
-		PBQPNode<T>* node = new PBQPNode<T>(indexMaximum++, vector);
-		nodes.insert(node);
-		return node;
+		auto node = std::make_unique<PBQPNode<T>>(indexMaximum++, vector);
+		PBQPNode<T>* nodePtr = node.get();
+		nodes.insert(nodePtr);
+		node.release();
+		return nodePtr;
 	}
 
 	/**
@@ -168,13 +173,15 @@ public:
 				return edge;
 			}
 		}
-		PBQPEdge<T>* edge = new PBQPEdge<T>(source, target, matrix);
-		edges.insert(edge);
-		source->addEdge(edge);
+		auto edge = std::make_unique<PBQPEdge<T>>(source, target, matrix);
+		PBQPEdge<T>* edgePtr = edge.get();
+		edges.insert(edgePtr);
+		source->addEdge(edgePtr);
 		if (source != target) {
-			target->addEdge(edge);
+			target->addEdge(edgePtr);
 		}
-		return edge;
+		edge.release();
+		return edgePtr;
 	}
 
 	/**

@@ -2,6 +2,7 @@
 #define REDUCTION_DEGREETWOREDUCTOR_HPP_
 
 #include <iterator>
+#include <memory>
 #include <set>
 #include <vector>
 
@@ -28,24 +29,19 @@ class PBQP_Reduction;
 template <typename T>
 class DegreeTwoReducer: public PBQP_Reduction<T> {
 private:
-	std::vector<NtoNDependentSolution<T>*> solutions;
+	std::vector<std::unique_ptr<NtoNDependentSolution<T>>> solutions;
 
 public:
 	DegreeTwoReducer(PBQPGraph<T>* graph) : PBQP_Reduction<T>(graph) {}
 
-	~DegreeTwoReducer() {
-		for (NtoNDependentSolution<T>* sol : solutions) {
-			delete sol;
-		}
-	}
+	~DegreeTwoReducer() = default;
 
 	std::vector<PBQPGraph<T>*>& reduce() override {
 		auto iter = this->graph->getNodeBegin();
 		while (iter != this->graph->getNodeEnd()) {
 			PBQPNode<T>* node = *iter++;
 			if (node->getDegree() == 2) {
-				NtoNDependentSolution<T>* sol = reduceDegreeTwo(node, this->graph);
-				solutions.push_back(sol);
+				solutions.emplace_back(reduceDegreeTwo(node, this->graph));
 			}
 		}
 		this->result.push_back(this->graph);
@@ -55,8 +51,7 @@ public:
 	void solve(PBQPSolution<T>& solution) override {
 		auto iter = solutions.rbegin();
 		while (iter != solutions.rend()) {
-			NtoNDependentSolution<T>* sol = *iter++;
-			sol->solve(&solution);
+			(*iter++)->solve(&solution);
 		}
 	}
 
@@ -79,7 +74,7 @@ public:
 		bool isSecondSource = secondEdge->isSource(secondNode);
 		std::vector<PBQPNode<T>*> solutionNodes;
 		solutionNodes.push_back(node);
-		NtoNDependentSolution<T>* solution = new NtoNDependentSolution<T>(dependencyNodes, solutionNodes);
+		auto solution = std::make_unique<NtoNDependentSolution<T>>(dependencyNodes, solutionNodes);
 		// edge will go from first to second node
 		Matrix<T> resultMatrix(firstNode->getVectorDegree(), secondNode->getVectorDegree());
 		for (unsigned short firstSelection = 0; firstSelection < firstNode->getVectorDegree(); firstSelection++) {
@@ -125,7 +120,7 @@ public:
 		}
 		graph->removeNode(node);
 		graph->addEdge(firstNode, secondNode, resultMatrix);
-		return solution;
+		return solution.release();
 	}
 
 	static TwotoOneDependentSolution<InfinityWrapper<T>>* reduceDegreeTwoInf(
@@ -139,8 +134,7 @@ public:
 		PBQPNode<InfinityWrapper<T>>* const secondNode = secondEdge->getOtherEnd(node);
 		const bool isFirstSource = firstEdge->isSource(firstNode);
 		const bool isSecondSource = secondEdge->isSource(secondNode);
-		TwotoOneDependentSolution<InfinityWrapper<T>>* solution =
-				new TwotoOneDependentSolution<InfinityWrapper<T>>(node, firstNode, secondNode);
+		auto solution = std::make_unique<TwotoOneDependentSolution<InfinityWrapper<T>>>(node, firstNode, secondNode);
 		Matrix<InfinityWrapper<T>> resultMatrix(firstNode->getVectorDegree(), secondNode->getVectorDegree());
 		bool foundSolution = false;
 		for (unsigned short firstSelection = 0; firstSelection < firstNode->getVectorDegree(); firstSelection++) {
@@ -194,7 +188,7 @@ public:
 		}
 		graph->removeNode(node);
 		graph->addEdge(firstNode, secondNode, resultMatrix);
-		return solution;
+		return solution.release();
 	}
 };
 

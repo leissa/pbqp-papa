@@ -1,6 +1,7 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "math/GurobiConverter.hpp"
 
+#include <memory>
 #include <string>
 
 #include <doctest/doctest.h>
@@ -21,26 +22,24 @@ TEST_CASE("empty") {
 	for (std::string path : paths) {
 		std::cout << "Processing " << path << '\n';
 		DebugTimer timer("Total timer: " + path);
-		PBQPGraph<InfinityWrapper<unsigned int>>* ogGraph = serial.loadFromFile(path);
-		GurobiConverter<unsigned int> gConv(ogGraph);
+		auto ogGraph = std::unique_ptr<PBQPGraph<InfinityWrapper<unsigned int>>>(serial.loadFromFile(path));
+		GurobiConverter<unsigned int> gConv(ogGraph.get());
 		timer.startTimer();
-		PBQPSolution<InfinityWrapper<unsigned int>>* solution = gConv.solveGurobiLinear();
+		auto solution = std::unique_ptr<PBQPSolution<InfinityWrapper<unsigned int>>>(gConv.solveGurobiLinear());
 		timer.stopTimer();
-		std::cout << timer.getOutput(true) << std::to_string(solution->getTotalCost(ogGraph).getValue()) << '\n';
-		delete solution;
+		std::cout << timer.getOutput(true) << std::to_string(solution->getTotalCost(ogGraph.get()).getValue()) << '\n';
 	}
 	std::cout << "Quadratic solving: " << '\n';
 	for (std::string path : paths) {
 		std::cout << "Processing " << path << '\n';
 		DebugTimer timer("Total timer: " + path);
-		PBQPGraph<InfinityWrapper<unsigned int>>* ogGraph = serial.loadFromFile(path);
-		GurobiConverter<unsigned int> gConv(ogGraph);
+		auto ogGraph = std::unique_ptr<PBQPGraph<InfinityWrapper<unsigned int>>>(serial.loadFromFile(path));
+		GurobiConverter<unsigned int> gConv(ogGraph.get());
 		timer.startTimer();
-		PBQPSolution<InfinityWrapper<unsigned int>>* solution = gConv.solveGurobiQuadratic();
+		auto solution = std::unique_ptr<PBQPSolution<InfinityWrapper<unsigned int>>>(gConv.solveGurobiQuadratic());
 		timer.stopTimer();
 
-		std::cout << timer.getOutput(true) << std::to_string(solution->getTotalCost(ogGraph).getValue()) << '\n';
-		delete solution;
+		std::cout << timer.getOutput(true) << std::to_string(solution->getTotalCost(ogGraph.get()).getValue()) << '\n';
 	}
 #endif
 }

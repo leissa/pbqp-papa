@@ -1,4 +1,5 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <memory>
 #include <set>
 #include <vector>
 
@@ -20,8 +21,7 @@ TEST_CASE("emptyGraphTest") {
 	// make sure this doesnt explode
 	PBQPGraph<int> graph;
 	BruteForceSolver<int> solver(&graph);
-	PBQPSolution<int>* sol = solver.calcSolution();
-	delete sol;
+	auto sol = std::unique_ptr<PBQPSolution<int>>(solver.calcSolution());
 }
 
 TEST_CASE("simpleNodeNoEdgesTest") {
@@ -36,11 +36,10 @@ TEST_CASE("simpleNodeNoEdgesTest") {
 	Vector<int> vek3(5, arr3);
 	PBQPNode<int>* node3 = graph.addNode(vek3);
 	BruteForceSolver<int> solver(&graph);
-	PBQPSolution<int>* sol = solver.calcSolution();
+	auto sol = std::unique_ptr<PBQPSolution<int>>(solver.calcSolution());
 	CHECK_EQ(sol->getSolution(node1->getIndex()), 1);
 	CHECK_EQ(sol->getSolution(node2->getIndex()), 3);
 	CHECK_EQ(sol->getSolution(node3->getIndex()), 2);
-	delete sol;
 }
 
 TEST_CASE("simpleEdge") {
@@ -55,10 +54,9 @@ TEST_CASE("simpleEdge") {
 	Matrix<int> mat(3, 3, matArr);
 	graph.addEdge(node1, node2, mat);
 	BruteForceSolver<int> solver(&graph);
-	PBQPSolution<int>* sol = solver.calcSolution();
+	auto sol = std::unique_ptr<PBQPSolution<int>>(solver.calcSolution());
 	CHECK_EQ(sol->getSolution(node1->getIndex()), 1);
 	CHECK_EQ(sol->getSolution(node2->getIndex()), 2);
-	delete sol;
 }
 
 } // namespace pbqppapa

@@ -1,6 +1,8 @@
 #ifndef SOLVE_PBQPSOLVER_HPP_
 #define SOLVE_PBQPSOLVER_HPP_
 
+#include <memory>
+
 #include "analysis/PBQPHandler.hpp"
 #include "graph/PBQPSolution.hpp"
 
@@ -27,21 +29,21 @@ template <typename T>
 class PBQPSolver: public PBQPHandler<T> {
 
 protected:
-	PBQPSolution<T>* const solution;
+	std::unique_ptr<PBQPSolution<T>> solution;
 
 	virtual void solve() = 0;
 
 public:
 	PBQPSolver(PBQPGraph<T>* graph) :
-			PBQPHandler<T>(graph), solution(new PBQPSolution<T>(graph->getNodeIndexCounter())) {}
+			PBQPHandler<T>(graph), solution(std::make_unique<PBQPSolution<T>>(graph->getNodeIndexCounter())) {}
 
 	virtual ~PBQPSolver() {}
 
 	[[nodiscard]] PBQPSolution<T>* calcSolution() {
-		if (this->graph->getNodeCount() != 0) {
+		if (solution && this->graph->getNodeCount() != 0) {
 			solve();
 		}
-		return solution;
+		return solution.release();
 	}
 };
 

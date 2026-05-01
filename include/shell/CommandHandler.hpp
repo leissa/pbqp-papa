@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <map>
+#include <memory>
 #include <string>
 
 #include "math/InfinityWrapper.hpp"
@@ -47,21 +48,21 @@ class VisualizeCommand;
 template <typename T>
 class CommandHandler {
 private:
-	std::map<std::string, Command<T>*> commands;
+	std::map<std::string, std::unique_ptr<Command<T>>> commands;
 	std::string error = "Unknown command: ";
 	std::unique_ptr<StepByStepSolver<T>> solver;
 
 public:
 	CommandHandler(PBQPGraph<InfinityWrapper<T>>* graph) : solver(std::make_unique<StepByStepSolver<T>>(graph)) {
-		registerCommand(new DumpCommand<T>());
-		registerCommand(new StepForwardCommand<T>());
-		registerCommand(new StepBackwardCommand<T>());
-		registerCommand(new InfoCommand<T>());
-		registerCommand(new LoadCommand<T>());
-		registerCommand(new StopCommand<T>());
-		registerCommand(new FullySolveCommand<T>());
-		registerCommand(new CheckSolvableCommand<T>());
-		registerCommand(new VisualizeCommand<T>());
+		registerCommand(std::make_unique<DumpCommand<T>>());
+		registerCommand(std::make_unique<StepForwardCommand<T>>());
+		registerCommand(std::make_unique<StepBackwardCommand<T>>());
+		registerCommand(std::make_unique<InfoCommand<T>>());
+		registerCommand(std::make_unique<LoadCommand<T>>());
+		registerCommand(std::make_unique<StopCommand<T>>());
+		registerCommand(std::make_unique<FullySolveCommand<T>>());
+		registerCommand(std::make_unique<CheckSolvableCommand<T>>());
+		registerCommand(std::make_unique<VisualizeCommand<T>>());
 	}
 
 	std::string execute(std::string input) {
@@ -80,12 +81,12 @@ public:
 			// command doesnt exist
 			return error + input;
 		}
-		Command<T>* command = iter->second;
+		Command<T>* command = iter->second.get();
 		return command->run(commandArgs, this);
 	}
 
-	void registerCommand(Command<T>* command) {
-		commands.insert({command->getIdentifier(), command});
+	void registerCommand(std::unique_ptr<Command<T>> command) {
+		commands.insert({command->getIdentifier(), std::move(command)});
 	}
 
 	[[nodiscard]] StepByStepSolver<T>* getSolver() {
@@ -93,8 +94,7 @@ public:
 	}
 
 	void setGraph(PBQPGraph<InfinityWrapper<T>>* graph) {
-		StepByStepSolver<T>* newSolver = new StepByStepSolver<T>(graph);
-		solver.reset(newSolver);
+		solver = std::make_unique<StepByStepSolver<T>>(graph);
 	}
 };
 

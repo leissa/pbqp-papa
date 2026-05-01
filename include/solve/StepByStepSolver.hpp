@@ -1,6 +1,7 @@
 #ifndef STEPBYSTEPSOLVER_HPP_
 #define STEPBYSTEPSOLVER_HPP_
 
+#include <memory>
 #include <queue>
 #include <vector>
 
@@ -44,8 +45,8 @@ class StepByStepSolver {
 
 private:
 	PBQPGraph<InfinityWrapper<T>>* graph;
-	PBQPGraph<InfinityWrapper<T>>* originalGraph;
-	std::vector<DependentSolution<InfinityWrapper<T>>*> localSolutions;
+	std::unique_ptr<PBQPGraph<InfinityWrapper<T>>> originalGraph;
+	std::vector<std::unique_ptr<DependentSolution<InfinityWrapper<T>>>> localSolutions;
 	bool useRnAlready;
 	std::queue<PBQPNode<InfinityWrapper<T>>*> nodeQueue;
 	std::vector<PBQPNode<InfinityWrapper<T>>*> nodeVector;
@@ -59,7 +60,7 @@ public:
 	StepByStepSolver(PBQPGraph<InfinityWrapper<T>>* graph) :
 			graph(graph), useRnAlready(false), nodeIndex(0), peoIndex(0), backtrackIndex(0), isBackTracking(false),
 			lastReduction(NONE) {
-		originalGraph = new PBQPGraph<InfinityWrapper<T>>(graph);
+		originalGraph = std::make_unique<PBQPGraph<InfinityWrapper<T>>>(graph);
 		assert(graph->getPEO().size() == graph->getNodeCount());
 		localSolutions.reserve(graph->getNodeCount());
 		nodeVector.reserve(graph->getNodeCount());
@@ -69,12 +70,7 @@ public:
 		}
 	}
 
-	~StepByStepSolver() {
-		for (DependentSolution<InfinityWrapper<T>>* solution : localSolutions) {
-			delete solution;
-		}
-		delete originalGraph;
-	}
+	~StepByStepSolver() = default;
 
 private:
 	StepByStepSolver(const StepByStepSolver&) = delete;
@@ -124,7 +120,7 @@ public:
 		case 2: {
 			std::vector<PBQPNode<InfinityWrapper<T>>*> neighbors = node->getAdjacentNodes(false);
 			unsigned short oldDegree = neighbors.at(0)->getDegree();
-			localSolutions.push_back(DegreeTwoReducer<T>::reduceDegreeTwoInf(node, this->graph));
+			localSolutions.emplace_back(DegreeTwoReducer<T>::reduceDegreeTwoInf(node, this->graph));
 			if (neighbors.at(0)->getDegree() != oldDegree) {
 				// this happens if the edge created by the R2 reduction is merged into an existing edge
 				nodeQueue.push(neighbors.at(0));
@@ -134,12 +130,12 @@ public:
 			return true;
 		}
 		case 0:
-			localSolutions.push_back(DegreeZeroReducer<T>::reduceDegreeZeroInf(node, this->graph));
+			localSolutions.emplace_back(DegreeZeroReducer<T>::reduceDegreeZeroInf(node, this->graph));
 			lastReduction = R0;
 			return true;
 		case 1: {
 			PBQPNode<InfinityWrapper<T>>* other = node->getAdjacentNodes().at(0);
-			localSolutions.push_back(DegreeOneReducer<T>::reduceDegreeOneInf(node, this->graph));
+			localSolutions.emplace_back(DegreeOneReducer<T>::reduceDegreeOneInf(node, this->graph));
 			nodeQueue.push(other);
 			lastReduction = R1;
 			return true;
@@ -153,12 +149,12 @@ public:
 		for (PBQPNode<InfinityWrapper<T>>* neighbor : node->getAdjacentNodes()) {
 			nodeQueue.push(neighbor);
 		}
-		DependentSolution<InfinityWrapper<T>>* sol =
-				DegreeNReducer<InfinityWrapper<T>>::reduceRNEarlyDecision(node, this->graph);
+		auto sol = std::unique_ptr<DependentSolution<InfinityWrapper<T>>>(
+				DegreeNReducer<InfinityWrapper<T>>::reduceRNEarlyDecision(node, this->graph));
 		if (!sol) {
 			std::cout << "EROR, could not solve node";
 		}
-		localSolutions.push_back(sol);
+		localSolutions.push_back(std::move(sol));
 		lastReduction = RN;
 	}
 
@@ -185,7 +181,7 @@ public:
 			return nullptr;
 		}
 		unsigned int index = localSolutions.size() - 1;
-		DependentSolution<InfinityWrapper<T>>* sol = localSolutions.at(index);
+		std::unique_ptr<DependentSolution<InfinityWrapper<T>>> sol = std::move(localSolutions.at(index));
 		localSolutions.pop_back();
 		sol->revertChange(graph);
 		PBQPNode<InfinityWrapper<T>>* node = sol->getReducedNode();
@@ -196,7 +192,6 @@ public:
 			// revert general node iterator
 			nodeIndex = revertIterator(nodeIndex, nodeVector, node);
 		}
-		delete sol;
 		return node;
 	}
 
@@ -211,7 +206,7 @@ public:
 	unsigned int revertIterator(unsigned int currentIndex, std::vector<PBQPNode<InfinityWrapper<T>>*>& vector,
 			PBQPNode<InfinityWrapper<T>>* value) {
 		unsigned int revertedIndex = currentIndex;
-		while (revertedIndex >= 0) {
+		while (revertedIndex > 0) {
 			revertedIndex--;
 			if (vector.at(revertedIndex) == value) {
 				return revertedIndex;
@@ -230,13 +225,11 @@ public:
 	}
 
 	[[nodiscard]] PBQPSolution<InfinityWrapper<T>>* retrieveSolution() {
-		PBQPSolution<InfinityWrapper<T>>* solution =
-				new PBQPSolution<InfinityWrapper<T>>(this->graph->getNodeIndexCounter());
+		auto solution = std::make_unique<PBQPSolution<InfinityWrapper<T>>>(this->graph->getNodeIndexCounter());
 		for (int i = localSolutions.size() - 1; i >= 0; i--) {
-			DependentSolution<InfinityWrapper<T>>* sol = localSolutions.at(i);
-			sol->solve(solution);
+			localSolutions.at(i)->solve(solution.get());
 		}
-		return solution;
+		return solution.release();
 	}
 
 	[[nodiscard]] PBQPGraph<InfinityWrapper<T>>* getGraph() {
@@ -244,12 +237,11 @@ public:
 	}
 
 	[[nodiscard]] PBQPGraph<InfinityWrapper<T>>* getOriginalGraph() {
-		return originalGraph;
+		return originalGraph.get();
 	}
 
 	[[nodiscard]] bool isSolvable() {
-		PBQPSolution<InfinityWrapper<T>>* solution =
-				new PBQPSolution<InfinityWrapper<T>>(this->graph->getNodeIndexCounter());
+		auto solution = std::make_unique<PBQPSolution<InfinityWrapper<T>>>(this->graph->getNodeIndexCounter());
 		unsigned int localPeoIndex = this->peoIndex;
 		for (; localPeoIndex != graph->getPEO().size(); localPeoIndex++) {
 			PBQPNode<InfinityWrapper<T>>* node = graph->getPEO().at(localPeoIndex);
@@ -285,28 +277,24 @@ public:
 				}
 			}
 			if (!solvedNode) {
-				delete solution;
 				return false;
 			}
 		}
 		std::cout << " ---\n";
-		std::cout << std::to_string(solution->getCurrentCost(originalGraph).getValue()) << "\n";
+		std::cout << std::to_string(solution->getCurrentCost(originalGraph.get()).getValue()) << "\n";
 		std::cout << " ---\n";
 		for (auto iter = localSolutions.rbegin(); iter != localSolutions.rend(); ++iter) {
-			auto soluti = *iter;
-			(*iter)->solve(solution);
-			InfinityWrapper<T> costX = solution->getCurrentCost(originalGraph);
+			(*iter)->solve(solution.get());
+			InfinityWrapper<T> costX = solution->getCurrentCost(originalGraph.get());
 			std::cout << std::to_string(costX.getValue()) << "\n";
 			if (costX.isInfinite()) {
 				std::cout << "broke" << "\n";
 			}
 		}
 		std::cout << " ---\n";
-		std::cout << std::to_string(solution->getTotalCost(originalGraph).getValue()) << "\n";
+		std::cout << std::to_string(solution->getTotalCost(originalGraph.get()).getValue()) << "\n";
 		std::cout << std::to_string(InfinityWrapper<T>::getInfinite().getValue()) << "\n";
-		bool solvable = solution->getTotalCost(originalGraph) != InfinityWrapper<T>::getInfinite();
-		delete solution;
-		return true;
+		return solution->getTotalCost(originalGraph.get()) != InfinityWrapper<T>::getInfinite();
 	}
 };
 

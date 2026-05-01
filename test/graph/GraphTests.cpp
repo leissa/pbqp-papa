@@ -1,5 +1,6 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include <algorithm>
+#include <memory>
 
 #include <doctest/doctest.h>
 
@@ -72,7 +73,7 @@ TEST_CASE("basicEdgeGeneration") {
 
 TEST_CASE("advancedEdgeGeneration") {
 	int size = 20;
-	PBQPGraph<int>* graph = genGraph(size);
+	auto graph = std::unique_ptr<PBQPGraph<int>>(genGraph(size));
 	CHECK_EQ(graph->getEdgeCount(), size * (size - 1) / 2);
 	CHECK_EQ(graph->getNodeCount(), size);
 	for (std::set<PBQPNode<int>*>::iterator it = graph->getNodeBegin(); it != graph->getNodeEnd(); it++) {
@@ -80,7 +81,6 @@ TEST_CASE("advancedEdgeGeneration") {
 		CHECK_EQ(node->getDegree(), size - 1);
 		CHECK_EQ(node->getAdjacentNodes(false).size(), size - 1);
 	}
-	delete graph;
 }
 /* TODO fix this maybe some day
 TEST_CASE("advancedEdgeRemoval") {

@@ -1,6 +1,7 @@
 #ifndef REDUCTION_CONNECTEDCOMPONENTSEPARATOR_HPP_
 #define REDUCTION_CONNECTEDCOMPONENTSEPARATOR_HPP_
 
+#include <memory>
 #include <vector>
 
 namespace pbqppapa {
@@ -58,7 +59,7 @@ public:
 				// TODO Removing the part of the original graph that is not in this component would make more sense
 				// as we're more likely to find the bigger components when randomly picking a node
 				// That way we'd have to do another log(n) lookup for every node in the original graph though
-				PBQPGraph<T>* replacementGraph = new PBQPGraph<T>();
+				auto replacementGraph = std::make_unique<PBQPGraph<T>>();
 				for (PBQPNode<T>* node : foundNodes) {
 					this->graph->removeNode(node, false);
 					replacementGraph->addNode(node);
@@ -69,7 +70,7 @@ public:
 						replacementGraph->addEdge(edge);
 					}
 				}
-				this->result.push_back(replacementGraph);
+				this->result.push_back(replacementGraph.release());
 			}
 		}
 		return this->result;

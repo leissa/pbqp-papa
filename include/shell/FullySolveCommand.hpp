@@ -1,6 +1,8 @@
 #ifndef SHELL_FULLYSOLVECOMMAND_HPP_
 #define SHELL_FULLYSOLVECOMMAND_HPP_
 
+#include <memory>
+
 #include "io/TypeSerializers.hpp"
 #include "shell/Command.hpp"
 
@@ -26,7 +28,7 @@ public:
 	~FullySolveCommand() {}
 
 	std::string run(std::string input, CommandHandler<T>* cmdHandler) {
-		PBQPSolution<InfinityWrapper<T>>* solution = cmdHandler->getSolver()->solveFully();
+		auto solution = std::unique_ptr<PBQPSolution<InfinityWrapper<T>>>(cmdHandler->getSolver()->solveFully());
 		return "Solved fully, total cost: " + serializeElement<InfinityWrapper<T>>(solution->getTotalCost(
 													  cmdHandler->getSolver()->getOriginalGraph()));
 	}

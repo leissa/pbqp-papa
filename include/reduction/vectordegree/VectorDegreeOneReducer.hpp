@@ -61,7 +61,8 @@ public:
 		assert(node);
 		assert(node->getVectorDegree() == 1);
 		graph->removeNode(node);
-		return new ImmediateSolution<T>(node, 0);
+		auto solution = std::make_unique<ImmediateSolution<T>>(node, 0);
+		return solution.release();
 	}
 };
 

@@ -1,6 +1,7 @@
 #ifndef REDUCTION_DEGREEONEREDUCTOR_HPP_
 #define REDUCTION_DEGREEONEREDUCTOR_HPP_
 
+#include <memory>
 #include <vector>
 
 #include "graph/PBQPGraph.hpp"
@@ -26,24 +27,19 @@ class PBQPNode;
 template <typename T>
 class DegreeOneReducer: public PBQP_Reduction<T> {
 private:
-	std::vector<OnetoOneDependentSolution<T>*> solutions;
+	std::vector<std::unique_ptr<OnetoOneDependentSolution<T>>> solutions;
 
 public:
 	DegreeOneReducer(PBQPGraph<T>* graph) : PBQP_Reduction<T>(graph) {}
 
-	~DegreeOneReducer() {
-		for (OnetoOneDependentSolution<T>* sol : solutions) {
-			delete sol;
-		}
-	}
+	~DegreeOneReducer() = default;
 
 	std::vector<PBQPGraph<T>*>& reduce() override {
 		auto iter = this->graph->getNodeBegin();
 		while (iter != this->graph->getNodeEnd()) {
 			PBQPNode<T>* node = *iter++;
 			if (node->getDegree() == 1) {
-				OnetoOneDependentSolution<T>* sol = reduceDegreeOne(node, this->graph);
-				solutions.push_back(sol);
+				solutions.emplace_back(reduceDegreeOne(node, this->graph));
 			}
 		}
 		this->result.push_back(this->graph);
@@ -53,8 +49,7 @@ public:
 	void solve(PBQPSolution<T>& solution) override {
 		auto iter = solutions.rbegin();
 		while (iter != solutions.rend()) {
-			OnetoOneDependentSolution<T>* sol = *iter++;
-			sol->solve(&solution);
+			(*iter++)->solve(&solution);
 		}
 	}
 
@@ -64,7 +59,7 @@ public:
 		PBQPEdge<T>* edge = node->getAdjacentEdges().at(0);
 		PBQPNode<T>* otherEnd = edge->getOtherEnd(node);
 		assert(otherEnd != node);
-		OnetoOneDependentSolution<T>* solution = new OnetoOneDependentSolution<T>(node, otherEnd);
+		auto solution = std::make_unique<OnetoOneDependentSolution<T>>(node, otherEnd);
 		const bool isSource = edge->isSource(node);
 		const unsigned short otherEndDegree = otherEnd->getVectorDegree();
 		const unsigned short nodeDegree = node->getVectorDegree();
@@ -96,7 +91,7 @@ public:
 			otherEnd->getVector().get(i) = minimum;
 		}
 		graph->removeNode(node);
-		return solution;
+		return solution.release();
 	}
 
 	static OnetoOneDependentSolution<InfinityWrapper<T>>* reduceDegreeOneInf(
@@ -107,8 +102,7 @@ public:
 		PBQPNode<InfinityWrapper<T>>* otherEnd = edge->getOtherEnd(node);
 		// ensure edge isnt a cycle
 		assert(otherEnd != node);
-		OnetoOneDependentSolution<InfinityWrapper<T>>* solution =
-				new OnetoOneDependentSolution<InfinityWrapper<T>>(node, otherEnd);
+		auto solution = std::make_unique<OnetoOneDependentSolution<InfinityWrapper<T>>>(node, otherEnd);
 		const bool isSource = edge->isSource(node);
 		const unsigned short otherEndDegree = otherEnd->getVectorDegree();
 		const unsigned short nodeDegree = node->getVectorDegree();
@@ -143,7 +137,7 @@ public:
 			otherEnd->getVector().get(i) = minimum;
 		}
 		graph->removeNode(node);
-		return solution;
+		return solution.release();
 	}
 };
 

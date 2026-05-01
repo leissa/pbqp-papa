@@ -1,6 +1,8 @@
 #ifndef REDUCTION_NODEMERGER_HPP_
 #define REDUCTION_NODEMERGER_HPP_
 
+#include <memory>
+
 #include "graph/Matrix.hpp"
 #include "graph/PBQPNode.hpp"
 #include "graph/Vector.hpp"
@@ -60,7 +62,7 @@ public:
 		std::vector<PBQPNode<T>*> solutions;
 		solutions.push_back(remaining);
 		solutions.push_back(toRemove);
-		NtoNDependentSolution<T>* sol = new NtoNDependentSolution<T>(dependencies, solutions);
+		auto sol = std::make_unique<NtoNDependentSolution<T>>(dependencies, solutions);
 		for (unsigned short i = 0; i < toRemove->getVectorDegree(); i++) {
 			for (unsigned short k = 0; k < remaining->getVectorDegree(); k++) {
 				std::vector<PBQPNode<T>*> dependencySelection;
@@ -71,7 +73,7 @@ public:
 			}
 		}
 		graph->removeNode(toRemove);
-		return sol;
+		return sol.release();
 	}
 };
 } // namespace pbqppapa

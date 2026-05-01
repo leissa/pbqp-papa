@@ -3,7 +3,7 @@
 
 #include <algorithm>
 #include <cassert>
-#include <cstring>
+#include <memory>
 
 #ifndef PBQP_USE_GUROBI
 #define PBQP_USE_GUROBI 0
@@ -23,7 +23,7 @@ class Matrix {
 protected:
 	unsigned short rows;
 	unsigned short columns;
-	T* content;
+	std::unique_ptr<T[]> content;
 
 public:
 	/**
@@ -36,29 +36,34 @@ public:
 	 *
 	 */
 	Matrix(unsigned short rows, unsigned short columns, T* data) :
-			rows(rows), columns(columns), content(new T[rows * columns]) {
-		std::copy(data, data + rows * columns, content);
+			rows(rows), columns(columns), content(std::make_unique<T[]>(rows * columns)) {
+		const unsigned long elementCount = rows * columns;
+		if (elementCount != 0) {
+			std::copy_n(data, elementCount, content.get());
+		}
 	}
 
-	Matrix() : rows(0), columns(0), content(new T[0]) {}
+	Matrix() : rows(0), columns(0), content(std::make_unique<T[]>(0)) {}
 
 	/**
 	 * Creates a new matrix with uninitialized content
 	 */
 	Matrix(unsigned short rows, unsigned short columns) :
-			rows(rows), columns(columns), content(new T[rows * columns]) {}
+			rows(rows), columns(columns), content(std::make_unique<T[]>(rows * columns)) {}
 
-	Matrix(const Matrix& matrix) : rows(matrix.rows), columns(matrix.columns), content(new T[rows * columns]) {
-		std::copy(matrix.content, matrix.content + rows * columns, content);
+	Matrix(const Matrix& matrix) :
+			rows(matrix.rows), columns(matrix.columns), content(std::make_unique<T[]>(rows * columns)) {
+		const unsigned long elementCount = rows * columns;
+		if (elementCount != 0) {
+			std::copy_n(matrix.content.get(), elementCount, content.get());
+		}
 	}
 
 	Matrix(Matrix&& other) noexcept : Matrix() {
 		swap(*this, other);
 	}
 
-	~Matrix() {
-		delete[] content;
-	}
+	~Matrix() = default;
 
 	friend void swap(Matrix& a, Matrix& b) noexcept {
 		using std::swap;
@@ -202,9 +207,9 @@ public:
 	 */
 	[[nodiscard]] Matrix multiplyRows(const unsigned short multiplier) const {
 		Matrix result(rows * multiplier, columns);
-		const unsigned long sectorSize = sizeof(T) * rows * columns;
+		const unsigned long sectorSize = rows * columns;
 		for (unsigned short i = 0; i < multiplier; i++) {
-			std::memcpy(result.content + i * sectorSize, content, sectorSize);
+			std::copy_n(content.get(), sectorSize, result.content.get() + (i * sectorSize));
 		}
 		return result;
 	}
@@ -227,12 +232,12 @@ public:
 	 */
 	[[nodiscard]] Matrix multiplyRowsIndividually(const unsigned short multiplier) const {
 		Matrix result(rows * multiplier, columns);
-		const unsigned long rowLength = sizeof(T) * columns;
+		const unsigned long rowLength = columns;
 		const unsigned long sectionLength = rowLength * multiplier;
 		for (unsigned short i = 0; i < rows; i++) {
 			for (unsigned short offset = 0; offset < multiplier; offset++) {
-				std::memcpy(result.content + (rowLength * offset) + (sectionLength * i), content + (rowLength * i),
-						rowLength);
+				std::copy_n(content.get() + (rowLength * i), rowLength,
+						result.content.get() + (rowLength * offset) + (sectionLength * i));
 			}
 		}
 		return result;
@@ -278,12 +283,12 @@ public:
 	 */
 	[[nodiscard]] Matrix multiplyColumns(const unsigned short multiplier) const {
 		Matrix result(rows, columns * multiplier);
-		const unsigned long rowLength = columns * sizeof(T);
+		const unsigned long rowLength = columns;
 		const unsigned long rowDataLength = rowLength * multiplier;
 		for (unsigned short i = 0; i < rows; i++) {
 			for (int column = 0; column < multiplier; column++) {
-				std::memcpy(result.content + (rowDataLength * i) + (column * rowLength), content + (rowLength * i),
-						rowLength);
+				std::copy_n(content.get() + (rowLength * i), rowLength,
+						result.content.get() + (rowDataLength * i) + (column * rowLength));
 			}
 		}
 		return result;

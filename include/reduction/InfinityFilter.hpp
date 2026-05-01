@@ -1,6 +1,7 @@
 #ifndef REDUCTION_INFINITYFILTER_HPP_
 #define REDUCTION_INFINITYFILTER_HPP_
 
+#include <memory>
 #include <vector>
 
 #include "graph/PBQPGraph.hpp"
@@ -44,37 +45,41 @@ public:
 			}
 			unsigned long targetMatrixSize = sourceFactor * targetFactor;
 			if (targetMatrixSize == (source->getVectorDegree() * target->getVectorDegree())) {
+				++iter;
 				continue;
 			}
-			InfinityWrapper<T>* targetData = new InfinityWrapper<T>[targetMatrixSize];
+			auto targetData = std::make_unique<InfinityWrapper<T>[]>(targetMatrixSize);
 			unsigned long counter = 0;
 			for (unsigned short i = 0; i < source->getVectorDegree(); i++) {
-				for (unsigned short k = 0; k < source->getVectorDegree(); k++) {
+				for (unsigned short k = 0; k < target->getVectorDegree(); k++) {
 					if (sourceVector->get(i).isInfinite() || targetVector->get(k).isInfinite()) {
 						continue;
 					}
 					targetData[counter++] = valueMatrix->get(i, k);
 				}
 			}
-			edge->getMatrix() = Matrix<InfinityWrapper<T>>(sourceFactor, targetFactor, targetData);
+			edge->getMatrix() = Matrix<InfinityWrapper<T>>(sourceFactor, targetFactor, targetData.get());
+			++iter;
 		}
 		auto nodeIter = this->graph->getNodeBegin();
 		while (nodeIter != this->graph->getNodeEnd()) {
+			PBQPNode<InfinityWrapper<T>>* node = *nodeIter;
 			unsigned short length = 0;
-			Vector<InfinityWrapper<T>>* vector = &(*iter->getVector());
+			Vector<InfinityWrapper<T>>* vector = &(node->getVector());
 			for (unsigned short i = 0; i < vector->getRowCount(); i++) {
 				if (!vector->get(i).isInfinite()) {
 					length++;
 				}
 			}
-			InfinityWrapper<T>* newData = new InfinityWrapper<T>[length];
+			auto newData = std::make_unique<InfinityWrapper<T>[]>(length);
 			unsigned short counter = 0;
 			for (unsigned short i = 0; i < vector->getRowCount(); i++) {
 				if (!vector->get(i).isInfinite()) {
 					newData[counter++] = vector->get(i);
 				}
 			}
-			(*iter)->getVector() = Vector<InfinityWrapper<T>>(length, newData);
+			node->getVector() = Vector<InfinityWrapper<T>>(length, newData.get());
+			++nodeIter;
 		}
 
 		this->result.push_back(this->graph);

@@ -7,6 +7,7 @@
 #include <iostream>
 #include <iterator>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -78,15 +79,16 @@ private:
 			std::cout << "Invalid type loading, expected type: " << getTypeName<T>() << ", but got type: " << parsedType
 					  << "\nAttempting to load anyway...\n";
 		}
-		PBQPGraph<T>* graph = new PBQPGraph<T>();
+		auto graph = std::make_unique<PBQPGraph<T>>();
 		std::map<unsigned int, PBQPNode<T>*> nodeByIndex;
 		nlohmann::json nodeJson = json["nodes"];
 		for (const nlohmann::json& singleNodeJson : nodeJson) {
 			unsigned int index = singleNodeJson["index"];
 			Vector<T> vek = parseVector(singleNodeJson["cost"]);
-			PBQPNode<T>* node = new PBQPNode<T>(index, vek);
-			graph->addNode(node);
-			nodeByIndex.insert({index, node});
+			auto node = std::make_unique<PBQPNode<T>>(index, vek);
+			graph->addNode(node.get());
+			nodeByIndex.insert({index, node.get()});
+			node.release();
 		}
 		nlohmann::json edgeJson = json["edges"];
 		for (const nlohmann::json& singleEdgeJson : edgeJson) {
@@ -104,7 +106,7 @@ private:
 			}
 			graph->setPEO(peoVector);
 		}
-		return graph;
+		return graph.release();
 	}
 
 	static Vector<T> parseVector(const nlohmann::json& json) {

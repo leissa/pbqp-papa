@@ -16,13 +16,14 @@
 #include <cstdio>
 #include <ctime>
 #include <iostream>
+#include <memory>
 #include <vector>
 
 namespace pbqppapa {
 
 #define CINTERFACEIMPL(TYPENAME, SHORTNAME)                                                                            \
 	struct pbqp_##SHORTNAME##_parsing {                                                                                \
-		PBQPGraph<InfinityWrapper<TYPENAME>>* graph;                                                                   \
+		std::unique_ptr<PBQPGraph<InfinityWrapper<TYPENAME>>> graph;                                                   \
 		std::vector<PBQPNode<InfinityWrapper<TYPENAME>>*> nodes;                                                       \
 		std::vector<PBQPNode<InfinityWrapper<TYPENAME>>*> peo;                                                         \
 		unsigned long maximumIndex = 0;                                                                                \
@@ -34,9 +35,10 @@ namespace pbqppapa {
 			infData[i] = InfinityWrapper<TYPENAME>(data[i]);                                                           \
 		}                                                                                                              \
 		Vector<InfinityWrapper<TYPENAME>> vek(length, infData.data());                                                 \
-		PBQPNode<InfinityWrapper<TYPENAME>>* node = new PBQPNode<InfinityWrapper<TYPENAME>>(index, vek);               \
-		pbqpparsing->graph->addNode(node);                                                                             \
-		pbqpparsing->nodes.at(index) = node;                                                                           \
+		auto node = std::make_unique<PBQPNode<InfinityWrapper<TYPENAME>>>(index, vek);                                 \
+		pbqpparsing->graph->addNode(node.get());                                                                       \
+		pbqpparsing->nodes.at(index) = node.get();                                                                     \
+		node.release();                                                                                                \
 	}                                                                                                                  \
 	extern "C" void pbqp_##SHORTNAME##_addEdge(struct pbqp_##SHORTNAME##_parsing* pbqpparsing,                         \
 			unsigned int sourceIndex, unsigned int targetIndex, TYPENAME* data) {                                      \
@@ -52,33 +54,37 @@ namespace pbqppapa {
 	}                                                                                                                  \
 	struct pbqp_##SHORTNAME##_solution* pbqp_##SHORTNAME##_convertSolution(                                            \
 			struct pbqp_##SHORTNAME##_parsing* pbqpparsing, PBQPSolution<InfinityWrapper<TYPENAME>>* cppSol) {         \
-		pbqp_##SHORTNAME##_solution* cSol = new pbqp_##SHORTNAME##_solution();                                         \
-		cSol->selections = new unsigned short[pbqpparsing->maximumIndex];                                              \
+		auto cSol = std::make_unique<pbqp_##SHORTNAME##_solution>();                                                   \
+		auto selections = std::make_unique<unsigned short[]>(pbqpparsing->maximumIndex);                               \
 		for (unsigned int i = 0; i < pbqpparsing->maximumIndex; i++) {                                                 \
 			if (!pbqpparsing->nodes.at(i)) {                                                                           \
 				continue;                                                                                              \
 			}                                                                                                          \
-			cSol->selections[i] = cppSol->getSolution(i);                                                              \
+			selections[i] = cppSol->getSolution(i);                                                                    \
 		}                                                                                                              \
+		cSol->selections = selections.release();                                                                       \
 		cSol->length = pbqpparsing->maximumIndex;                                                                      \
-		return cSol;                                                                                                   \
+		return cSol.release();                                                                                         \
 	}                                                                                                                  \
 	extern "C" struct pbqp_##SHORTNAME##_solution* pbqp_##SHORTNAME##_solve(                                           \
 			struct pbqp_##SHORTNAME##_parsing* pbqpparsing) {                                                          \
 		if (pbqpparsing->graph->getNodeCount() == 0) {                                                                 \
-			return new pbqp_##SHORTNAME##_solution();                                                                  \
+			auto emptySolution = std::make_unique<pbqp_##SHORTNAME##_solution>();                                      \
+			emptySolution->selections = nullptr;                                                                       \
+			emptySolution->length = 0;                                                                                 \
+			return emptySolution.release();                                                                            \
 		}                                                                                                              \
-		StepByStepSolver<TYPENAME> solver(pbqpparsing->graph);                                                         \
-		PBQPSolution<InfinityWrapper<TYPENAME>>* cppLevelSol = solver.solveFully();                                    \
-		pbqp_##SHORTNAME##_solution* cLevelSol = pbqp_##SHORTNAME##_convertSolution(pbqpparsing, cppLevelSol);         \
-		delete cppLevelSol;                                                                                            \
+		StepByStepSolver<TYPENAME> solver(pbqpparsing->graph.get());                                                   \
+		auto cppLevelSol = std::unique_ptr<PBQPSolution<InfinityWrapper<TYPENAME>>>(solver.solveFully());              \
+		pbqp_##SHORTNAME##_solution* cLevelSol = pbqp_##SHORTNAME##_convertSolution(pbqpparsing, cppLevelSol.get());   \
 		return cLevelSol;                                                                                              \
 	}                                                                                                                  \
 	extern "C" struct pbqp_##SHORTNAME##_parsing* pbqp_##SHORTNAME##_createInstance(unsigned int maximumIndex) {       \
-		pbqp_##SHORTNAME##_parsing* result = new pbqp_##SHORTNAME##_parsing();                                         \
-		result->graph = new PBQPGraph<InfinityWrapper<TYPENAME>>();                                                    \
+		auto result = std::make_unique<pbqp_##SHORTNAME##_parsing>();                                                  \
+		result->graph = std::make_unique<PBQPGraph<InfinityWrapper<TYPENAME>>>();                                      \
 		result->nodes.resize(maximumIndex);                                                                            \
-		return result;                                                                                                 \
+		result->maximumIndex = maximumIndex;                                                                           \
+		return result.release();                                                                                       \
 	}                                                                                                                  \
 	extern "C" void pbqp_##SHORTNAME##_addToPEO(struct pbqp_##SHORTNAME##_parsing* pbqpparsing, unsigned int index) {  \
 		pbqpparsing->peo.push_back(pbqpparsing->nodes.at(index));                                                      \
@@ -100,10 +106,9 @@ namespace pbqppapa {
 		}                                                                                                              \
 		std::cout << "Dumping to " << stringPath << "\n";                                                              \
 		pbqpparsing->graph->setPEO(pbqpparsing->peo);                                                                  \
-		PBQP_Serializer<InfinityWrapper<TYPENAME>>::saveToFile(stringPath, pbqpparsing->graph);                        \
+		PBQP_Serializer<InfinityWrapper<TYPENAME>>::saveToFile(stringPath, pbqpparsing->graph.get());                  \
 	}                                                                                                                  \
 	extern "C" void pbqp_##SHORTNAME##_free(struct pbqp_##SHORTNAME##_parsing* pbqpparsing) {                          \
-		delete pbqpparsing->graph;                                                                                     \
 		delete pbqpparsing;                                                                                            \
 	}                                                                                                                  \
 	extern "C" void pbqp_##SHORTNAME##_finishPEO(struct pbqp_##SHORTNAME##_parsing* pbqpparsing) {                     \
@@ -140,12 +145,14 @@ namespace pbqppapa {
 	extern "C" struct pbqp_##SHORTNAME##_solution* pbqp_##SHORTNAME##_solveGurobi(                                     \
 			struct pbqp_##SHORTNAME##_parsing* pbqpparsing) {                                                          \
 		if (pbqpparsing->graph->getNodeCount() == 0) {                                                                 \
-			return new pbqp_##SHORTNAME##_solution();                                                                  \
+			auto emptySolution = std::make_unique<pbqp_##SHORTNAME##_solution>();                                      \
+			emptySolution->selections = nullptr;                                                                       \
+			emptySolution->length = 0;                                                                                 \
+			return emptySolution.release();                                                                            \
 		}                                                                                                              \
-		GurobiConverter<TYPENAME> gurobi(pbqpparsing->graph);                                                          \
-		PBQPSolution<InfinityWrapper<TYPENAME>>* cppLevelSol = gurobi.solveGurobiQuadratic();                          \
-		pbqp_##SHORTNAME##_solution* cLevelSol = pbqp_##SHORTNAME##_convertSolution(pbqpparsing, cppLevelSol);         \
-		delete cppLevelSol;                                                                                            \
+		GurobiConverter<TYPENAME> gurobi(pbqpparsing->graph.get());                                                    \
+		auto cppLevelSol = std::unique_ptr<PBQPSolution<InfinityWrapper<TYPENAME>>>(gurobi.solveGurobiQuadratic());    \
+		pbqp_##SHORTNAME##_solution* cLevelSol = pbqp_##SHORTNAME##_convertSolution(pbqpparsing, cppLevelSol.get());   \
 		return cLevelSol;                                                                                              \
 	}
 #endif

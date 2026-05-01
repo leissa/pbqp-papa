@@ -1,6 +1,8 @@
 # pbqp-papa
 
-[![CI](https://github.com/leissa/pbqp-papa/actions/workflows/ci.yml/badge.svg)](https://github.com/leissa/pbqp-papa/actions/workflows/ci.yml)
+[![Linux CI](https://github.com/leissa/pbqp-papa/actions/workflows/linux.yml/badge.svg)](https://github.com/leissa/pbqp-papa/actions/workflows/linux.yml)
+[![Windows CI](https://github.com/leissa/pbqp-papa/actions/workflows/windows.yml/badge.svg)](https://github.com/leissa/pbqp-papa/actions/workflows/windows.yml)
+[![macOS CI](https://github.com/leissa/pbqp-papa/actions/workflows/macos.yml/badge.svg)](https://github.com/leissa/pbqp-papa/actions/workflows/macos.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.txt)
 [![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://en.cppreference.com/w/cpp/20)
 

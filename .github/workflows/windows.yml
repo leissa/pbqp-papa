@@ -1,0 +1,30 @@
+name: Windows CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install bison
+        run: |
+          choco install winflexbison3 -y
+          echo "C:\ProgramData\chocolatey\lib\winflexbison3\tools" >> $env:GITHUB_PATH
+        shell: pwsh
+
+      - name: Configure
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure -C Release

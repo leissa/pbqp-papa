@@ -14,14 +14,19 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install bison
+      - name: Set up bison and flex
         run: |
-          choco install winflexbison3 -y
-          echo "C:\ProgramData\chocolatey\lib\winflexbison3\tools" >> $env:GITHUB_PATH
+          $toolDir = Join-Path $env:GITHUB_WORKSPACE 'submodules/graphviz/windows/dependencies/graphviz-build-utilities/winflexbison'
+          Copy-Item (Join-Path $toolDir 'win_bison.exe') (Join-Path $toolDir 'bison.exe')
+          Copy-Item (Join-Path $toolDir 'win_flex.exe') (Join-Path $toolDir 'flex.exe')
+          $toolDir | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
         shell: pwsh
 
       - name: Configure
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+        run: >
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          -DBISON_EXECUTABLE="${{ github.workspace }}\submodules\graphviz\windows\dependencies\graphviz-build-utilities\winflexbison\win_bison.exe"
+          -DFLEX_EXECUTABLE="${{ github.workspace }}\submodules\graphviz\windows\dependencies\graphviz-build-utilities\winflexbison\win_flex.exe"
 
       - name: Build
         run: cmake --build build --config Release

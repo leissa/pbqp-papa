@@ -46,6 +46,8 @@ if(PBQP_USE_GVC)
             set(PBQP_GRAPHVIZ_WINDOWS_DEP_BIN
                 "${CMAKE_CURRENT_SOURCE_DIR}/submodules/graphviz/windows/dependencies/libraries/vcpkg/installed/x86-windows/bin")
         endif()
+        file(GLOB PBQP_GRAPHVIZ_WINDOWS_DEP_DLLS
+            "${PBQP_GRAPHVIZ_WINDOWS_DEP_BIN}/*.dll")
     endif()
 endif()
 
@@ -95,25 +97,21 @@ foreach(test_source ${TESTS})
         add_custom_command(
             TARGET ${test_name} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                $<TARGET_FILE:gvc>
+                $<TARGET_FILE:cgraph>
+                $<TARGET_FILE:cdt>
+                $<TARGET_FILE:gvplugin_core>
+                $<TARGET_FILE:gvplugin_dot_layout>
                 $<TARGET_RUNTIME_DLLS:${test_name}>
+                ${PBQP_GRAPHVIZ_WINDOWS_DEP_DLLS}
                 $<TARGET_FILE_DIR:${test_name}>
             COMMAND_EXPAND_LISTS
         )
     endif()
 
-    if(WIN32 AND PBQP_USE_GVC)
-        set(pbqp_test_path "$<TARGET_FILE_DIR:${test_name}>;${PBQP_GRAPHVIZ_WINDOWS_DEP_BIN};$ENV{PATH}")
-        string(REPLACE ";" "\\;" pbqp_test_path "${pbqp_test_path}")
-        add_test(
-            NAME ${test_name}
-            COMMAND ${CMAKE_COMMAND} -E env "PATH=${pbqp_test_path}" $<TARGET_FILE:${test_name}>
-            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-        )
-    else()
-        add_test(
-            NAME ${test_name}
-            COMMAND ${test_name}
-            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-        )
-    endif()
+    add_test(
+        NAME ${test_name}
+        COMMAND ${test_name}
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
 endforeach()

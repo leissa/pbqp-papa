@@ -5,6 +5,11 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# Co-locate executables and runtime DLLs so Windows test exes find the
+# graphviz plugin DLLs (gvplugin_dot_layout.dll, gvplugin_core.dll, ...) at
+# load time without needing rpath-style PATH munging.
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
 option(PBQP_USE_GUROBI "Enable Gurobi solver support" OFF)
 option(PBQP_USE_GVC "Enable Graphviz visualization support" ON)
 
@@ -56,6 +61,9 @@ endif()
 
 enable_testing()
 
+# GraphVisualizerTests writes SVGs into test_build/ relative to CMAKE_SOURCE_DIR.
+file(MAKE_DIRECTORY ${CMAKE_SOURCE_DIR}/test_build)
+
 set(TESTS
     test/debug/GraphVisualizerTests.cpp
     test/graph/GraphTests.cpp
@@ -91,8 +99,4 @@ foreach(test_source ${TESTS})
         COMMAND ${test_name}
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     )
-
-    if(WIN32 AND test_name STREQUAL "debug_GraphVisualizerTests")
-        set_tests_properties(${test_name} PROPERTIES DISABLED TRUE)
-    endif()
 endforeach()

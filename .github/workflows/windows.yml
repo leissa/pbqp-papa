@@ -32,4 +32,8 @@ jobs:
         run: cmake --build build --config Release
 
       - name: Test
-        run: ctest --test-dir build --output-on-failure -C Release
+        run: |
+          $vcpkgBin = Join-Path $env:GITHUB_WORKSPACE 'submodules/graphviz/windows/dependencies/libraries/vcpkg/installed/x64-windows/bin'
+          $env:PATH = "$vcpkgBin;$env:PATH"
+          ctest --test-dir build --output-on-failure -C Release
+        shell: pwsh

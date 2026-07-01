@@ -17,9 +17,9 @@ PBQPGraph<int>* genGraph(unsigned int size) {
 		Vector<int> vector = Vector<int>(2, arr1);
 		graph->addNode(vector);
 	}
-	for (std::set<PBQPNode<int>*>::iterator it = graph->getNodeBegin(); it != graph->getNodeEnd(); it++) {
+	for (auto it = graph->getNodeBegin(); it != graph->getNodeEnd(); ++it) {
 		PBQPNode<int>* node1 = *it;
-		for (std::set<PBQPNode<int>*>::iterator it2 = graph->getNodeBegin(); it2 != graph->getNodeEnd(); it2++) {
+		for (auto it2 = graph->getNodeBegin(); it2 != graph->getNodeEnd(); ++it2) {
 			PBQPNode<int>* node2 = *it2;
 			int matrixCost[] = {3, 2, 5, 8};
 			Matrix<int> matrix = Matrix<int>(2, 2, matrixCost);

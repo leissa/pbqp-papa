@@ -1,11 +1,15 @@
 #ifndef PBQPGRAPH_H_
 #define PBQPGRAPH_H_
 
+#include <cassert>
+#include <cstddef>
+#include <functional>
 #include <iostream>
 #include <iterator>
 #include <map>
 #include <memory>
 #include <set>
+#include <unordered_set>
 #include <vector>
 
 #include "graph/PBQPEdge.hpp"
@@ -25,59 +29,136 @@ template <typename T>
 class Vector;
 
 /**
+ * Hash and equality that give a set of std::unique_ptr<U> pointer-identity semantics
+ * (matching the old std::set<U*> behavior) while enabling heterogeneous lookup by a
+ * raw U* via the transparent (is_transparent) overloads.
+ */
+template <typename U>
+struct OwningPtrHash {
+	using is_transparent = void;
+	[[nodiscard]] std::size_t operator()(const std::unique_ptr<U>& ptr) const noexcept {
+		return std::hash<const U*>()(ptr.get());
+	}
+	[[nodiscard]] std::size_t operator()(const U* ptr) const noexcept {
+		return std::hash<const U*>()(ptr);
+	}
+};
+
+template <typename U>
+struct OwningPtrEqual {
+	using is_transparent = void;
+	[[nodiscard]] bool operator()(const std::unique_ptr<U>& a, const std::unique_ptr<U>& b) const noexcept {
+		return a.get() == b.get();
+	}
+	[[nodiscard]] bool operator()(const std::unique_ptr<U>& a, const U* b) const noexcept {
+		return a.get() == b;
+	}
+	[[nodiscard]] bool operator()(const U* a, const std::unique_ptr<U>& b) const noexcept {
+		return a == b.get();
+	}
+	[[nodiscard]] bool operator()(const U* a, const U* b) const noexcept {
+		return a == b;
+	}
+};
+
+/**
+ * Iterator adaptor over a container of std::unique_ptr<U> that dereferences to a raw U*.
+ * This preserves the graph's raw-pointer iteration API even though the graph now owns its
+ * nodes and edges through unique_ptr.
+ */
+template <typename U, typename BaseIterator>
+class RawPtrIterator {
+	BaseIterator base;
+
+public:
+	using iterator_category = std::forward_iterator_tag;
+	using value_type = U*;
+	using difference_type = std::ptrdiff_t;
+	using pointer = U*;
+	using reference = U*;
+
+	RawPtrIterator() = default;
+	explicit RawPtrIterator(BaseIterator base) : base(base) {}
+
+	[[nodiscard]] U* operator*() const {
+		return base->get();
+	}
+	RawPtrIterator& operator++() {
+		++base;
+		return *this;
+	}
+	RawPtrIterator operator++(int) {
+		RawPtrIterator tmp = *this;
+		++base;
+		return tmp;
+	}
+	[[nodiscard]] bool operator==(const RawPtrIterator& other) const {
+		return base == other.base;
+	}
+	[[nodiscard]] bool operator!=(const RawPtrIterator& other) const {
+		return base != other.base;
+	}
+};
+
+/**
  * A graph representing a PBQP. The template type represents the data type of the numbers in the cost vectors
  * and cost matrices. It is consistent throughout the entire graph; all edges and all nodes.
- * Note that deleted nodes are removed from the graph, but not deleted from memory.
- * To ease handling with them the deleted flag on them will be set to true and they will remain in memory until the
- * graph that used to hold them is deleted.
+ * The graph owns its nodes and edges through std::unique_ptr. Removing a node (with cleanUp) does not
+ * destroy it immediately: it is moved into deletedNodes so back-substitution can reactivate it, and it is
+ * destroyed together with the graph.
  *
- * You should never manually deleted nodes or edges, leave that entirely to a graph instance
+ * You should never manually delete nodes or edges, leave that entirely to a graph instance
  */
 template <typename T>
 class PBQPGraph {
 private:
+	using NodeSet =
+			std::unordered_set<std::unique_ptr<PBQPNode<T>>, OwningPtrHash<PBQPNode<T>>, OwningPtrEqual<PBQPNode<T>>>;
+	using EdgeSet =
+			std::unordered_set<std::unique_ptr<PBQPEdge<T>>, OwningPtrHash<PBQPEdge<T>>, OwningPtrEqual<PBQPEdge<T>>>;
+
 	unsigned int indexMaximum = 0;
-	std::set<PBQPNode<T>*> nodes;
-	std::set<PBQPEdge<T>*> edges;
-	std::set<PBQPNode<T>*> deletedNodes;
+	NodeSet nodes;
+	EdgeSet edges;
+	NodeSet deletedNodes;
 	std::vector<PBQPNode<T>*> peo;
 
 public:
+	using NodeIterator = RawPtrIterator<PBQPNode<T>, typename NodeSet::const_iterator>;
+	using EdgeIterator = RawPtrIterator<PBQPEdge<T>, typename EdgeSet::const_iterator>;
+
 	/**
 	 * Create a new empty graph with no nodes
 	 */
 	PBQPGraph() = default;
 
 	/**
-	 * Deletes all nodes and edges contained within the graph
+	 * The owning unique_ptr sets free all nodes and edges automatically
 	 */
-	~PBQPGraph() {
-		clear();
-	}
+	~PBQPGraph() = default;
 
 	/**
 	 * Copy constructor deep copies all nodes, edges and PEO
 	 */
 	PBQPGraph(const PBQPGraph<T>* graph) : indexMaximum(graph->indexMaximum) {
 		std::map<PBQPNode<T>*, PBQPNode<T>*> nodeReMapping;
-		for (PBQPNode<T>* node : graph->nodes) {
-			auto createdNode = std::make_unique<PBQPNode<T>>(node);
-			addNode(createdNode.get());
-			nodeReMapping.insert({node, createdNode.get()});
-			createdNode.release();
+		for (const std::unique_ptr<PBQPNode<T>>& nodePtr : graph->nodes) {
+			PBQPNode<T>* oldNode = nodePtr.get();
+			auto createdNode = std::make_unique<PBQPNode<T>>(oldNode);
+			nodeReMapping.insert({oldNode, createdNode.get()});
+			nodes.insert(std::move(createdNode));
 		}
-		for (PBQPEdge<T>* edge : graph->edges) {
+		for (const std::unique_ptr<PBQPEdge<T>>& edgePtr : graph->edges) {
+			PBQPEdge<T>* edge = edgePtr.get();
 			PBQPNode<T>* newSource = nodeReMapping.find(edge->getSource())->second;
 			PBQPNode<T>* newTarget = nodeReMapping.find(edge->getTarget())->second;
 			auto createdEdge = std::make_unique<PBQPEdge<T>>(newSource, newTarget, edge);
-			addEdge(createdEdge.get());
 			newSource->addEdge(createdEdge.get());
 			newTarget->addEdge(createdEdge.get());
-			createdEdge.release();
+			edges.insert(std::move(createdEdge));
 		}
 		for (PBQPNode<T>* oldNode : graph->peo) {
-			PBQPNode<T>* newNode = nodeReMapping.find(oldNode)->second;
-			peo.push_back(newNode);
+			peo.push_back(nodeReMapping.find(oldNode)->second);
 		}
 	}
 
@@ -85,19 +166,10 @@ public:
 	 * Completly resets the graph, removes all nodes, edges and peo and deletes them
 	 */
 	void clear() {
-		for (PBQPEdge<T>* edge : edges) {
-			delete edge;
-		}
 		edges.clear();
-		for (PBQPNode<T>* node : nodes) {
-			delete node;
-		}
 		nodes.clear();
-		for (PBQPNode<T>* node : deletedNodes) {
-			delete node;
-		}
-		peo.clear();
 		deletedNodes.clear();
+		peo.clear();
 	}
 
 	/**
@@ -107,24 +179,28 @@ public:
 	PBQPNode<T>* addNode(Vector<T>& vector) {
 		auto node = std::make_unique<PBQPNode<T>>(indexMaximum++, vector);
 		PBQPNode<T>* nodePtr = node.get();
-		nodes.insert(nodePtr);
-		node.release();
+		nodes.insert(std::move(node));
 		return nodePtr;
 	}
 
 	/**
-	 * Directly inserts a preexisting node. No checks are done on the internal state of the node or
-	 * its possibly referenced edges. The user must ensure that this is handled properly
+	 * Adopts a preexisting node into this graph, taking ownership of it. No checks are done on the internal
+	 * state of the node or its possibly referenced edges. The user must ensure that this is handled properly
 	 *
-	 * It is fine to add readd nodes which were removed from this graph previously. It is not okay to add nodes
-	 * which were removed from another graph
+	 * A node this graph previously removed (and moved to deletedNodes) is reactivated and its ownership stays
+	 * with this graph. A node that was released from another graph (via removeNode with cleanUp == false) is
+	 * newly adopted. It is not okay to add a node that is still owned by another graph.
 	 */
 	void addNode(PBQPNode<T>* node) {
 		assert(node);
-		nodes.insert(node);
 		if (node->isDeleted()) {
+			auto it = deletedNodes.find(node);
+			assert(it != deletedNodes.end());
+			auto handle = deletedNodes.extract(it);
 			node->setDeleted(false);
-			deletedNodes.erase(node);
+			nodes.insert(std::move(handle));
+		} else {
+			nodes.insert(std::unique_ptr<PBQPNode<T>>(node));
 		}
 		if (node->getIndex() >= indexMaximum) {
 			indexMaximum = node->getIndex() + 1;
@@ -132,12 +208,13 @@ public:
 	}
 
 	/**
-	 * Directly inserts a preexisting edge. No checks are done on the internal state of the edge or
-	 * whether the nodes incident to it are even in the graph. The user must ensure that this is handled properly
+	 * Adopts a preexisting edge into this graph, taking ownership of it. No checks are done on the internal
+	 * state of the edge or whether the nodes incident to it are even in the graph. The user must ensure that
+	 * this is handled properly. The edge must not still be owned by another graph.
 	 */
 	void addEdge(PBQPEdge<T>* edge) {
 		assert(edge);
-		edges.insert(edge);
+		edges.insert(std::unique_ptr<PBQPEdge<T>>(edge));
 	}
 
 	/**
@@ -175,20 +252,18 @@ public:
 		}
 		auto edge = std::make_unique<PBQPEdge<T>>(source, target, matrix);
 		PBQPEdge<T>* edgePtr = edge.get();
-		edges.insert(edgePtr);
 		source->addEdge(edgePtr);
-		if (source != target) {
-			target->addEdge(edgePtr);
-		}
-		edge.release();
+		target->addEdge(edgePtr);
+		edges.insert(std::move(edge));
 		return edgePtr;
 	}
 
 	/**
 	 * Removes the given node and all edges connected to it from the graph
 	 *
-	 * If the cleanUp flag is set, the node and its edges will also be deleted,
-	 * if not they're removed from the graph, but left alone otherwise.
+	 * If the cleanUp flag is set, the node is moved into deletedNodes (still owned by the graph) and its
+	 * edges are destroyed. If not, the node and its edges are released from this graph's ownership and left
+	 * alone otherwise, ready to be adopted by another graph.
 	 *
 	 * This means that if cleanUp is not set, nodes within the graph may be connected
 	 * to nodes that are not in the graph anymore officially, but still known through
@@ -197,17 +272,26 @@ public:
 	 */
 	void removeNode(PBQPNode<T>* node, bool cleanUp = true) {
 		for (PBQPEdge<T>* edge : std::vector<PBQPEdge<T>*>(node->getAdjacentEdges(false))) {
-			edges.erase(edge);
+			auto edgeIter = edges.find(edge);
 			if (cleanUp) {
 				edge->getOtherEnd(node)->removeEdge(edge);
 				node->removeEdge(edge);
-				delete edge;
+				if (edgeIter != edges.end()) {
+					edges.erase(edgeIter); // destroys the edge
+				}
+			} else if (edgeIter != edges.end()) {
+				edges.extract(edgeIter).value().release(); // release ownership, edge survives
 			}
 		}
-		nodes.erase(node);
+		auto nodeIter = nodes.find(node);
 		if (cleanUp) {
-			node->setDeleted(true);
-			deletedNodes.insert(node);
+			if (nodeIter != nodes.end()) {
+				auto handle = nodes.extract(nodeIter);
+				node->setDeleted(true);
+				deletedNodes.insert(std::move(handle));
+			}
+		} else if (nodeIter != nodes.end()) {
+			nodes.extract(nodeIter).value().release(); // release ownership, node survives
 		}
 	}
 
@@ -216,10 +300,12 @@ public:
 	 * The edge is deleted from adjacent nodes as well, but the adjacent nodes stay in the graph
 	 */
 	void removeEdge(PBQPEdge<T>* edge) {
-		edges.erase(edge);
 		edge->getSource()->removeEdge(edge);
 		edge->getTarget()->removeEdge(edge);
-		delete edge;
+		auto edgeIter = edges.find(edge);
+		if (edgeIter != edges.end()) {
+			edges.erase(edgeIter); // destroys the edge
+		}
 	}
 
 	/*
@@ -236,39 +322,33 @@ public:
 	 */
 
 	/**
-	 * Gets an iterator to the begin of the nodes in this graph. Consistent with the behavior of std::set,
-	 * this iterator stays valid throughout insert() and only gets invalidated if the element its pointing
-	 * to is removed
+	 * Gets an iterator to the begin of the nodes in this graph. Dereferencing it yields a raw PBQPNode<T>*.
+	 * The iterator stays valid as long as the element it points to is not removed.
 	 */
-	typename std::set<PBQPNode<T>*>::iterator getNodeBegin() const {
-		return nodes.begin();
+	[[nodiscard]] NodeIterator getNodeBegin() const {
+		return NodeIterator(nodes.begin());
 	}
 
 	/**
-	 * Gets an iterator to the end of the nodes in this graph. Consistent with the behavior of std::set,
-	 * this iterator stays valid throughout insert() and only gets invalidated if the element its pointing
-	 * to is removed
+	 * Gets an iterator to the end of the nodes in this graph.
 	 */
-	typename std::set<PBQPNode<T>*>::iterator getNodeEnd() const {
-		return nodes.end();
+	[[nodiscard]] NodeIterator getNodeEnd() const {
+		return NodeIterator(nodes.end());
 	}
 
 	/**
-	 * Gets an iterator to the begin of the nodes in this graph. Consistent with the behavior of std::set,
-	 * this iterator stays valid throughout insert() and only gets invalidated if the element its pointing
-	 * to is removed
+	 * Gets an iterator to the begin of the edges in this graph. Dereferencing it yields a raw PBQPEdge<T>*.
+	 * The iterator stays valid as long as the element it points to is not removed.
 	 */
-	typename std::set<PBQPEdge<T>*>::iterator getEdgeBegin() const {
-		return edges.begin();
+	[[nodiscard]] EdgeIterator getEdgeBegin() const {
+		return EdgeIterator(edges.begin());
 	}
 
 	/**
-	 * Gets an iterator to the begin of the nodes in this graph. Consistent with the behavior of std::set,
-	 * this iterator stays valid throughout insert() and only gets invalidated if the element its pointing
-	 * to is removed
+	 * Gets an iterator to the end of the edges in this graph.
 	 */
-	typename std::set<PBQPEdge<T>*>::iterator getEdgeEnd() const {
-		return edges.end();
+	[[nodiscard]] EdgeIterator getEdgeEnd() const {
+		return EdgeIterator(edges.end());
 	}
 
 	/**
@@ -305,7 +385,7 @@ public:
 	 * Replaces the current PEO with the given one
 	 */
 	void setPEO(std::vector<PBQPNode<T>*> newPeo) {
-		peo = newPeo;
+		peo = std::move(newPeo);
 	}
 };
 } // namespace pbqppapa

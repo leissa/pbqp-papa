@@ -33,7 +33,7 @@ TEST_CASE("basicEdgeGeneration") {
 	// generate a bunch of edges
 	PBQPNode<int>* node1 = *(graph.getNodeBegin());
 	int counter = 0;
-	for (std::set<PBQPNode<int>*>::iterator it = graph.getNodeBegin(); it != graph.getNodeEnd(); it++) {
+	for (auto it = graph.getNodeBegin(); it != graph.getNodeEnd(); ++it) {
 		PBQPNode<int>* node2 = *it;
 		if (node2 == node1) {
 			continue;
@@ -76,7 +76,7 @@ TEST_CASE("advancedEdgeGeneration") {
 	auto graph = std::unique_ptr<PBQPGraph<int>>(genGraph(size));
 	CHECK_EQ(graph->getEdgeCount(), size * (size - 1) / 2);
 	CHECK_EQ(graph->getNodeCount(), size);
-	for (std::set<PBQPNode<int>*>::iterator it = graph->getNodeBegin(); it != graph->getNodeEnd(); it++) {
+	for (auto it = graph->getNodeBegin(); it != graph->getNodeEnd(); ++it) {
 		PBQPNode<int>* node = *it;
 		CHECK_EQ(node->getDegree(), size - 1);
 		CHECK_EQ(node->getAdjacentNodes(false).size(), size - 1);

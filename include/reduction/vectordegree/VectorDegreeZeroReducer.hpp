@@ -28,8 +28,8 @@ public:
 	~VectorDegreeZeroReducer() = default;
 
 	std::vector<PBQPGraph<T>*>& reduce() {
-		auto iter = this->graph->getNodeBegin();
-		while (iter != this->graph->getNodeEnd()) {
+		auto iter = this->graph->begin();
+		while (iter != this->graph->end()) {
 			PBQPNode<T>* node = *iter;
 			if (node->getVectorDegree() == 0) {
 				reduceVectorDegreeZero(node, this->graph);

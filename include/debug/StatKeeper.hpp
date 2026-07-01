@@ -24,8 +24,8 @@ public:
 		nodeCount = graph->getNodeCount();
 		edgeCount = graph->getEdgeCount();
 		float vectorDegreeSum = 0;
-		for (auto iter = graph->getNodeBegin(); iter != graph->getNodeEnd(); ++iter) {
-			vectorDegreeSum += static_cast<float>((*iter)->getVectorDegree());
+		for (auto node : graph->nodes()) {
+			vectorDegreeSum += static_cast<float>(node->getVectorDegree());
 		}
 		averageVectorDegree = vectorDegreeSum / static_cast<float>(nodeCount);
 	}

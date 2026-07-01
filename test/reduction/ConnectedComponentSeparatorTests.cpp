@@ -28,7 +28,7 @@ TEST_CASE("singleNodeTest") {
 	PBQPGraph<signed int>* retrievedGraph = components[0];
 	CHECK_EQ(0, retrievedGraph->getEdgeCount());
 	CHECK_EQ(1, retrievedGraph->getNodeCount());
-	CHECK_EQ((*(graph.getNodeBegin()))->getIndex(), (*(retrievedGraph->getNodeBegin()))->getIndex());
+	CHECK_EQ((*(graph.begin()))->getIndex(), (*(retrievedGraph->begin()))->getIndex());
 	if (retrievedGraph != &graph) {
 		// not neccessary for our implementation, but just to make sure
 		std::unique_ptr<PBQPGraph<signed int>> ownedGraph(retrievedGraph);
@@ -65,7 +65,7 @@ TEST_CASE("basicNodeTest") {
 		PBQPGraph<signed int>* retrievedGraph = components[i];
 		CHECK_EQ(0, retrievedGraph->getEdgeCount());
 		CHECK_EQ(1, retrievedGraph->getNodeCount());
-		unsigned int index = (*(retrievedGraph->getNodeBegin()))->getIndex();
+		auto index = (*(retrievedGraph->begin()))->getIndex();
 		CHECK_EQ(0, nodeIndices.count(index));
 		nodeIndices.insert(index);
 		if (retrievedGraph != &graph) {
@@ -106,8 +106,8 @@ TEST_CASE("advancedNodeTest") {
 		CHECK_EQ(edgeCount - localSize, retrievedGraph->getEdgeCount());
 		CHECK_EQ(localSize, retrievedGraph->getNodeCount());
 		// ensure each node is only in one subgraph
-		for (auto iter = retrievedGraph->getNodeBegin(); iter != retrievedGraph->getNodeEnd(); ++iter) {
-			unsigned int index = (*iter)->getIndex();
+		for (auto node : retrievedGraph->nodes()) {
+			auto index = node->getIndex();
 			CHECK_EQ(0, nodeIndices.count(index));
 			nodeIndices.insert(index);
 		}

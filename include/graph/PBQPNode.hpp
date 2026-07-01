@@ -2,6 +2,7 @@
 #define PBQPNODE_H_
 
 #include <algorithm>
+#include <set>
 #include <vector>
 
 #include "graph/Vector.hpp"

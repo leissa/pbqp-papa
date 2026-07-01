@@ -36,8 +36,8 @@ public:
 	 * Creates a new instance to solve the given graph
 	 */
 	BranchBoundSolver(PBQPGraph<InfinityWrapper<T>>* graph) : graph(graph) {
-		for (auto iter = graph->getNodeBegin(); iter != graph->getNodeEnd(); ++iter) {
-			nodes.push_back(*iter);
+		for (auto node : graph->nodes()) {
+			nodes.push_back(node);
 		}
 	}
 
@@ -69,7 +69,7 @@ private:
 			}
 			bool allowedViaEdges = true;
 			InfinityWrapper<T> edgeSum(0);
-			for (PBQPEdge<InfinityWrapper<T>>* edge : node->getAdjacentEdges()) {
+			for (auto edge : node->getAdjacentEdges()) {
 				PBQPNode<InfinityWrapper<T>>* otherEnd = nodes.at(nodeCounter);
 				if (sol->hasSolution(otherEnd->getIndex())) {
 					InfinityWrapper<T> matrixValue;

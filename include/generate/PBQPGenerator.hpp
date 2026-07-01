@@ -68,8 +68,7 @@ public:
 		PBQPNode<T>* sourceNode = nullptr;
 		PBQPNode<T>* targetNode = nullptr;
 		int counter = 0;
-		for (auto iter = graph->getNodeBegin(); iter != graph->getNodeEnd(); ++iter) {
-			PBQPNode<T>* node = *iter;
+		for (auto node : graph->nodes()) {
 			if (counter == firstIndex) {
 				sourceNode = node;
 			}

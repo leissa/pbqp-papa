@@ -17,10 +17,8 @@ PBQPGraph<int>* genGraph(unsigned int size) {
 		Vector<int> vector = Vector<int>(2, arr1);
 		graph->addNode(vector);
 	}
-	for (auto it = graph->getNodeBegin(); it != graph->getNodeEnd(); ++it) {
-		PBQPNode<int>* node1 = *it;
-		for (auto it2 = graph->getNodeBegin(); it2 != graph->getNodeEnd(); ++it2) {
-			PBQPNode<int>* node2 = *it2;
+	for (auto node1 : graph->nodes()) {
+		for (auto node2 : graph->nodes()) {
 			int matrixCost[] = {3, 2, 5, 8};
 			Matrix<int> matrix = Matrix<int>(2, 2, matrixCost);
 			graph->addEdge(node1, node2, matrix);

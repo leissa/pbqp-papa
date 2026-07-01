@@ -37,8 +37,8 @@ public:
 	~DegreeTwoReducer() = default;
 
 	std::vector<PBQPGraph<T>*>& reduce() override {
-		auto iter = this->graph->getNodeBegin();
-		while (iter != this->graph->getNodeEnd()) {
+		auto iter = this->graph->begin();
+		while (iter != this->graph->end()) {
 			PBQPNode<T>* node = *iter++;
 			if (node->getDegree() == 2) {
 				solutions.emplace_back(reduceDegreeTwo(node, this->graph));

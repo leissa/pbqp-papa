@@ -35,8 +35,7 @@ public:
 	std::vector<PBQPGraph<T>*>& reduce() override {
 		std::vector<PBQPNode<T>*> dependencyNodes;
 		std::vector<PBQPNode<T>*> solutionNodes;
-		for (auto iter = this->graph->getNodeBegin(); iter != this->graph->getNodeEnd(); ++iter) {
-			PBQPNode<T>* node = *iter;
+		for (auto node : this->graph->nodes()) {
 			if (node->getVectorDegree() == 1) {
 				solutionNodes.push_back(node);
 			}
@@ -45,7 +44,7 @@ public:
 		std::vector<unsigned short> dependencySelection;
 		std::vector<unsigned short> solutionSelection(solutionNodes.size(), 0);
 		solution->setSolution(dependencySelection, solutionSelection);
-		for (PBQPNode<T>* node : solutionNodes) {
+		for (auto node : solutionNodes) {
 			this->graph->removeNode(node);
 		}
 		this->result->push_back(this->graph);

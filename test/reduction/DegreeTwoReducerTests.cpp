@@ -49,7 +49,7 @@ TEST_CASE("simpleCalculation") {
 	PBQPGraph<int>* resultGraph = result[0];
 	CHECK_EQ(resultGraph->getNodeCount(), 2);
 	CHECK_EQ(resultGraph->getEdgeCount(), 1);
-	PBQPEdge<int>* edge = *(resultGraph->getEdgeBegin());
+	auto edge = *(resultGraph->edges().begin());
 	CHECK_EQ(edge->getMatrix().get(0, 0), 6);
 	CHECK_EQ(edge->getMatrix().get(0, 1), 12);
 	CHECK_EQ(edge->getMatrix().get(1, 0), 10);

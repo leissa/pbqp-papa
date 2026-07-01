@@ -93,8 +93,7 @@ public:
 		unsigned long index = 0;
 		// TODO Speed this up by completly copying the nodes to reduce the amount of reference lookup neccessary later
 		// on?
-		for (auto iter = graph->getNodeBegin(); iter != graph->getNodeEnd(); ++iter) {
-			PBQPNode<T>* node = *iter;
+		for (auto node : graph->nodes()) {
 			nodes[index] = node;
 			limits[index++] = node->getVectorDegree() - 1;
 		}
@@ -114,7 +113,7 @@ public:
 			previousCost = currValue;
 		}
 		// copy solution
-		for (PBQPNode<T>* node : nodes) {
+		for (auto node : nodes) {
 			this->solution->setSolution(node->getIndex(), minimalSelection.at(node->getIndex()));
 		}
 	}
@@ -129,7 +128,7 @@ private:
 		T sum = T();
 		PBQPNode<T>* nodeChanged = nodes[nodeLastUpdated];
 		unsigned short currentNodeSelection = currentSelection[nodeChanged->getIndex()];
-		for (PBQPEdge<T>* edge : nodeChanged->getAdjacentEdges(false)) {
+		for (auto edge : nodeChanged->getAdjacentEdges(false)) {
 			if (edge->getSource() == nodeChanged) {
 				sum += edge->getMatrix().get(currentNodeSelection, currentSelection[edge->getTarget()->getIndex()]);
 				sum -= edge->getMatrix().get(
@@ -150,15 +149,11 @@ private:
 	 */
 	T calculateNewSolution() {
 		T sum = T();
-		auto iter = this->graph->getEdgeBegin();
-		while (iter != this->graph->getEdgeEnd()) {
-			PBQPEdge<T>* edge = *iter++;
+		for (auto edge : this->graph->edges()) {
 			sum += edge->getMatrix().get(
 					currentSelection[edge->getSource()->getIndex()], currentSelection[edge->getTarget()->getIndex()]);
 		}
-		auto nodeIter = this->graph->getNodeBegin();
-		while (nodeIter != this->graph->getNodeEnd()) {
-			PBQPNode<T>* node = *nodeIter++;
+		for (auto node : this->graph->nodes()) {
 			sum += node->getVector().get(currentSelection[node->getIndex()]);
 		}
 		return sum;
@@ -169,7 +164,7 @@ private:
 	 */
 	long incrementSolution() {
 		for (unsigned int i = 0; i < this->graph->getNodeCount(); i++) {
-			unsigned int index = (nodes[i])->getIndex();
+			auto index = (nodes[i])->getIndex();
 			if (trend[i]) {
 				// ascending
 				if (currentSelection[index] == limits[i]) {

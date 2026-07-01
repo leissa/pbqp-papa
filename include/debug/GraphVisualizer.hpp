@@ -74,8 +74,7 @@ public:
 		auto nodeTooltipValue = convertStringToC("tooltipValue");
 		agattr(graphVis, AGNODE, nodeUrlAttr.get(), nodeUrlValue.get());
 		agattr(graphVis, AGNODE, nodeTooltipAttr.get(), nodeTooltipValue.get());
-		for (auto iter = graph->getNodeBegin(); iter != graph->getNodeEnd(); ++iter) {
-			PBQPNode<T>* node = *iter;
+		for (auto node : graph->nodes()) {
 			auto name = convertStringToC(
 					"N " + std::to_string(node->getIndex()) + "\n" + serial.matrixToString(node->getVector()));
 			Agnode_t* nodeVis;
@@ -106,8 +105,7 @@ public:
 		agattr(graphVis, AGEDGE, edgeUrlAttr.get(), edgeUrlValue.get());
 		agattr(graphVis, AGEDGE, edgeTooltipAttr.get(), edgeTooltipValue.get());
 		agattr(graphVis, AGEDGE, penWidthAttr.get(), penWidthValue.get());
-		for (auto iter = graph->getEdgeBegin(); iter != graph->getEdgeEnd(); ++iter) {
-			PBQPEdge<T>* edge = *iter;
+		for (auto edge : graph->edges()) {
 			Agnode_t* sourceVis = nodeMapping.find(edge->getSource())->second;
 			Agnode_t* targetVis = nodeMapping.find(edge->getTarget())->second;
 			auto name = convertStringToC(serial.matrixToString(edge->getMatrix()));

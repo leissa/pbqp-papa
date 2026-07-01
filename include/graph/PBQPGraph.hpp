@@ -4,11 +4,9 @@
 #include <cassert>
 #include <cstddef>
 #include <functional>
-#include <iostream>
-#include <iterator>
 #include <map>
 #include <memory>
-#include <set>
+#include <ranges>
 #include <unordered_set>
 #include <vector>
 
@@ -62,50 +60,14 @@ struct OwningPtrEqual {
 };
 
 /**
- * Iterator adaptor over a container of std::unique_ptr<U> that dereferences to a raw U*.
- * This preserves the graph's raw-pointer iteration API even though the graph now owns its
- * nodes and edges through unique_ptr.
- */
-template <typename U, typename BaseIterator>
-class RawPtrIterator {
-	BaseIterator base;
-
-public:
-	using iterator_category = std::forward_iterator_tag;
-	using value_type = U*;
-	using difference_type = std::ptrdiff_t;
-	using pointer = U*;
-	using reference = U*;
-
-	RawPtrIterator() = default;
-	explicit RawPtrIterator(BaseIterator base) : base(base) {}
-
-	[[nodiscard]] U* operator*() const {
-		return base->get();
-	}
-	RawPtrIterator& operator++() {
-		++base;
-		return *this;
-	}
-	RawPtrIterator operator++(int) {
-		RawPtrIterator tmp = *this;
-		++base;
-		return tmp;
-	}
-	[[nodiscard]] bool operator==(const RawPtrIterator& other) const {
-		return base == other.base;
-	}
-	[[nodiscard]] bool operator!=(const RawPtrIterator& other) const {
-		return base != other.base;
-	}
-};
-
-/**
  * A graph representing a PBQP. The template type represents the data type of the numbers in the cost vectors
  * and cost matrices. It is consistent throughout the entire graph; all edges and all nodes.
  * The graph owns its nodes and edges through std::unique_ptr. Removing a node (with cleanUp) does not
- * destroy it immediately: it is moved into deletedNodes so back-substitution can reactivate it, and it is
+ * destroy it immediately: it is moved into deletedNodeSet so back-substitution can reactivate it, and it is
  * destroyed together with the graph.
+ *
+ * Iterate the nodes with `for (auto* node : graph->nodes())` (or directly `for (auto* node : *graph)`) and the
+ * edges with `for (auto* edge : graph->edges())`. Both yield raw pointers.
  *
  * You should never manually delete nodes or edges, leave that entirely to a graph instance
  */
@@ -117,16 +79,30 @@ private:
 	using EdgeSet =
 			std::unordered_set<std::unique_ptr<PBQPEdge<T>>, OwningPtrHash<PBQPEdge<T>>, OwningPtrEqual<PBQPEdge<T>>>;
 
+	// Unwrap an owning unique_ptr into the raw pointer the public API iterates over.
+	static PBQPNode<T>* nodeToRaw(const std::unique_ptr<PBQPNode<T>>& ptr) {
+		return ptr.get();
+	}
+	static PBQPEdge<T>* edgeToRaw(const std::unique_ptr<PBQPEdge<T>>& ptr) {
+		return ptr.get();
+	}
+
+	using NodeView = std::ranges::transform_view<std::ranges::ref_view<NodeSet>,
+			PBQPNode<T>* (*)(const std::unique_ptr<PBQPNode<T>>&)>;
+	using EdgeView = std::ranges::transform_view<std::ranges::ref_view<EdgeSet>,
+			PBQPEdge<T>* (*)(const std::unique_ptr<PBQPEdge<T>>&)>;
+
 	unsigned int indexMaximum = 0;
-	NodeSet nodes;
-	EdgeSet edges;
-	NodeSet deletedNodes;
+	NodeSet nodeSet;
+	EdgeSet edgeSet;
+	NodeSet deletedNodeSet;
 	std::vector<PBQPNode<T>*> peo;
+	// Views that present the owning sets as ranges of raw pointers. Kept as members so begin()/end()
+	// hand out iterators into a stable view (transform_view iterators reference their parent view).
+	NodeView nodeView{nodeSet | std::views::transform(&nodeToRaw)};
+	EdgeView edgeView{edgeSet | std::views::transform(&edgeToRaw)};
 
 public:
-	using NodeIterator = RawPtrIterator<PBQPNode<T>, typename NodeSet::const_iterator>;
-	using EdgeIterator = RawPtrIterator<PBQPEdge<T>, typename EdgeSet::const_iterator>;
-
 	/**
 	 * Create a new empty graph with no nodes
 	 */
@@ -137,25 +113,30 @@ public:
 	 */
 	~PBQPGraph() = default;
 
+	// The graph owns its nodes/edges and holds views into them, so it must not be trivially copied.
+	// Use the pointer constructor below for a deep copy.
+	PBQPGraph(const PBQPGraph<T>&) = delete;
+	PBQPGraph<T>& operator=(const PBQPGraph<T>&) = delete;
+
 	/**
 	 * Copy constructor deep copies all nodes, edges and PEO
 	 */
 	PBQPGraph(const PBQPGraph<T>* graph) : indexMaximum(graph->indexMaximum) {
 		std::map<PBQPNode<T>*, PBQPNode<T>*> nodeReMapping;
-		for (const std::unique_ptr<PBQPNode<T>>& nodePtr : graph->nodes) {
+		for (const std::unique_ptr<PBQPNode<T>>& nodePtr : graph->nodeSet) {
 			PBQPNode<T>* oldNode = nodePtr.get();
 			auto createdNode = std::make_unique<PBQPNode<T>>(oldNode);
 			nodeReMapping.insert({oldNode, createdNode.get()});
-			nodes.insert(std::move(createdNode));
+			nodeSet.insert(std::move(createdNode));
 		}
-		for (const std::unique_ptr<PBQPEdge<T>>& edgePtr : graph->edges) {
+		for (const std::unique_ptr<PBQPEdge<T>>& edgePtr : graph->edgeSet) {
 			PBQPEdge<T>* edge = edgePtr.get();
 			PBQPNode<T>* newSource = nodeReMapping.find(edge->getSource())->second;
 			PBQPNode<T>* newTarget = nodeReMapping.find(edge->getTarget())->second;
 			auto createdEdge = std::make_unique<PBQPEdge<T>>(newSource, newTarget, edge);
 			newSource->addEdge(createdEdge.get());
 			newTarget->addEdge(createdEdge.get());
-			edges.insert(std::move(createdEdge));
+			edgeSet.insert(std::move(createdEdge));
 		}
 		for (PBQPNode<T>* oldNode : graph->peo) {
 			peo.push_back(nodeReMapping.find(oldNode)->second);
@@ -166,9 +147,9 @@ public:
 	 * Completly resets the graph, removes all nodes, edges and peo and deletes them
 	 */
 	void clear() {
-		edges.clear();
-		nodes.clear();
-		deletedNodes.clear();
+		edgeSet.clear();
+		nodeSet.clear();
+		deletedNodeSet.clear();
 		peo.clear();
 	}
 
@@ -179,7 +160,7 @@ public:
 	PBQPNode<T>* addNode(Vector<T>& vector) {
 		auto node = std::make_unique<PBQPNode<T>>(indexMaximum++, vector);
 		PBQPNode<T>* nodePtr = node.get();
-		nodes.insert(std::move(node));
+		nodeSet.insert(std::move(node));
 		return nodePtr;
 	}
 
@@ -187,20 +168,20 @@ public:
 	 * Adopts a preexisting node into this graph, taking ownership of it. No checks are done on the internal
 	 * state of the node or its possibly referenced edges. The user must ensure that this is handled properly
 	 *
-	 * A node this graph previously removed (and moved to deletedNodes) is reactivated and its ownership stays
+	 * A node this graph previously removed (and moved to deletedNodeSet) is reactivated and its ownership stays
 	 * with this graph. A node that was released from another graph (via removeNode with cleanUp == false) is
 	 * newly adopted. It is not okay to add a node that is still owned by another graph.
 	 */
 	void addNode(PBQPNode<T>* node) {
 		assert(node);
 		if (node->isDeleted()) {
-			auto it = deletedNodes.find(node);
-			assert(it != deletedNodes.end());
-			auto handle = deletedNodes.extract(it);
+			auto it = deletedNodeSet.find(node);
+			assert(it != deletedNodeSet.end());
+			auto handle = deletedNodeSet.extract(it);
 			node->setDeleted(false);
-			nodes.insert(std::move(handle));
+			nodeSet.insert(std::move(handle));
 		} else {
-			nodes.insert(std::unique_ptr<PBQPNode<T>>(node));
+			nodeSet.insert(std::unique_ptr<PBQPNode<T>>(node));
 		}
 		if (node->getIndex() >= indexMaximum) {
 			indexMaximum = node->getIndex() + 1;
@@ -214,7 +195,7 @@ public:
 	 */
 	void addEdge(PBQPEdge<T>* edge) {
 		assert(edge);
-		edges.insert(std::unique_ptr<PBQPEdge<T>>(edge));
+		edgeSet.insert(std::unique_ptr<PBQPEdge<T>>(edge));
 	}
 
 	/**
@@ -254,14 +235,14 @@ public:
 		PBQPEdge<T>* edgePtr = edge.get();
 		source->addEdge(edgePtr);
 		target->addEdge(edgePtr);
-		edges.insert(std::move(edge));
+		edgeSet.insert(std::move(edge));
 		return edgePtr;
 	}
 
 	/**
 	 * Removes the given node and all edges connected to it from the graph
 	 *
-	 * If the cleanUp flag is set, the node is moved into deletedNodes (still owned by the graph) and its
+	 * If the cleanUp flag is set, the node is moved into deletedNodeSet (still owned by the graph) and its
 	 * edges are destroyed. If not, the node and its edges are released from this graph's ownership and left
 	 * alone otherwise, ready to be adopted by another graph.
 	 *
@@ -272,26 +253,26 @@ public:
 	 */
 	void removeNode(PBQPNode<T>* node, bool cleanUp = true) {
 		for (PBQPEdge<T>* edge : std::vector<PBQPEdge<T>*>(node->getAdjacentEdges(false))) {
-			auto edgeIter = edges.find(edge);
+			auto edgeIter = edgeSet.find(edge);
 			if (cleanUp) {
 				edge->getOtherEnd(node)->removeEdge(edge);
 				node->removeEdge(edge);
-				if (edgeIter != edges.end()) {
-					edges.erase(edgeIter); // destroys the edge
+				if (edgeIter != edgeSet.end()) {
+					edgeSet.erase(edgeIter); // destroys the edge
 				}
-			} else if (edgeIter != edges.end()) {
-				edges.extract(edgeIter).value().release(); // release ownership, edge survives
+			} else if (edgeIter != edgeSet.end()) {
+				edgeSet.extract(edgeIter).value().release(); // release ownership, edge survives
 			}
 		}
-		auto nodeIter = nodes.find(node);
+		auto nodeIter = nodeSet.find(node);
 		if (cleanUp) {
-			if (nodeIter != nodes.end()) {
-				auto handle = nodes.extract(nodeIter);
+			if (nodeIter != nodeSet.end()) {
+				auto handle = nodeSet.extract(nodeIter);
 				node->setDeleted(true);
-				deletedNodes.insert(std::move(handle));
+				deletedNodeSet.insert(std::move(handle));
 			}
-		} else if (nodeIter != nodes.end()) {
-			nodes.extract(nodeIter).value().release(); // release ownership, node survives
+		} else if (nodeIter != nodeSet.end()) {
+			nodeSet.extract(nodeIter).value().release(); // release ownership, node survives
 		}
 	}
 
@@ -302,67 +283,53 @@ public:
 	void removeEdge(PBQPEdge<T>* edge) {
 		edge->getSource()->removeEdge(edge);
 		edge->getTarget()->removeEdge(edge);
-		auto edgeIter = edges.find(edge);
-		if (edgeIter != edges.end()) {
-			edges.erase(edgeIter); // destroys the edge
+		auto edgeIter = edgeSet.find(edge);
+		if (edgeIter != edgeSet.end()) {
+			edgeSet.erase(edgeIter); // destroys the edge
 		}
 	}
 
-	/*
-	 * Ok I know that the following is a weird iterator pattern but hear me out:
-	 * Implementing our own iterator here was out of scope and I was actively recommended against doing so.
-	 * I did not want to return the entire set of edges, because that'd heavily violate the encapsulation I'm
-	 * trying to achieve here
-	 * I could not return a 'const std::set', because it'd contain 'const PBQPNode*' and we want to modify the cost
-	 * vectors/matrices of nodes/edges quite often
-	 * Additionally nodes will be actively deleted as part of reductions leading to problems when iterating, which is
-	 * made a bit less worse by going this way
-	 *
-	 * TL;DR C++ is bad. Or maybe its just me
-	 */
-
 	/**
-	 * Gets an iterator to the begin of the nodes in this graph. Dereferencing it yields a raw PBQPNode<T>*.
-	 * The iterator stays valid as long as the element it points to is not removed.
+	 * A range over the graph's nodes, yielding raw PBQPNode<T>* handles
+	 * (e.g. `for (auto* node : graph->nodes())`). The underlying storage owns the nodes; the view just
+	 * unwraps the owning unique_ptr. An iterator stays valid as long as the element it points to is not
+	 * removed, so the reduction pattern of advancing past a node before removing it remains safe.
 	 */
-	[[nodiscard]] NodeIterator getNodeBegin() const {
-		return NodeIterator(nodes.begin());
+	[[nodiscard]] NodeView nodes() const {
+		return nodeView;
 	}
 
 	/**
-	 * Gets an iterator to the end of the nodes in this graph.
+	 * A range over the graph's edges, yielding raw PBQPEdge<T>* handles
+	 * (e.g. `for (auto* edge : graph->edges())`).
 	 */
-	[[nodiscard]] NodeIterator getNodeEnd() const {
-		return NodeIterator(nodes.end());
+	[[nodiscard]] EdgeView edges() const {
+		return edgeView;
 	}
 
 	/**
-	 * Gets an iterator to the begin of the edges in this graph. Dereferencing it yields a raw PBQPEdge<T>*.
-	 * The iterator stays valid as long as the element it points to is not removed.
+	 * The graph itself is a range of its nodes, so `for (auto* node : *graph)` works too.
 	 */
-	[[nodiscard]] EdgeIterator getEdgeBegin() const {
-		return EdgeIterator(edges.begin());
+	[[nodiscard]] auto begin() const {
+		return nodeView.begin();
 	}
 
-	/**
-	 * Gets an iterator to the end of the edges in this graph.
-	 */
-	[[nodiscard]] EdgeIterator getEdgeEnd() const {
-		return EdgeIterator(edges.end());
+	[[nodiscard]] auto end() const {
+		return nodeView.end();
 	}
 
 	/**
 	 * Gets the amount of nodes currently in the graph
 	 */
 	[[nodiscard]] unsigned int getNodeCount() const {
-		return nodes.size();
+		return nodeSet.size();
 	}
 
 	/**
 	 * Gets the amount of edges currently in the graph
 	 */
 	[[nodiscard]] unsigned int getEdgeCount() const {
-		return edges.size();
+		return edgeSet.size();
 	}
 
 	/**

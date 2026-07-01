@@ -133,9 +133,8 @@ private:
 		nlohmann::json json;
 		json["meta"] = serializeMeta(graph);
 		nlohmann::json nodeJsons = nlohmann::json::array();
-		for (auto iter = graph->getNodeBegin(); iter != graph->getNodeEnd(); ++iter) {
+		for (auto node : graph->nodes()) {
 			nlohmann::json nodeJson;
-			PBQPNode<T>* node = *iter;
 			nodeJson["index"] = node->getIndex();
 			nlohmann::json costVector = nlohmann::json::array();
 			for (unsigned short i = 0; i < node->getVectorDegree(); i++) {
@@ -145,7 +144,7 @@ private:
 			if (debug) {
 				nodeJson["degree"] = node->getDegree();
 				nlohmann::json neighborVector = nlohmann::json::array();
-				for (PBQPNode<T>* neighbor : node->getAdjacentNodes()) {
+				for (auto neighbor : node->getAdjacentNodes()) {
 					neighborVector.push_back(std::to_string(neighbor->getIndex()));
 				}
 				nodeJson["neighbours"] = neighborVector;
@@ -154,8 +153,7 @@ private:
 		}
 		json["nodes"] = nodeJsons;
 		nlohmann::json edgeJsons = nlohmann::json::array();
-		for (auto iter = graph->getEdgeBegin(); iter != graph->getEdgeEnd(); ++iter) {
-			PBQPEdge<T>* edge = *iter;
+		for (auto edge : graph->edges()) {
 			nlohmann::json edgeJson;
 			edgeJson["source"] = edge->getSource()->getIndex();
 			edgeJson["target"] = edge->getTarget()->getIndex();

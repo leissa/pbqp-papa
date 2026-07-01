@@ -31,10 +31,9 @@ TEST_CASE("basicEdgeGeneration") {
 	}
 
 	// generate a bunch of edges
-	PBQPNode<int>* node1 = *(graph.getNodeBegin());
+	PBQPNode<int>* node1 = *(graph.begin());
 	int counter = 0;
-	for (auto it = graph.getNodeBegin(); it != graph.getNodeEnd(); ++it) {
-		PBQPNode<int>* node2 = *it;
+	for (auto node2 : graph.nodes()) {
 		if (node2 == node1) {
 			continue;
 		}
@@ -76,8 +75,7 @@ TEST_CASE("advancedEdgeGeneration") {
 	auto graph = std::unique_ptr<PBQPGraph<int>>(genGraph(size));
 	CHECK_EQ(graph->getEdgeCount(), size * (size - 1) / 2);
 	CHECK_EQ(graph->getNodeCount(), size);
-	for (auto it = graph->getNodeBegin(); it != graph->getNodeEnd(); ++it) {
-		PBQPNode<int>* node = *it;
+	for (auto node : graph->nodes()) {
 		CHECK_EQ(node->getDegree(), size - 1);
 		CHECK_EQ(node->getAdjacentNodes(false).size(), size - 1);
 	}
@@ -90,7 +88,7 @@ TEST_CASE("advancedEdgeRemoval") {
 	int removed = 0;
 	std::vector<PBQPNode<int>*> adjaNodes;
 	int ogEdgeCount = size / 2 * size + size/2;
-	for (PBQPEdge<int>* edge : node->getAdjacentEdges(true)) {
+	for (auto edge : node->getAdjacentEdges(true)) {
 		PBQPNode<int>* other = edge->getOtherEnd(node);
 		adjaNodes = other->getAdjacentNodes(true);
 		graph->removeEdge(edge);

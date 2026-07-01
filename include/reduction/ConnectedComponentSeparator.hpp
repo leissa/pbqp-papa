@@ -2,6 +2,7 @@
 #define REDUCTION_CONNECTEDCOMPONENTSEPARATOR_HPP_
 
 #include <memory>
+#include <set>
 #include <vector>
 
 namespace pbqppapa {
@@ -33,8 +34,7 @@ public:
 			std::set<PBQPNode<T>*> foundNodes;
 			std::vector<PBQPNode<T>*> todoStack;
 			if (this->graph->getNodeCount() > 0) {
-				auto iter = this->graph->getNodeBegin();
-				todoStack.push_back(*iter);
+				todoStack.push_back(*this->graph->begin());
 			}
 			while (!todoStack.empty()) {
 				PBQPNode<T>* node = todoStack.back();

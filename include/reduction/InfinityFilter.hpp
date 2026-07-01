@@ -23,9 +23,7 @@ public:
 	InfinityFilter(PBQPGraph<InfinityWrapper<T>>* graph) : PBQP_Reduction<T>(graph) {}
 
 	std::vector<PBQPGraph<InfinityWrapper<T>>*>& reduce() override {
-		auto iter = this->graph->getEdgeBegin();
-		while (iter != this->graph->getEdgeEnd()) {
-			PBQPEdge<InfinityWrapper<T>>* edge = *iter;
+		for (auto edge : this->graph->edges()) {
 			PBQPNode<InfinityWrapper<T>>* source = edge->getSource();
 			PBQPNode<InfinityWrapper<T>>* target = edge->getTarget();
 			Matrix<InfinityWrapper<T>>* valueMatrix = &(edge->getMatrix());
@@ -45,7 +43,6 @@ public:
 			}
 			unsigned long targetMatrixSize = sourceFactor * targetFactor;
 			if (targetMatrixSize == (source->getVectorDegree() * target->getVectorDegree())) {
-				++iter;
 				continue;
 			}
 			auto targetData = std::make_unique<InfinityWrapper<T>[]>(targetMatrixSize);
@@ -59,11 +56,8 @@ public:
 				}
 			}
 			edge->getMatrix() = Matrix<InfinityWrapper<T>>(sourceFactor, targetFactor, targetData.get());
-			++iter;
 		}
-		auto nodeIter = this->graph->getNodeBegin();
-		while (nodeIter != this->graph->getNodeEnd()) {
-			PBQPNode<InfinityWrapper<T>>* node = *nodeIter;
+		for (auto node : this->graph->nodes()) {
 			unsigned short length = 0;
 			Vector<InfinityWrapper<T>>* vector = &(node->getVector());
 			for (unsigned short i = 0; i < vector->getRowCount(); i++) {
@@ -79,7 +73,6 @@ public:
 				}
 			}
 			node->getVector() = Vector<InfinityWrapper<T>>(length, newData.get());
-			++nodeIter;
 		}
 
 		this->result.push_back(this->graph);

@@ -151,8 +151,7 @@ private:
 		// create array of selections. Every contained array represents a node and the variables
 		// in it represent the possible selections
 		unsigned int counter = 0;
-		for (auto iter = graph->getNodeBegin(); iter != graph->getNodeEnd(); ++iter) {
-			PBQPNode<InfinityWrapper<T>>* node = *iter;
+		for (auto node : graph->nodes()) {
 			nodeToGrbVarMap.insert({node, counter});
 			const unsigned short vecLength = node->getVectorDegree();
 			nodeSelections[counter] = std::make_unique<GRBVar[]>(vecLength);
@@ -178,8 +177,7 @@ private:
 	GRBLinExpr getNodeSelectionCost(const PBQPGraph<InfinityWrapper<T>>* graph) {
 		unsigned int counter = 0;
 		GRBLinExpr totalCost = 0;
-		for (auto iter = graph->getNodeBegin(); iter != graph->getNodeEnd(); ++iter) {
-			PBQPNode<InfinityWrapper<T>>* node = *iter;
+		for (auto node : graph->nodes()) {
 			for (int i = 0; i < nodeVectorLengths[counter]; i++) {
 				InfinityWrapper<T> value = node->getVector().get(i);
 				if (value.isInfinite()) {
@@ -200,8 +198,7 @@ private:
 	GRBQuadExpr getEdgeSelectionCostQuadratic(const PBQPGraph<InfinityWrapper<T>>* graph) {
 		GRBQuadExpr totalCost = 0;
 		// Add the edge costs to the total goal
-		for (auto iter = graph->getEdgeBegin(); iter != graph->getEdgeEnd(); ++iter) {
-			PBQPEdge<InfinityWrapper<T>>* edge = *iter;
+		for (auto edge : graph->edges()) {
 			PBQPNode<InfinityWrapper<T>>* source = edge->getSource();
 			PBQPNode<InfinityWrapper<T>>* target = edge->getTarget();
 			unsigned int sourceGrbIndex = nodeToGrbVarMap.find(source)->second;
@@ -228,8 +225,7 @@ private:
 		auto solution = std::make_unique<PBQPSolution<InfinityWrapper<T>>>(graph->getNodeIndexCounter());
 		unsigned int inc = 0;
 		unsigned int loops = 0;
-		for (auto iter = graph->getNodeBegin(); iter != graph->getNodeEnd(); ++iter) {
-			PBQPNode<InfinityWrapper<T>>* node = *iter;
+		for (auto node : graph->nodes()) {
 			unsigned int nodeIndex = nodeToGrbVarMap.find(node)->second;
 			for (int i = 0; i < nodeVectorLengths[nodeIndex]; i++) {
 				if (nodeSelections[nodeIndex][i].get(GRB_DoubleAttr_X) > 0.5) {
@@ -249,8 +245,7 @@ private:
 		edgeSelectionColumnCounts.clear();
 		edgeSelectionColumnCounts.resize(edgeCount);
 		unsigned int counter = 0;
-		for (auto iter = graph->getEdgeBegin(); iter != graph->getEdgeEnd(); ++iter) {
-			PBQPEdge<InfinityWrapper<T>>* edge = *iter;
+		for (auto edge : graph->edges()) {
 			const unsigned short rowCount = edge->getMatrix().getRowCount();
 			const unsigned short columnCount = edge->getMatrix().getColumnCount();
 			edgeSelections[counter] = std::make_unique<GRBVar[]>(rowCount * columnCount);
@@ -267,8 +262,7 @@ private:
 	GRBLinExpr getEdgeSelectionLinear(const PBQPGraph<InfinityWrapper<T>>* graph) {
 		GRBLinExpr totalCost = 0;
 		unsigned int counter = 0;
-		for (auto iter = graph->getEdgeBegin(); iter != graph->getEdgeEnd(); ++iter) {
-			PBQPEdge<InfinityWrapper<T>>* edge = *iter;
+		for (auto edge : graph->edges()) {
 			const unsigned short rowCount = edge->getMatrix().getRowCount();
 			const unsigned short columnCount = edge->getMatrix().getColumnCount();
 			for (unsigned short row = 0; row < rowCount; ++row) {
@@ -290,8 +284,7 @@ private:
 
 	void limitEdgeSelectionLinear(const PBQPGraph<InfinityWrapper<T>>* graph) {
 		unsigned int counter = 0;
-		for (auto iter = graph->getEdgeBegin(); iter != graph->getEdgeEnd(); ++iter) {
-			PBQPEdge<InfinityWrapper<T>>* edge = *iter;
+		for (auto edge : graph->edges()) {
 			PBQPNode<InfinityWrapper<T>>* source = edge->getSource();
 			PBQPNode<InfinityWrapper<T>>* target = edge->getTarget();
 			unsigned int sourceGrbIndex = nodeToGrbVarMap.find(source)->second;

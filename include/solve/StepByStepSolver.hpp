@@ -65,8 +65,8 @@ public:
 		localSolutions.reserve(graph->getNodeCount());
 		nodeVector.reserve(graph->getNodeCount());
 		// copy all nodes in a vector to allow going back on reduction steps
-		for (auto nodeIter = graph->getNodeBegin(); nodeIter != graph->getNodeEnd(); ++nodeIter) {
-			nodeVector.push_back(*nodeIter);
+		for (auto node : graph->nodes()) {
+			nodeVector.push_back(node);
 		}
 	}
 
@@ -146,7 +146,7 @@ public:
 	}
 
 	void applyRN(PBQPNode<InfinityWrapper<T>>* node) {
-		for (PBQPNode<InfinityWrapper<T>>* neighbor : node->getAdjacentNodes()) {
+		for (auto neighbor : node->getAdjacentNodes()) {
 			nodeQueue.push(neighbor);
 		}
 		auto sol = std::unique_ptr<DependentSolution<InfinityWrapper<T>>>(
@@ -255,7 +255,7 @@ public:
 					continue;
 				}
 				bool validSelection = true;
-				for (PBQPEdge<InfinityWrapper<T>>* edge : node->getAdjacentEdges()) {
+				for (auto edge : node->getAdjacentEdges()) {
 					PBQPNode<InfinityWrapper<T>>* otherEnd = edge->getOtherEnd(node);
 					if (solution->hasSolution(otherEnd)) {
 						InfinityWrapper<T> cost;

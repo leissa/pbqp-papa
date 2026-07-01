@@ -98,14 +98,12 @@ public:
 	 */
 	[[nodiscard]] virtual T getTotalCost(const PBQPGraph<T>* graph) const {
 		T result = T();
-		for (auto iter = graph->getNodeBegin(); iter != graph->getNodeEnd(); ++iter) {
-			PBQPNode<T>* node = *iter;
+		for (auto node : graph->nodes()) {
 			assert(selectionsConfirmed.at(node->getIndex()));
 			unsigned short chosenSelection = selection.at(node->getIndex());
 			result += node->getVector().get(chosenSelection);
 		}
-		for (auto iter = graph->getEdgeBegin(); iter != graph->getEdgeEnd(); ++iter) {
-			PBQPEdge<T>* edge = *iter;
+		for (auto edge : graph->edges()) {
 			unsigned short sourceSelection = selection.at(edge->getSource()->getIndex());
 			unsigned short targetSelection = selection.at(edge->getTarget()->getIndex());
 			result += edge->getMatrix().get(sourceSelection, targetSelection);
@@ -121,16 +119,14 @@ public:
 	 */
 	[[nodiscard]] virtual T getCurrentCost(const PBQPGraph<T>* graph) const {
 		T result = T();
-		for (auto iter = graph->getNodeBegin(); iter != graph->getNodeEnd(); ++iter) {
-			PBQPNode<T>* node = *iter;
+		for (auto node : graph->nodes()) {
 			if (!selectionsConfirmed.at(node->getIndex())) {
 				continue;
 			}
 			unsigned short chosenSelection = selection.at(node->getIndex());
 			result += node->getVector().get(chosenSelection);
 		}
-		for (auto iter = graph->getEdgeBegin(); iter != graph->getEdgeEnd(); ++iter) {
-			PBQPEdge<T>* edge = *iter;
+		for (auto edge : graph->edges()) {
 			unsigned short sourceSelection = selection.at(edge->getSource()->getIndex());
 			unsigned short targetSelection = selection.at(edge->getTarget()->getIndex());
 			if (!selectionsConfirmed.at(edge->getSource()->getIndex())) {

@@ -1,5 +1,7 @@
 #include "io/TypeSerializers.hpp"
 
+#include <cstdlib> // std::strtoul (libc++ needs this explicitly)
+
 namespace pbqppapa {
 
 // unsigned long

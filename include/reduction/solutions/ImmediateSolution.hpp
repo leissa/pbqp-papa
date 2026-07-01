@@ -1,5 +1,4 @@
-#ifndef REDUCTION_SOLUTIONS_IMMEDIATESOLUTION_HPP_
-#define REDUCTION_SOLUTIONS_IMMEDIATESOLUTION_HPP_
+#pragma once
 
 #include <vector>
 
@@ -16,12 +15,12 @@ template <typename T>
 class ImmediateSolution: public DependentSolution<T> {
 
 private:
-	unsigned short selection;
+	uint16_t selection;
 	PBQPNode<T>* node;
 	std::vector<PBQPEdge<T>> edges;
 
 public:
-	ImmediateSolution(PBQPNode<T>* node, unsigned short selection) : selection(selection), node(node) {
+	ImmediateSolution(PBQPNode<T>* node, uint16_t selection) : selection(selection), node(node) {
 		for (PBQPEdge<T>* edge : node->getAdjacentEdges()) {
 			edges.push_back(*edge);
 		}
@@ -45,5 +44,3 @@ public:
 	}
 };
 } // namespace pbqppapa
-
-#endif /* REDUCTION_SOLUTIONS_IMMEDIATESOLUTION_HPP_ */

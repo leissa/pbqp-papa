@@ -1,4 +1,5 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <cstdint>
 #include <set>
 #include <vector>
 
@@ -33,9 +34,9 @@ TEST_CASE("simpleCalculation") {
 	PBQPNode<int>* first = graph.addNode(vek1);
 	PBQPNode<int>* second = graph.addNode(vek2);
 	PBQPNode<int>* third = graph.addNode(vek3);
-	unsigned long firstIndex = first->getIndex();
-	unsigned long secondIndex = second->getIndex();
-	unsigned long thirdIndex = third->getIndex();
+	uint64_t firstIndex = first->getIndex();
+	uint64_t secondIndex = second->getIndex();
+	uint64_t thirdIndex = third->getIndex();
 	int edge1Arr[]{3, 1, 8, 5};
 	Matrix<int> mat1(2, 2, edge1Arr);
 	int edge2Arr[]{0, 7, 2, 8};

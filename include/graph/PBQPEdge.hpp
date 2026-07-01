@@ -1,5 +1,4 @@
-#ifndef PBQPEdge_H_
-#define PBQPEdge_H_
+#pragma once
 
 #include "graph/Matrix.hpp"
 
@@ -98,5 +97,3 @@ public:
 };
 
 } // namespace pbqppapa
-
-#endif /* PBQPEdge_H_ */

@@ -1,5 +1,4 @@
-#ifndef GRAPH_DUMMYSOLUTION_HPP_
-#define GRAPH_DUMMYSOLUTION_HPP_
+#pragma once
 
 template <typename T>
 class PBQPSolution;
@@ -16,5 +15,3 @@ public:
 		return totalCost;
 	}
 };
-
-#endif /* GRAPH_DUMMYSOLUTION_HPP_ */

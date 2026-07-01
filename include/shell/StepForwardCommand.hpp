@@ -1,5 +1,4 @@
-#ifndef SHELL_STEPFORWARDCOMMAND_HPP_
-#define SHELL_STEPFORWARDCOMMAND_HPP_
+#pragma once
 
 #include <string>
 
@@ -45,5 +44,3 @@ public:
 };
 
 } // namespace pbqppapa
-
-#endif /* SHELL_STEPFORWARDCOMMAND_HPP_ */

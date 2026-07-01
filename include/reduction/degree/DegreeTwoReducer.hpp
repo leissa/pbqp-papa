@@ -1,5 +1,4 @@
-#ifndef REDUCTION_DEGREETWOREDUCTOR_HPP_
-#define REDUCTION_DEGREETWOREDUCTOR_HPP_
+#pragma once
 
 #include <iterator>
 #include <memory>
@@ -77,11 +76,10 @@ public:
 		auto solution = std::make_unique<NtoNDependentSolution<T>>(dependencyNodes, solutionNodes);
 		// edge will go from first to second node
 		Matrix<T> resultMatrix(firstNode->getVectorDegree(), secondNode->getVectorDegree());
-		for (unsigned short firstSelection = 0; firstSelection < firstNode->getVectorDegree(); firstSelection++) {
-			for (unsigned short secondSelection = 0; secondSelection < secondNode->getVectorDegree();
-					secondSelection++) {
+		for (uint16_t firstSelection = 0; firstSelection < firstNode->getVectorDegree(); firstSelection++) {
+			for (uint16_t secondSelection = 0; secondSelection < secondNode->getVectorDegree(); secondSelection++) {
 				T minimum = node->getVector().get(0);
-				unsigned short minimalNodeSelection = 0;
+				uint16_t minimalNodeSelection = 0;
 				if (isFirstSource) {
 					minimum += firstEdge->getMatrix().get(firstSelection, 0);
 				} else {
@@ -92,7 +90,7 @@ public:
 				} else {
 					minimum += secondEdge->getMatrix().get(0, secondSelection);
 				}
-				for (unsigned short nodeSelection = 1; nodeSelection < node->getVectorDegree(); nodeSelection++) {
+				for (uint16_t nodeSelection = 1; nodeSelection < node->getVectorDegree(); nodeSelection++) {
 					T sum = node->getVector().get(nodeSelection);
 					if (isFirstSource) {
 						sum += firstEdge->getMatrix().get(firstSelection, nodeSelection);
@@ -109,9 +107,9 @@ public:
 						minimalNodeSelection = nodeSelection;
 					}
 				}
-				std::vector<unsigned short> solutionSelection;
+				std::vector<uint16_t> solutionSelection;
 				solutionSelection.push_back(minimalNodeSelection);
-				std::vector<unsigned short> dependencySelection;
+				std::vector<uint16_t> dependencySelection;
 				dependencySelection.push_back(firstSelection);
 				dependencySelection.push_back(secondSelection);
 				resultMatrix.get(firstSelection, secondSelection) = minimum;
@@ -137,19 +135,18 @@ public:
 		auto solution = std::make_unique<TwotoOneDependentSolution<InfinityWrapper<T>>>(node, firstNode, secondNode);
 		Matrix<InfinityWrapper<T>> resultMatrix(firstNode->getVectorDegree(), secondNode->getVectorDegree());
 		bool foundSolution = false;
-		for (unsigned short firstSelection = 0; firstSelection < firstNode->getVectorDegree(); firstSelection++) {
+		for (uint16_t firstSelection = 0; firstSelection < firstNode->getVectorDegree(); firstSelection++) {
 			if (firstNode->getVector().get(firstSelection).isInfinite()) {
 				// we just leave these values uninitialized, they will never be chosen (hopefully)
 				continue;
 			}
-			for (unsigned short secondSelection = 0; secondSelection < secondNode->getVectorDegree();
-					secondSelection++) {
+			for (uint16_t secondSelection = 0; secondSelection < secondNode->getVectorDegree(); secondSelection++) {
 				if (secondNode->getVector().get(secondSelection).isInfinite()) {
 					// we just leave these values uninitialized, they will never be chosen (hopefully)
 					continue;
 				}
 				InfinityWrapper<T> minimum = node->getVector().get(0);
-				unsigned short minimalNodeSelection = 0;
+				uint16_t minimalNodeSelection = 0;
 				if (isFirstSource) {
 					minimum += firstEdge->getMatrix().get(firstSelection, 0);
 				} else {
@@ -160,7 +157,7 @@ public:
 				} else {
 					minimum += secondEdge->getMatrix().get(0, secondSelection);
 				}
-				for (unsigned short nodeSelection = 1; nodeSelection < node->getVectorDegree(); nodeSelection++) {
+				for (uint16_t nodeSelection = 1; nodeSelection < node->getVectorDegree(); nodeSelection++) {
 					InfinityWrapper<T> sum = node->getVector().get(nodeSelection);
 					if (isFirstSource) {
 						sum += firstEdge->getMatrix().get(firstSelection, nodeSelection);
@@ -193,5 +190,3 @@ public:
 };
 
 } // namespace pbqppapa
-
-#endif /* REDUCTION_DEGREETWOREDUCTOR_HPP_ */

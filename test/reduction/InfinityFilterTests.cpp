@@ -1,4 +1,5 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <cstdint>
 #include <set>
 #include <vector>
 
@@ -17,18 +18,18 @@
 namespace pbqppapa {
 
 TEST_CASE("reduction") {
-	PBQP_Serializer<unsigned long> serial{};
+	PBQP_Serializer<uint64_t> serial{};
 
-	PBQPGraph<unsigned long> graph = PBQPGraph<unsigned long>();
+	PBQPGraph<uint64_t> graph = PBQPGraph<uint64_t>();
 	for (int i = 0; i < 20; i++) {
-		unsigned long arr[]{3, 1};
-		Vector<unsigned long> vek(2, arr);
-		PBQPNode<unsigned long>* node = graph.addNode(vek);
+		uint64_t arr[]{3, 1};
+		Vector<uint64_t> vek(2, arr);
+		PBQPNode<uint64_t>* node = graph.addNode(vek);
 	}
-	DegreeZeroReducer<unsigned long> zeroReducer(&graph);
-	std::vector<PBQPGraph<unsigned long>*> result = zeroReducer.reduce();
+	DegreeZeroReducer<uint64_t> zeroReducer(&graph);
+	std::vector<PBQPGraph<uint64_t>*> result = zeroReducer.reduce();
 	CHECK_EQ(result.size(), 1);
-	PBQPGraph<unsigned long>* resultGraph = result[0];
+	PBQPGraph<uint64_t>* resultGraph = result[0];
 	CHECK_EQ(resultGraph->getNodeCount(), 0);
 }
 

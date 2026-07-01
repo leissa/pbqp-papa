@@ -1,5 +1,4 @@
-#ifndef REDUCTION_PBQPREDUCTION_HPP_
-#define REDUCTION_PBQPREDUCTION_HPP_
+#pragma once
 
 #include <vector>
 
@@ -57,5 +56,3 @@ public:
 };
 
 } // namespace pbqppapa
-
-#endif /* REDUCTION_PBQPREDUCTION_HPP_ */

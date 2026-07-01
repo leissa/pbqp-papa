@@ -1,5 +1,4 @@
-#ifndef REDUCTION_CONNECTEDCOMPONENTSEPARATOR_HPP_
-#define REDUCTION_CONNECTEDCOMPONENTSEPARATOR_HPP_
+#pragma once
 
 #include <memory>
 #include <set>
@@ -82,5 +81,3 @@ public:
 };
 
 } // namespace pbqppapa
-
-#endif /* REDUCTION_CONNECTEDCOMPONENTSEPARATOR_HPP_ */

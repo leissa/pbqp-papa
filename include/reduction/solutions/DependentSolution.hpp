@@ -1,5 +1,4 @@
-#ifndef REDUCTION_SOLUTIONS_DEPENDENTSOLUTION_HPP_
-#define REDUCTION_SOLUTIONS_DEPENDENTSOLUTION_HPP_
+#pragma once
 
 namespace pbqppapa {
 
@@ -26,5 +25,3 @@ public:
 };
 
 } // namespace pbqppapa
-
-#endif /* REDUCTION_SOLUTIONS_DEPENDENTSOLUTION_HPP_ */

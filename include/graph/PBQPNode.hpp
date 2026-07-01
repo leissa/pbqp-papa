@@ -1,5 +1,4 @@
-#ifndef PBQPNODE_H_
-#define PBQPNODE_H_
+#pragma once
 
 #include <algorithm>
 #include <set>
@@ -20,14 +19,14 @@ private:
 	Vector<T> values;
 	std::vector<PBQPEdge<T>*> incidentEdges;
 	std::vector<PBQPEdge<T>*> outgoingEdges;
-	const unsigned int index;
+	const size_t index;
 	bool deleted;
 
 public:
 	/**
 	 * Should only be used by PBQPGraph internally. Index counter is held by PBQPGraph instance
 	 */
-	PBQPNode(const unsigned int index, Vector<T>& values) : values(values), index(index), deleted(false) {}
+	PBQPNode(const size_t index, Vector<T>& values) : values(values), index(index), deleted(false) {}
 
 	/**
 	 * Copy constructor will not copy edges, that would not make sense
@@ -64,21 +63,21 @@ public:
 	/**
 	 * Index identifies this node uniquely in the graph it was created in, even after the node is deleted
 	 */
-	[[nodiscard]] unsigned int getIndex() const {
+	[[nodiscard]] size_t getIndex() const {
 		return index;
 	}
 
 	/**
 	 * Gets the length (amount of rows) of the cost Vector
 	 */
-	[[nodiscard]] unsigned short getVectorDegree() const {
+	[[nodiscard]] uint16_t getVectorDegree() const {
 		return values.getRowCount();
 	}
 
 	/**
 	 * Gets the amount of edges connected to this node
 	 */
-	[[nodiscard]] unsigned int getDegree() const {
+	[[nodiscard]] size_t getDegree() const {
 		return incidentEdges.size();
 	}
 
@@ -133,5 +132,3 @@ public:
 };
 
 } // namespace pbqppapa
-
-#endif /* PBQPNODE_H_ */

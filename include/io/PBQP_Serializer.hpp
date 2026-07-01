@@ -1,5 +1,4 @@
-#ifndef IO_PBQP_SERIALIZER_HPP_
-#define IO_PBQP_SERIALIZER_HPP_
+#pragma once
 
 #include <cstdio>
 #include <fstream>
@@ -62,8 +61,8 @@ public:
 	 */
 	static std::string matrixToString(const Matrix<T>& matrix, std::string_view separator = " ") {
 		std::string output;
-		for (unsigned short row = 0; row < matrix.getRowCount(); row++) {
-			for (unsigned short column = 0; column < matrix.getColumnCount(); column++) {
+		for (uint16_t row = 0; row < matrix.getRowCount(); row++) {
+			for (uint16_t column = 0; column < matrix.getColumnCount(); column++) {
 				output += serializeElement<T>(matrix.get(row, column));
 				output += separator;
 			}
@@ -81,10 +80,10 @@ private:
 					  << "\nAttempting to load anyway...\n";
 		}
 		auto graph = std::make_unique<PBQPGraph<T>>();
-		std::map<unsigned int, PBQPNode<T>*> nodeByIndex;
+		std::map<size_t, PBQPNode<T>*> nodeByIndex;
 		nlohmann::json nodeJson = json["nodes"];
 		for (const nlohmann::json& singleNodeJson : nodeJson) {
-			unsigned int index = singleNodeJson["index"];
+			size_t index = singleNodeJson["index"];
 			Vector<T> vek = parseVector(singleNodeJson["cost"]);
 			auto node = std::make_unique<PBQPNode<T>>(index, vek);
 			graph->addNode(node.get());
@@ -102,7 +101,7 @@ private:
 			const nlohmann::json& peoJson = json["peo"];
 			std::vector<PBQPNode<T>*> peoVector;
 			peoVector.reserve(peoJson.size());
-			for (unsigned int i = 0; i < peoJson.size(); i++) {
+			for (size_t i = 0; i < peoJson.size(); i++) {
 				peoVector.push_back(nodeByIndex.find(peoJson[i])->second);
 			}
 			graph->setPEO(peoVector);
@@ -111,19 +110,19 @@ private:
 	}
 
 	static Vector<T> parseVector(const nlohmann::json& json) {
-		Vector<T> vek = Vector<T>(static_cast<unsigned short>(json.size()));
-		for (unsigned short i = 0; i < json.size(); i++) {
+		Vector<T> vek = Vector<T>(static_cast<uint16_t>(json.size()));
+		for (uint16_t i = 0; i < json.size(); i++) {
 			vek.get(i) = deserializeElement<T>(json[i]);
 		}
 		return vek;
 	}
 
 	static Matrix<T> parseMatrix(const nlohmann::json& json) {
-		unsigned short rows = json["rows"];
-		unsigned short columns = json["columns"];
+		uint16_t rows = json["rows"];
+		uint16_t columns = json["columns"];
 		nlohmann::json valueJson = json["cost"];
 		Matrix<T> mat = Matrix<T>(rows, columns);
-		for (unsigned int i = 0; i < valueJson.size(); i++) {
+		for (size_t i = 0; i < valueJson.size(); i++) {
 			mat.getRaw(i) = deserializeElement<T>(valueJson[i]);
 		}
 		return mat;
@@ -137,7 +136,7 @@ private:
 			nlohmann::json nodeJson;
 			nodeJson["index"] = node->getIndex();
 			nlohmann::json costVector = nlohmann::json::array();
-			for (unsigned short i = 0; i < node->getVectorDegree(); i++) {
+			for (uint16_t i = 0; i < node->getVectorDegree(); i++) {
 				costVector.push_back(serializeElement<T>(node->getVector().get(i)));
 			}
 			nodeJson["cost"] = costVector;
@@ -160,8 +159,8 @@ private:
 			edgeJson["columns"] = edge->getMatrix().getColumnCount();
 			edgeJson["rows"] = edge->getMatrix().getRowCount();
 			nlohmann::json matrixValues;
-			unsigned int length = edge->getMatrix().getElementCount();
-			for (unsigned int i = 0; i < length; i++) {
+			size_t length = edge->getMatrix().getElementCount();
+			for (size_t i = 0; i < length; i++) {
 				matrixValues.push_back(serializeElement<T>(edge->getMatrix().getRaw(i)));
 			}
 			edgeJson["cost"] = matrixValues;
@@ -195,5 +194,3 @@ private:
 };
 
 } // namespace pbqppapa
-
-#endif /* IO_PBQP_SERIALIZER_HPP_ */

@@ -1,5 +1,4 @@
-#ifndef REDUCTION_SOLUTIONS_ONETOONEDEPENDENTSOLUTION_HPP_
-#define REDUCTION_SOLUTIONS_ONETOONEDEPENDENTSOLUTION_HPP_
+#pragma once
 
 #include <vector>
 
@@ -26,7 +25,7 @@ private:
 	Vector<T> dependencyVector;
 	Matrix<T> edgeMatrix;
 	bool dependencyIsSource;
-	std::vector<unsigned short> selection;
+	std::vector<uint16_t> selection;
 
 public:
 	OnetoOneDependentSolution(PBQPNode<T>* toSolve, PBQPNode<T>* dependency) :
@@ -41,7 +40,7 @@ public:
 
 	~OnetoOneDependentSolution() = default;
 
-	void setSolutionSelection(unsigned short dependencySelection, unsigned short solutionSelection) {
+	void setSolutionSelection(uint16_t dependencySelection, uint16_t solutionSelection) {
 		assert(dependencySelection < dependencyVector.getRowCount());
 		assert(dependencySelection >= 0);
 		assert(solutionSelection < toSolve->getVectorDegree());
@@ -50,7 +49,7 @@ public:
 	}
 
 	void solve(PBQPSolution<T>* solution) override {
-		unsigned short dependencySelection = solution->getSolution(dependencyNode);
+		uint16_t dependencySelection = solution->getSolution(dependencyNode);
 		solution->setSolution(toSolve->getIndex(), selection.at(dependencySelection));
 	}
 
@@ -69,5 +68,3 @@ public:
 	}
 };
 } // namespace pbqppapa
-
-#endif /* REDUCTION_SOLUTIONS_ONETOONEDEPENDENTSOLUTION_HPP_ */

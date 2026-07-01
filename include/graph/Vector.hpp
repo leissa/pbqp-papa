@@ -1,5 +1,4 @@
-#ifndef INCLUDE_GRAPH_Vector_HPP_
-#define INCLUDE_GRAPH_Vector_HPP_
+#pragma once
 
 #include "graph/Matrix.hpp"
 
@@ -21,14 +20,14 @@ public:
 	 * Creates a new Vector (matrix with one column) with the given amount of rows. The given data
 	 * must be an array with matching length
 	 */
-	Vector(unsigned short length, T* data) : Matrix<T>(length, 1, data) {}
+	Vector(uint16_t length, T* data) : Matrix<T>(length, 1, data) {}
 
 	Vector() : Matrix<T>() {}
 
 	/**
 	 * Creates a new Vector with uninitialized content
 	 */
-	Vector(unsigned short length) : Matrix<T>(length, 1) {}
+	Vector(uint16_t length) : Matrix<T>(length, 1) {}
 
 	Vector(const Vector& vek) : Matrix<T>(vek) {}
 
@@ -43,10 +42,10 @@ public:
 	 * Gets the index (row number) of the smallest element within the Vector.
 	 * Will encounter undefined behavior if the Vector is of length 0.
 	 */
-	[[nodiscard]] unsigned short getIndexOfSmallestElement() const {
-		unsigned short minimumIndex = 0;
+	[[nodiscard]] uint16_t getIndexOfSmallestElement() const {
+		uint16_t minimumIndex = 0;
 		T minimumValue = this->content[0];
-		for (unsigned short i = 0; i < this->rows; i++) {
+		for (uint16_t i = 0; i < this->rows; i++) {
 			if (this->content[i] < minimumValue) {
 				minimumValue = this->content[i];
 				minimumIndex = i;
@@ -58,12 +57,10 @@ public:
 	/**
 	 * Gets an element in the vector by its index/row
 	 */
-	[[nodiscard]] T& get(unsigned short index) const {
+	[[nodiscard]] T& get(uint16_t index) const {
 		assert(index < this->rows);
 		return this->content[index];
 	}
 };
 
 } // namespace pbqppapa
-
-#endif /* INCLUDE_GRAPH_Vector_HPP_ */

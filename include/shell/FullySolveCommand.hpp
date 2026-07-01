@@ -1,5 +1,4 @@
-#ifndef SHELL_FULLYSOLVECOMMAND_HPP_
-#define SHELL_FULLYSOLVECOMMAND_HPP_
+#pragma once
 
 #include <memory>
 
@@ -35,5 +34,3 @@ public:
 };
 
 } // namespace pbqppapa
-
-#endif /* SHELL_FULLYSOLVECOMMAND_HPP_ */

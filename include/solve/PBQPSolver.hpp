@@ -1,5 +1,4 @@
-#ifndef SOLVE_PBQPSOLVER_HPP_
-#define SOLVE_PBQPSOLVER_HPP_
+#pragma once
 
 #include <memory>
 
@@ -48,5 +47,3 @@ public:
 };
 
 } // namespace pbqppapa
-
-#endif /* SOLVE_PBQPSOLVER_HPP_ */

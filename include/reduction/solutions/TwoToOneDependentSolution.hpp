@@ -1,5 +1,4 @@
-#ifndef REDUCTION_SOLUTIONS_TWOTOONEDEPENDENTSOLUTION_HPP_
-#define REDUCTION_SOLUTIONS_TWOTOONEDEPENDENTSOLUTION_HPP_
+#pragma once
 
 #include <memory>
 #include <optional>
@@ -32,7 +31,7 @@ private:
 	Vector<T> secondDependencyVector;
 	std::vector<PBQPEdge<T>> preservedEdges;
 	bool originalEdgeExisted = false;
-	std::vector<unsigned short> selection;
+	std::vector<uint16_t> selection;
 
 public:
 	TwotoOneDependentSolution(PBQPNode<T>* toSolve, PBQPNode<T>* dependencyNode1, PBQPNode<T>* dependencyNode2) :
@@ -59,8 +58,8 @@ public:
 
 	~TwotoOneDependentSolution() = default;
 
-	void setSolutionSelection(unsigned short dependency1Selection, unsigned short dependency2Selection,
-			unsigned short solutionSelection) {
+	void setSolutionSelection(
+			uint16_t dependency1Selection, uint16_t dependency2Selection, uint16_t solutionSelection) {
 		assert(dependency1Selection < dependencyNode1->getVectorDegree());
 		assert(dependency1Selection >= 0);
 		assert(dependency2Selection < dependencyNode2->getVectorDegree());
@@ -71,14 +70,14 @@ public:
 	}
 
 	void solve(PBQPSolution<T>* solution) override {
-		unsigned short dependency1Selection = solution->getSolution(dependencyNode1);
+		uint16_t dependency1Selection = solution->getSolution(dependencyNode1);
 		assert(dependency1Selection < dependencyNode1->getVectorDegree());
 		assert(dependency1Selection >= 0);
-		unsigned short dependency2Selection = solution->getSolution(dependencyNode2);
+		uint16_t dependency2Selection = solution->getSolution(dependencyNode2);
 		assert(dependency2Selection < dependencyNode2->getVectorDegree());
 		assert(dependency2Selection >= 0);
-		unsigned long index = resolveIndex(dependency1Selection, dependency2Selection);
-		unsigned short toSolveSelection = selection.at(index);
+		size_t index = resolveIndex(dependency1Selection, dependency2Selection);
+		uint16_t toSolveSelection = selection.at(index);
 		solution->setSolution(toSolve->getIndex(), toSolveSelection);
 	}
 
@@ -107,10 +106,8 @@ public:
 	}
 
 private:
-	inline unsigned long resolveIndex(unsigned short first, unsigned short second) const {
+	inline size_t resolveIndex(uint16_t first, uint16_t second) const {
 		return first * dependencyNode1->getVectorDegree() + second;
 	}
 };
 } // namespace pbqppapa
-
-#endif /* REDUCTION_SOLUTIONS_TWOTOONEDEPENDENTSOLUTION_HPP_ */

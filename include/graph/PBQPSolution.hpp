@@ -1,5 +1,4 @@
-#ifndef GRAPH_PBQPSolution_HPP_
-#define GRAPH_PBQPSolution_HPP_
+#pragma once
 
 #include <cstdio>
 #include <iostream>
@@ -26,8 +25,8 @@ class TypeSerializers;
 template <typename T>
 class PBQPSolution {
 private:
-	std::vector<unsigned short> selection;
-	unsigned int solvedCount = 0;
+	std::vector<uint16_t> selection;
+	size_t solvedCount = 0;
 #ifndef NDEBUG
 	std::vector<bool> selectionsConfirmed;
 #endif
@@ -37,7 +36,7 @@ public:
 	 * Creates a new blank solution with no selection assigned. Given length must be bigger than the index
 	 * of any node for which a solution will be put in this instance
 	 */
-	PBQPSolution(unsigned int length) :
+	PBQPSolution(size_t length) :
 			selection(length)
 #ifndef NDEBUG
 			,
@@ -52,7 +51,7 @@ public:
 	/**
 	 * Sets the selection for a node with the given index to the given selection
 	 */
-	void setSolution(unsigned int nodeIndex, unsigned short selectionToSetTo) {
+	void setSolution(size_t nodeIndex, uint16_t selectionToSetTo) {
 		assert(nodeIndex < selectionsConfirmed.size());
 #ifndef NDEBUG
 		if (selectionsConfirmed.at(nodeIndex)) {
@@ -68,7 +67,7 @@ public:
 	/**
 	 * Sets the selection for the given node to the given selection
 	 */
-	void setSolution(PBQPNode<T>* node, unsigned short selection) {
+	void setSolution(PBQPNode<T>* node, uint16_t selection) {
 		assert(node);
 		setSolution(node->getIndex(), selection);
 	}
@@ -77,7 +76,7 @@ public:
 	 * Gets the selection solution for the node with the given index. Use 'hasSolutution()' first if you are not
 	 * sure whether this node was solved!
 	 */
-	[[nodiscard]] unsigned short getSolution(unsigned int nodeIndex) const {
+	[[nodiscard]] uint16_t getSolution(size_t nodeIndex) const {
 		assert(nodeIndex < selection.size());
 		assert(selectionsConfirmed.at(nodeIndex));
 		return selection.at(nodeIndex);
@@ -87,7 +86,7 @@ public:
 	 * Gets the selection solution for the node given. Use 'hasSolutution()' first if you are not
 	 * sure whether this node was solved!
 	 */
-	[[nodiscard]] unsigned short getSolution(PBQPNode<T>* node) const {
+	[[nodiscard]] uint16_t getSolution(PBQPNode<T>* node) const {
 		assert(node);
 		return getSolution(node->getIndex());
 	}
@@ -100,12 +99,12 @@ public:
 		T result = T();
 		for (auto node : graph->nodes()) {
 			assert(selectionsConfirmed.at(node->getIndex()));
-			unsigned short chosenSelection = selection.at(node->getIndex());
+			uint16_t chosenSelection = selection.at(node->getIndex());
 			result += node->getVector().get(chosenSelection);
 		}
 		for (auto edge : graph->edges()) {
-			unsigned short sourceSelection = selection.at(edge->getSource()->getIndex());
-			unsigned short targetSelection = selection.at(edge->getTarget()->getIndex());
+			uint16_t sourceSelection = selection.at(edge->getSource()->getIndex());
+			uint16_t targetSelection = selection.at(edge->getTarget()->getIndex());
 			result += edge->getMatrix().get(sourceSelection, targetSelection);
 		}
 		return result;
@@ -123,12 +122,12 @@ public:
 			if (!selectionsConfirmed.at(node->getIndex())) {
 				continue;
 			}
-			unsigned short chosenSelection = selection.at(node->getIndex());
+			uint16_t chosenSelection = selection.at(node->getIndex());
 			result += node->getVector().get(chosenSelection);
 		}
 		for (auto edge : graph->edges()) {
-			unsigned short sourceSelection = selection.at(edge->getSource()->getIndex());
-			unsigned short targetSelection = selection.at(edge->getTarget()->getIndex());
+			uint16_t sourceSelection = selection.at(edge->getSource()->getIndex());
+			uint16_t targetSelection = selection.at(edge->getTarget()->getIndex());
 			if (!selectionsConfirmed.at(edge->getSource()->getIndex())) {
 				continue;
 			}
@@ -143,7 +142,7 @@ public:
 	/**
 	 * Checks whether the node with the given index had a selection assigned yet
 	 */
-	[[nodiscard]] bool hasSolution(unsigned int nodeIndex) const {
+	[[nodiscard]] bool hasSolution(size_t nodeIndex) const {
 		return selectionsConfirmed.at(nodeIndex);
 	}
 
@@ -162,11 +161,9 @@ public:
 	 * same node is assigned multiple times If NDEBUG is set, the counter will only be incremented when a node not given
 	 * a selection yet is given a selection
 	 */
-	[[nodiscard]] unsigned int getNodesSolvedCount() const {
+	[[nodiscard]] size_t getNodesSolvedCount() const {
 		return solvedCount;
 	}
 };
 
 } // namespace pbqppapa
-
-#endif /* GRAPH_PBQPSolution_HPP_ */

@@ -1,5 +1,4 @@
-#ifndef REDUCTION_INFINITYFILTER_HPP_
-#define REDUCTION_INFINITYFILTER_HPP_
+#pragma once
 
 #include <memory>
 #include <vector>
@@ -29,26 +28,26 @@ public:
 			Matrix<InfinityWrapper<T>>* valueMatrix = &(edge->getMatrix());
 			Vector<InfinityWrapper<T>>* sourceVector = &(source->getVector());
 			Vector<InfinityWrapper<T>>* targetVector = &(target->getVector());
-			unsigned short sourceFactor = 0;
-			unsigned short targetFactor = 0;
-			for (unsigned short i = 0; i < source->getVectorDegree(); i++) {
+			uint16_t sourceFactor = 0;
+			uint16_t targetFactor = 0;
+			for (uint16_t i = 0; i < source->getVectorDegree(); i++) {
 				if (!sourceVector->get(i).isInfinite()) {
 					sourceFactor++;
 				}
 			}
-			for (unsigned short i = 0; i < target->getVectorDegree(); i++) {
+			for (uint16_t i = 0; i < target->getVectorDegree(); i++) {
 				if (!targetVector->get(i).isInfinite()) {
 					targetFactor++;
 				}
 			}
-			unsigned long targetMatrixSize = sourceFactor * targetFactor;
+			size_t targetMatrixSize = sourceFactor * targetFactor;
 			if (targetMatrixSize == (source->getVectorDegree() * target->getVectorDegree())) {
 				continue;
 			}
 			auto targetData = std::make_unique<InfinityWrapper<T>[]>(targetMatrixSize);
-			unsigned long counter = 0;
-			for (unsigned short i = 0; i < source->getVectorDegree(); i++) {
-				for (unsigned short k = 0; k < target->getVectorDegree(); k++) {
+			size_t counter = 0;
+			for (uint16_t i = 0; i < source->getVectorDegree(); i++) {
+				for (uint16_t k = 0; k < target->getVectorDegree(); k++) {
 					if (sourceVector->get(i).isInfinite() || targetVector->get(k).isInfinite()) {
 						continue;
 					}
@@ -58,16 +57,16 @@ public:
 			edge->getMatrix() = Matrix<InfinityWrapper<T>>(sourceFactor, targetFactor, targetData.get());
 		}
 		for (auto node : this->graph->nodes()) {
-			unsigned short length = 0;
+			uint16_t length = 0;
 			Vector<InfinityWrapper<T>>* vector = &(node->getVector());
-			for (unsigned short i = 0; i < vector->getRowCount(); i++) {
+			for (uint16_t i = 0; i < vector->getRowCount(); i++) {
 				if (!vector->get(i).isInfinite()) {
 					length++;
 				}
 			}
 			auto newData = std::make_unique<InfinityWrapper<T>[]>(length);
-			unsigned short counter = 0;
-			for (unsigned short i = 0; i < vector->getRowCount(); i++) {
+			uint16_t counter = 0;
+			for (uint16_t i = 0; i < vector->getRowCount(); i++) {
 				if (!vector->get(i).isInfinite()) {
 					newData[counter++] = vector->get(i);
 				}
@@ -85,5 +84,3 @@ public:
 };
 
 } // namespace pbqppapa
-
-#endif /* REDUCTION_INFINITYFILTER_HPP_ */

@@ -1,5 +1,4 @@
-#ifndef DEBUG_DEBUGTIMER_HPP_
-#define DEBUG_DEBUGTIMER_HPP_
+#pragma once
 
 #include <chrono>
 #include <string>
@@ -52,5 +51,3 @@ public:
 };
 
 } // namespace pbqppapa
-
-#endif /* DEBUG_DEBUGTIMER_HPP_ */

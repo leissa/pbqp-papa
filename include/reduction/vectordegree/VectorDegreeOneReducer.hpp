@@ -1,5 +1,4 @@
-#ifndef REDUCTION_VectorDEGREE_VectorDEGREEONEREDUCTOR_HPP_
-#define REDUCTION_VectorDEGREE_VectorDEGREEONEREDUCTOR_HPP_
+#pragma once
 
 #include <memory>
 #include <vector>
@@ -25,7 +24,7 @@ template <typename T>
 class VectorDegreeOneReducer: public PBQP_Reduction<T> {
 private:
 	std::unique_ptr<NtoNDependentSolution<T>> solution;
-	static const std::vector<unsigned short> emptyIntVector;
+	static const std::vector<uint16_t> emptyIntVector;
 
 public:
 	VectorDegreeOneReducer(PBQPGraph<T>* graph) : PBQP_Reduction<T>(graph) {}
@@ -41,8 +40,8 @@ public:
 			}
 		}
 		solution = std::make_unique<NtoNDependentSolution<T>>(dependencyNodes, solutionNodes);
-		std::vector<unsigned short> dependencySelection;
-		std::vector<unsigned short> solutionSelection(solutionNodes.size(), 0);
+		std::vector<uint16_t> dependencySelection;
+		std::vector<uint16_t> solutionSelection(solutionNodes.size(), 0);
 		solution->setSolution(dependencySelection, solutionSelection);
 		for (auto node : solutionNodes) {
 			this->graph->removeNode(node);
@@ -66,7 +65,5 @@ public:
 };
 
 template <typename T>
-const std::vector<unsigned short> VectorDegreeOneReducer<T>::emptyIntVector;
+const std::vector<uint16_t> VectorDegreeOneReducer<T>::emptyIntVector;
 } // namespace pbqppapa
-
-#endif /* REDUCTION_VectorDEGREE_VectorDEGREEONEREDUCTOR_HPP_ */

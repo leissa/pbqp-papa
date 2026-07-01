@@ -10,9 +10,9 @@
 namespace pbqppapa {
 
 // Generates a Kn (n nodes, each connected with each other and themselves), useful for testing
-PBQPGraph<int>* genGraph(unsigned int size) {
+PBQPGraph<int>* genGraph(uint32_t size) {
 	auto graph = std::make_unique<PBQPGraph<int>>();
-	for (unsigned int i = 1; i <= size; i++) {
+	for (uint32_t i = 1; i <= size; i++) {
 		int arr1[] = {3, 2};
 		Vector<int> vector = Vector<int>(2, arr1);
 		graph->addNode(vector);

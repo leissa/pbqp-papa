@@ -1,5 +1,4 @@
-#ifndef REDUCTION_HEURISTIC_DEGREENREDUCTOR_HPP_
-#define REDUCTION_HEURISTIC_DEGREENREDUCTOR_HPP_
+#pragma once
 
 #include <memory>
 #include <vector>
@@ -25,14 +24,14 @@ class DegreeNReducer: PBQP_Reduction<T> {
 
 public:
 	static ImmediateSolution<T>* reduceRNEarlyDecision(PBQPNode<T>* node, PBQPGraph<T>* graph) {
-		unsigned short minSelection = 0;
+		uint16_t minSelection = 0;
 		T minCost = node->getVector().get(0);
 		for (PBQPEdge<T>* edge : node->getAdjacentEdges()) {
 			bool isSource = edge->isSource(node);
 			T rowColMin = edge->getOtherEnd(node)->getVector().get(0);
 			rowColMin += edge->getMatrix().get(0, 0);
 			PBQPNode<T>* otherEnd = edge->getOtherEnd(node);
-			for (unsigned short k = 1; k < otherEnd->getVectorDegree(); k++) {
+			for (uint16_t k = 1; k < otherEnd->getVectorDegree(); k++) {
 				T localRowColMin = otherEnd->getVector().get(k);
 				if (isSource) {
 					localRowColMin += edge->getMatrix().get(0, k);
@@ -45,7 +44,7 @@ public:
 			}
 			minCost += rowColMin;
 		}
-		for (unsigned short i = 1; i < node->getVectorDegree(); i++) {
+		for (uint16_t i = 1; i < node->getVectorDegree(); i++) {
 			T curr = node->getVector().get(i);
 			if (curr >= minCost) {
 				continue;
@@ -59,7 +58,7 @@ public:
 					rowColMin += edge->getMatrix().get(0, i);
 				}
 				PBQPNode<T>* otherEnd = edge->getOtherEnd(node);
-				for (unsigned short k = 1; k < otherEnd->getVectorDegree(); k++) {
+				for (uint16_t k = 1; k < otherEnd->getVectorDegree(); k++) {
 					T localRowColMin = otherEnd->getVector().get(k);
 					if (isSource) {
 						localRowColMin += edge->getMatrix().get(i, k);
@@ -96,5 +95,3 @@ public:
 };
 
 } // namespace pbqppapa
-
-#endif /* REDUCTION_HEURISTIC_DEGREENREDUCTOR_HPP_ */

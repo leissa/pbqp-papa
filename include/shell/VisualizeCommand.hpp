@@ -1,5 +1,4 @@
-#ifndef SHELL_VISUALIZECOMMAND_HPP_
-#define SHELL_VISUALIZECOMMAND_HPP_
+#pragma once
 
 #include <string>
 
@@ -30,5 +29,3 @@ public:
 };
 
 } // namespace pbqppapa
-
-#endif /* SHELL_VISUALIZECOMMAND_HPP_ */

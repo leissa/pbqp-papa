@@ -1,14 +1,12 @@
 #include "math/InfinityWrapper.hpp"
 
-#include <climits>
-
 namespace pbqppapa {
 
 template <>
-unsigned long InfinityWrapper<unsigned long>::magicInfiniteNumber = ULONG_MAX;
+uint64_t InfinityWrapper<uint64_t>::magicInfiniteNumber = UINT64_MAX;
 template <>
-unsigned int InfinityWrapper<unsigned int>::magicInfiniteNumber = UINT_MAX;
+uint32_t InfinityWrapper<uint32_t>::magicInfiniteNumber = UINT32_MAX;
 template <>
-unsigned short InfinityWrapper<unsigned short>::magicInfiniteNumber = USHRT_MAX;
+uint16_t InfinityWrapper<uint16_t>::magicInfiniteNumber = UINT16_MAX;
 
 } // namespace pbqppapa

@@ -1,8 +1,6 @@
-#ifndef PBQPGRAPH_H_
-#define PBQPGRAPH_H_
+#pragma once
 
 #include <cassert>
-#include <cstddef>
 #include <functional>
 #include <map>
 #include <memory>
@@ -92,7 +90,7 @@ private:
 	using EdgeView = std::ranges::transform_view<std::ranges::ref_view<EdgeSet>,
 			PBQPEdge<T>* (*)(const std::unique_ptr<PBQPEdge<T>>&)>;
 
-	unsigned int indexMaximum = 0;
+	size_t indexMaximum = 0;
 	NodeSet nodeSet;
 	EdgeSet edgeSet;
 	NodeSet deletedNodeSet;
@@ -215,7 +213,7 @@ public:
 		assert(source->getVectorDegree() == matrix.getRowCount());
 		assert(target->getVectorDegree() == matrix.getColumnCount());
 		if (source == target) {
-			for (unsigned short i = 0; i < source->getVectorDegree(); i++) {
+			for (uint16_t i = 0; i < source->getVectorDegree(); i++) {
 				source->getVector().get(i) += matrix.get(i, i);
 			}
 			return nullptr;
@@ -321,14 +319,14 @@ public:
 	/**
 	 * Gets the amount of nodes currently in the graph
 	 */
-	[[nodiscard]] unsigned int getNodeCount() const {
+	[[nodiscard]] size_t getNodeCount() const {
 		return nodeSet.size();
 	}
 
 	/**
 	 * Gets the amount of edges currently in the graph
 	 */
-	[[nodiscard]] unsigned int getEdgeCount() const {
+	[[nodiscard]] size_t getEdgeCount() const {
 		return edgeSet.size();
 	}
 
@@ -337,7 +335,7 @@ public:
 	 * will have an index smaller than this counter. To ensure that every node has a unique number, even
 	 * if we split up graphs and parallelize work on the smaller pieces, this counter is global
 	 */
-	[[nodiscard]] unsigned int getNodeIndexCounter() const {
+	[[nodiscard]] size_t getNodeIndexCounter() const {
 		return indexMaximum;
 	}
 
@@ -356,5 +354,3 @@ public:
 	}
 };
 } // namespace pbqppapa
-
-#endif /* PBQPGRAPH_H_ */

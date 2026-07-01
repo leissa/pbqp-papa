@@ -1,5 +1,4 @@
-#ifndef SHELL_CHECKSOLVABLECOMMAND_HPP_
-#define SHELL_CHECKSOLVABLECOMMAND_HPP_
+#pragma once
 
 #include "io/TypeSerializers.hpp"
 #include "shell/Command.hpp"
@@ -34,5 +33,3 @@ public:
 };
 
 } // namespace pbqppapa
-
-#endif /* SHELL_CHECKSOLVABLECOMMAND_HPP_ */

@@ -1,5 +1,4 @@
-#ifndef GENERATE_PBQPGENERATOR_HPP_
-#define GENERATE_PBQPGENERATOR_HPP_
+#pragma once
 
 #include <memory>
 #include <random>
@@ -18,16 +17,16 @@ template <typename T>
 class PBQPGenerator {
 
 private:
-	unsigned long nodeCount;
+	size_t nodeCount;
 	float nodeDegree;
 	int upperValueBound;
-	unsigned short upperVectorLengthBound;
-	unsigned short lowerVectorLengthBound;
+	uint16_t upperVectorLengthBound;
+	uint16_t lowerVectorLengthBound;
 	mutable std::mt19937 rng;
 
 public:
-	PBQPGenerator(unsigned long nodeCount, float nodeDegree, int upperValueBound, unsigned short upperVectorLengthBound,
-			unsigned short lowerVectorLengthBound) :
+	PBQPGenerator(size_t nodeCount, float nodeDegree, int upperValueBound, uint16_t upperVectorLengthBound,
+			uint16_t lowerVectorLengthBound) :
 			nodeCount(nodeCount), nodeDegree(nodeDegree), upperValueBound(upperValueBound),
 			upperVectorLengthBound(upperVectorLengthBound), lowerVectorLengthBound(lowerVectorLengthBound),
 			rng(std::random_device{}()) {}
@@ -38,7 +37,7 @@ public:
 
 	[[nodiscard]] PBQPGraph<T>* generate() const {
 		auto graph = std::make_unique<PBQPGraph<T>>();
-		for (unsigned long i = 0; i < nodeCount; i++) {
+		for (size_t i = 0; i < nodeCount; i++) {
 			addRandomNode(graph.get());
 		}
 		const long edgeCount = nodeCount * static_cast<long>(nodeDegree);
@@ -52,7 +51,7 @@ public:
 		std::uniform_int_distribution<int> lengthDist(0, upperVectorLengthBound - lowerVectorLengthBound - 1);
 		int length = lengthDist(rng) + lowerVectorLengthBound;
 		Vector<T> vec(length);
-		for (unsigned short i = 0; i < length; i++) {
+		for (uint16_t i = 0; i < length; i++) {
 			vec.get(i) = genRandomNumber();
 		}
 		graph->addNode(vec);
@@ -84,8 +83,8 @@ public:
 			return;
 		}
 		Matrix<T> mat(sourceNode->getVectorDegree(), targetNode->getVectorDegree());
-		for (unsigned short i = 0; i < sourceNode->getVectorDegree(); i++) {
-			for (unsigned short k = 0; k < targetNode->getVectorDegree(); k++) {
+		for (uint16_t i = 0; i < sourceNode->getVectorDegree(); i++) {
+			for (uint16_t k = 0; k < targetNode->getVectorDegree(); k++) {
 				mat.get(i, k) = genRandomNumber();
 			}
 		}
@@ -97,7 +96,7 @@ public:
 		return static_cast<T>(valueDist(rng));
 	}
 
-	[[nodiscard]] unsigned long getNodeCount() const {
+	[[nodiscard]] size_t getNodeCount() const {
 		return nodeCount;
 	}
 
@@ -107,5 +106,3 @@ public:
 };
 
 } // namespace pbqppapa
-
-#endif /* GENERATE_PBQPGENERATOR_HPP_ */

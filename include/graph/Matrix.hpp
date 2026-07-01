@@ -1,8 +1,9 @@
-#ifndef GRAPH_MATRIX_H_
-#define GRAPH_MATRIX_H_
+#pragma once
 
 #include <algorithm>
 #include <cassert>
+#include <cstddef>
+#include <cstdint>
 #include <memory>
 
 #ifndef PBQP_USE_GUROBI
@@ -21,8 +22,8 @@ template <typename T>
 class Matrix {
 
 protected:
-	unsigned short rows;
-	unsigned short columns;
+	uint16_t rows;
+	uint16_t columns;
 	std::unique_ptr<T[]> content;
 
 public:
@@ -35,9 +36,9 @@ public:
 	 *  2 3
 	 *
 	 */
-	Matrix(unsigned short rows, unsigned short columns, T* data) :
+	Matrix(uint16_t rows, uint16_t columns, T* data) :
 			rows(rows), columns(columns), content(std::make_unique<T[]>(rows * columns)) {
-		const unsigned long elementCount = rows * columns;
+		const size_t elementCount = rows * columns;
 		if (elementCount != 0) {
 			std::copy_n(data, elementCount, content.get());
 		}
@@ -48,12 +49,12 @@ public:
 	/**
 	 * Creates a new matrix with uninitialized content
 	 */
-	Matrix(unsigned short rows, unsigned short columns) :
+	Matrix(uint16_t rows, uint16_t columns) :
 			rows(rows), columns(columns), content(std::make_unique<T[]>(rows * columns)) {}
 
 	Matrix(const Matrix& matrix) :
 			rows(matrix.rows), columns(matrix.columns), content(std::make_unique<T[]>(rows * columns)) {
-		const unsigned long elementCount = rows * columns;
+		const size_t elementCount = rows * columns;
 		if (elementCount != 0) {
 			std::copy_n(matrix.content.get(), elementCount, content.get());
 		}
@@ -83,8 +84,8 @@ public:
 	Matrix& operator+=(const Matrix& other) {
 		assert(other.rows == this->rows);
 		assert(other.columns == this->columns);
-		const unsigned long length = rows * columns;
-		for (unsigned long i = 0; i < length; i++) {
+		const size_t length = rows * columns;
+		for (size_t i = 0; i < length; i++) {
 			content[i] += other.content[i];
 		}
 		return *this;
@@ -96,8 +97,8 @@ public:
 	Matrix& operator-=(const Matrix& other) {
 		assert(other.rows == this->rows);
 		assert(other.columns == this->columns);
-		const unsigned long length = rows * columns;
-		for (unsigned long i = 0; i < length; i++) {
+		const size_t length = rows * columns;
+		for (size_t i = 0; i < length; i++) {
 			content[i] -= other.content[i];
 		}
 		return *this;
@@ -107,8 +108,8 @@ public:
 		if (other.getRowCount() != this->getRowCount() || other.getColumnCount() != this->getColumnCount()) {
 			return false;
 		}
-		const unsigned long length = rows * columns;
-		for (unsigned long i = 0; i < length; i++) {
+		const size_t length = rows * columns;
+		for (size_t i = 0; i < length; i++) {
 			if (content[i] != other.content[i]) {
 				return false;
 			}
@@ -120,8 +121,8 @@ public:
 	 * Multiplies each value in the entire matrix by a given factor
 	 */
 	Matrix& operator*=(const T& factor) {
-		const unsigned long length = rows * columns;
-		for (unsigned long i = 0; i < length; i++) {
+		const size_t length = rows * columns;
+		for (size_t i = 0; i < length; i++) {
 			content[i] *= factor;
 		}
 		return *this;
@@ -131,8 +132,8 @@ public:
 	 * Divides each value in the entire matrix by a given divisor
 	 */
 	Matrix& operator/=(const T& quotient) {
-		const unsigned long length = rows * columns;
-		for (unsigned long i = 0; i < length; i++) {
+		const size_t length = rows * columns;
+		for (size_t i = 0; i < length; i++) {
 			content[i] /= quotient;
 		}
 		return *this;
@@ -142,9 +143,9 @@ public:
 	 *  Creates a transposed version of this matrix.
 	 */
 	[[nodiscard]] Matrix transpose() const {
-		const unsigned long size = columns * rows;
+		const size_t size = columns * rows;
 		Matrix result(columns, rows);
-		for (unsigned long n = 0; n < size; n++) {
+		for (size_t n = 0; n < size; n++) {
 			int i = n / rows;
 			int j = n % rows;
 			result.getRaw(n) = content[columns * j + i];
@@ -155,7 +156,7 @@ public:
 	/**
 	 * Retrieves a single element by position
 	 */
-	[[nodiscard]] inline T& get(unsigned short row, unsigned short column) const {
+	[[nodiscard]] inline T& get(uint16_t row, uint16_t column) const {
 		assert(row < rows);
 		assert(column < columns);
 		return content[(row * columns) + column];
@@ -164,7 +165,7 @@ public:
 	/**
 	 * Retrieves an element by its raw index in the content array
 	 */
-	[[nodiscard]] inline T& getRaw(unsigned int index) const {
+	[[nodiscard]] inline T& getRaw(size_t index) const {
 		assert(index < getElementCount());
 		return content[index];
 	}
@@ -172,21 +173,21 @@ public:
 	/**
 	 * Gets the amount of rows
 	 */
-	[[nodiscard]] unsigned short getRowCount() const {
+	[[nodiscard]] uint16_t getRowCount() const {
 		return rows;
 	}
 
 	/**
 	 * Gets the amount of columns
 	 */
-	[[nodiscard]] unsigned short getColumnCount() const {
+	[[nodiscard]] uint16_t getColumnCount() const {
 		return columns;
 	}
 
 	/**
 	 * Gets the amount of elements
 	 */
-	[[nodiscard]] inline unsigned int getElementCount() const {
+	[[nodiscard]] inline size_t getElementCount() const {
 		return columns * rows;
 	}
 
@@ -205,10 +206,10 @@ public:
 	 *
 	 *
 	 */
-	[[nodiscard]] Matrix multiplyRows(const unsigned short multiplier) const {
+	[[nodiscard]] Matrix multiplyRows(const uint16_t multiplier) const {
 		Matrix result(rows * multiplier, columns);
-		const unsigned long sectorSize = rows * columns;
-		for (unsigned short i = 0; i < multiplier; i++) {
+		const size_t sectorSize = rows * columns;
+		for (uint16_t i = 0; i < multiplier; i++) {
 			std::copy_n(content.get(), sectorSize, result.content.get() + (i * sectorSize));
 		}
 		return result;
@@ -230,12 +231,12 @@ public:
 	 *
 	 *
 	 */
-	[[nodiscard]] Matrix multiplyRowsIndividually(const unsigned short multiplier) const {
+	[[nodiscard]] Matrix multiplyRowsIndividually(const uint16_t multiplier) const {
 		Matrix result(rows * multiplier, columns);
-		const unsigned long rowLength = columns;
-		const unsigned long sectionLength = rowLength * multiplier;
-		for (unsigned short i = 0; i < rows; i++) {
-			for (unsigned short offset = 0; offset < multiplier; offset++) {
+		const size_t rowLength = columns;
+		const size_t sectionLength = rowLength * multiplier;
+		for (uint16_t i = 0; i < rows; i++) {
+			for (uint16_t offset = 0; offset < multiplier; offset++) {
 				std::copy_n(content.get() + (rowLength * i), rowLength,
 						result.content.get() + (rowLength * offset) + (sectionLength * i));
 			}
@@ -257,10 +258,10 @@ public:
 	 *
 	 *
 	 */
-	[[nodiscard]] Matrix multiplyColumnsIndividually(const unsigned short multiplier) const {
+	[[nodiscard]] Matrix multiplyColumnsIndividually(const uint16_t multiplier) const {
 		Matrix result(rows, columns * multiplier);
-		const unsigned long sectorLength = rows * columns;
-		for (unsigned long i = 0; i < rows * columns; i++) {
+		const size_t sectorLength = rows * columns;
+		for (size_t i = 0; i < rows * columns; i++) {
 			for (int column = 0; column < multiplier; column++) {
 				result.getRaw(i + (column * sectorLength)) = getRaw(i);
 			}
@@ -281,11 +282,11 @@ public:
 	 *
 	 *
 	 */
-	[[nodiscard]] Matrix multiplyColumns(const unsigned short multiplier) const {
+	[[nodiscard]] Matrix multiplyColumns(const uint16_t multiplier) const {
 		Matrix result(rows, columns * multiplier);
-		const unsigned long rowLength = columns;
-		const unsigned long rowDataLength = rowLength * multiplier;
-		for (unsigned short i = 0; i < rows; i++) {
+		const size_t rowLength = columns;
+		const size_t rowDataLength = rowLength * multiplier;
+		for (uint16_t i = 0; i < rows; i++) {
 			for (int column = 0; column < multiplier; column++) {
 				std::copy_n(content.get() + (rowLength * i), rowLength,
 						result.content.get() + (rowDataLength * i) + (column * rowLength));
@@ -296,5 +297,3 @@ public:
 };
 
 } // namespace pbqppapa
-
-#endif /* GRAPH_MATRIX_H_ */

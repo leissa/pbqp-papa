@@ -1,5 +1,4 @@
-#ifndef ANALYSIS_GRAPHHANDLER_CPP_
-#define ANALYSIS_GRAPHHANDLER_CPP_
+#pragma once
 
 namespace pbqppapa {
 
@@ -24,5 +23,3 @@ public:
 };
 
 } // namespace pbqppapa
-
-#endif /* ANALYSIS_GRAPHHANDLER_CPP_ */

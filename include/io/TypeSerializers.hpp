@@ -1,5 +1,4 @@
-#ifndef IO_TYPESERIALIZERS_HPP_
-#define IO_TYPESERIALIZERS_HPP_
+#pragma once
 
 #include <string>
 
@@ -32,41 +31,41 @@ std::string getTypeName() {
 }
 
 // 2
-std::string serializeElement2(dummyType<unsigned long>, unsigned long element);
+std::string serializeElement2(dummyType<uint64_t>, uint64_t element);
 
-unsigned long deserializeElement2(dummyType<unsigned long>, std::string serialized);
+uint64_t deserializeElement2(dummyType<uint64_t>, std::string serialized);
 
-std::string getTypeName2(dummyType<unsigned long>);
+std::string getTypeName2(dummyType<uint64_t>);
 
-std::string serializeElement2(dummyType<unsigned int>, unsigned int element);
+std::string serializeElement2(dummyType<uint32_t>, uint32_t element);
 
-unsigned int deserializeElement2(dummyType<unsigned int>, std::string serialized);
+uint32_t deserializeElement2(dummyType<uint32_t>, std::string serialized);
 
-std::string getTypeName2(dummyType<unsigned int>);
+std::string getTypeName2(dummyType<uint32_t>);
 
-std::string serializeElement2(dummyType<unsigned short>, unsigned short element);
+std::string serializeElement2(dummyType<uint16_t>, uint16_t element);
 
-unsigned short deserializeElement2(dummyType<unsigned short>, std::string serialized);
+uint16_t deserializeElement2(dummyType<uint16_t>, std::string serialized);
 
-std::string getTypeName2(dummyType<unsigned short>);
+std::string getTypeName2(dummyType<uint16_t>);
 
-std::string serializeElement2(dummyType<signed long>, signed long element);
+std::string serializeElement2(dummyType<int64_t>, int64_t element);
 
-unsigned long deserializeElement2(dummyType<signed long>, std::string serialized);
+uint64_t deserializeElement2(dummyType<int64_t>, std::string serialized);
 
-std::string getTypeName2(dummyType<signed long>);
+std::string getTypeName2(dummyType<int64_t>);
 
-std::string serializeElement2(dummyType<signed int>, signed int element);
+std::string serializeElement2(dummyType<int32_t>, int32_t element);
 
-unsigned int deserializeElement2(dummyType<signed int>, std::string serialized);
+uint32_t deserializeElement2(dummyType<int32_t>, std::string serialized);
 
-std::string getTypeName2(dummyType<signed int>);
+std::string getTypeName2(dummyType<int32_t>);
 
-std::string serializeElement2(dummyType<signed short>, signed short element);
+std::string serializeElement2(dummyType<int16_t>, int16_t element);
 
-unsigned short deserializeElement2(dummyType<signed short>, std::string serialized);
+uint16_t deserializeElement2(dummyType<int16_t>, std::string serialized);
 
-std::string getTypeName2(dummyType<signed short>);
+std::string getTypeName2(dummyType<int16_t>);
 
 // InfinityWrapper
 
@@ -92,5 +91,3 @@ std::string getTypeName2(dummyType<InfinityWrapper<T>>) {
 }
 
 } // namespace pbqppapa
-
-#endif /* IO_TYPESERIALIZERS_HPP_ */

@@ -1,5 +1,4 @@
-#ifndef DEBUG_GRAPHVISUALIZER_HPP_
-#define DEBUG_GRAPHVISUALIZER_HPP_
+#pragma once
 
 #include <map>
 #include <memory>
@@ -139,5 +138,3 @@ public:
 } // namespace pbqppapa
 
 #endif
-
-#endif /* DEBUG_GRAPHVISUALIZER_HPP_ */

@@ -1,5 +1,4 @@
-#ifndef REDUCTION_DEGREEONEREDUCTOR_HPP_
-#define REDUCTION_DEGREEONEREDUCTOR_HPP_
+#pragma once
 
 #include <memory>
 #include <vector>
@@ -61,12 +60,12 @@ public:
 		assert(otherEnd != node);
 		auto solution = std::make_unique<OnetoOneDependentSolution<T>>(node, otherEnd);
 		const bool isSource = edge->isSource(node);
-		const unsigned short otherEndDegree = otherEnd->getVectorDegree();
-		const unsigned short nodeDegree = node->getVectorDegree();
-		for (unsigned short i = 0; i < otherEndDegree; i++) {
+		const uint16_t otherEndDegree = otherEnd->getVectorDegree();
+		const uint16_t nodeDegree = node->getVectorDegree();
+		for (uint16_t i = 0; i < otherEndDegree; i++) {
 			// find minimum for this selection
 			T otherEndCost = otherEnd->getVector().get(i);
-			unsigned short minSelection = 0;
+			uint16_t minSelection = 0;
 			T minimum = otherEndCost;
 			minimum += node->getVector().get(0);
 			if (isSource) {
@@ -74,7 +73,7 @@ public:
 			} else {
 				minimum += edge->getMatrix().get(i, 0);
 			}
-			for (unsigned short k = 1; k < nodeDegree; k++) {
+			for (uint16_t k = 1; k < nodeDegree; k++) {
 				T compSum = otherEndCost;
 				compSum += node->getVector().get(k);
 				if (isSource) {
@@ -104,15 +103,15 @@ public:
 		assert(otherEnd != node);
 		auto solution = std::make_unique<OnetoOneDependentSolution<InfinityWrapper<T>>>(node, otherEnd);
 		const bool isSource = edge->isSource(node);
-		const unsigned short otherEndDegree = otherEnd->getVectorDegree();
-		const unsigned short nodeDegree = node->getVectorDegree();
-		for (unsigned short i = 0; i < otherEndDegree; i++) {
+		const uint16_t otherEndDegree = otherEnd->getVectorDegree();
+		const uint16_t nodeDegree = node->getVectorDegree();
+		for (uint16_t i = 0; i < otherEndDegree; i++) {
 			// find minimum for this selection
 			InfinityWrapper<T> otherEndCost = otherEnd->getVector().get(i);
 			if (otherEndCost.isInfinite()) {
 				continue;
 			}
-			unsigned short minSelection = 0;
+			uint16_t minSelection = 0;
 			InfinityWrapper<T> minimum = otherEndCost;
 			minimum += node->getVector().get(0);
 			if (isSource) {
@@ -120,7 +119,7 @@ public:
 			} else {
 				minimum += edge->getMatrix().get(i, 0);
 			}
-			for (unsigned short k = 1; k < nodeDegree; k++) {
+			for (uint16_t k = 1; k < nodeDegree; k++) {
 				InfinityWrapper<T> compSum = otherEndCost;
 				compSum += node->getVector().get(k);
 				if (isSource) {
@@ -142,5 +141,3 @@ public:
 };
 
 } // namespace pbqppapa
-
-#endif /* REDUCTION_DEGREEONEREDUCTOR_HPP_ */

@@ -1,5 +1,4 @@
-#ifndef REDUCTION_VectorDEGREEZEROREDUCTOR_HPP_
-#define REDUCTION_VectorDEGREEZEROREDUCTOR_HPP_
+#pragma once
 
 #include <vector>
 
@@ -52,5 +51,3 @@ public:
 };
 
 } // namespace pbqppapa
-
-#endif /* REDUCTION_VectorDEGREEZEROREDUCTOR_HPP_ */

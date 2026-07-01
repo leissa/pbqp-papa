@@ -1,5 +1,4 @@
-#ifndef SHELL_DUMPCOMMAND_HPP_
-#define SHELL_DUMPCOMMAND_HPP_
+#pragma once
 
 #include "shell/Command.hpp"
 
@@ -31,5 +30,3 @@ public:
 };
 
 } // namespace pbqppapa
-
-#endif /* SHELL_DUMPCOMMAND_HPP_ */

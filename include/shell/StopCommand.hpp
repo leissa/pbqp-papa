@@ -1,5 +1,4 @@
-#ifndef SHELL_STOPCOMMAND_HPP_
-#define SHELL_STOPCOMMAND_HPP_
+#pragma once
 
 #include <string>
 
@@ -29,5 +28,3 @@ public:
 };
 
 } // namespace pbqppapa
-
-#endif /* SHELL_STOPCOMMAND_HPP_ */

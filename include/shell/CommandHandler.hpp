@@ -1,5 +1,4 @@
-#ifndef SHELL_COMMANDHANDLER_HPP_
-#define SHELL_COMMANDHANDLER_HPP_
+#pragma once
 
 #include <iostream>
 #include <map>
@@ -99,5 +98,3 @@ public:
 };
 
 } // namespace pbqppapa
-
-#endif /* SHELL_COMMANDHANDLER_HPP_ */

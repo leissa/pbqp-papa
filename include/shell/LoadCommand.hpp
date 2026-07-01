@@ -1,5 +1,4 @@
-#ifndef SHELL_LOADCOMMAND_HPP_
-#define SHELL_LOADCOMMAND_HPP_
+#pragma once
 
 #include <string>
 
@@ -31,5 +30,3 @@ public:
 };
 
 } // namespace pbqppapa
-
-#endif /* SHELL_LOADCOMMAND_HPP_ */

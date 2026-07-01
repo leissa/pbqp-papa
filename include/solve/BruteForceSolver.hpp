@@ -1,5 +1,4 @@
-#ifndef SOLVE_BRUTEFORCESOLVER_HPP_
-#define SOLVE_BRUTEFORCESOLVER_HPP_
+#pragma once
 
 #include "solve/PBQPSolver.hpp"
 
@@ -51,12 +50,12 @@ private:
 	 * added, but to not waste time converting indices when calculating the cost of a solution, the index in this array
 	 * is the index of the node
 	 */
-	std::vector<unsigned short> currentSelection;
-	std::vector<unsigned short> minimalSelection;
+	std::vector<uint16_t> currentSelection;
+	std::vector<uint16_t> minimalSelection;
 	/**
 	 * Node index counter of the graph and the length of any selection arrays
 	 */
-	unsigned int size;
+	size_t size;
 	/**
 	 * For our custom gray code we need a consistent array without the gaps which the selections possibly have.
 	 * This array contains all nodes in the graph and the position within this array
@@ -66,7 +65,7 @@ private:
 	/**
 	 * The Vector degree of each node, subtracted by 1. Indexing is the same as in the nodes array
 	 */
-	std::vector<unsigned short> limits;
+	std::vector<uint16_t> limits;
 	/**
 	 * Trend of each digit, where true means ascending and false means descending. We start with every digit ascending
 	 */
@@ -80,17 +79,17 @@ private:
 	 * Minimal cost we found so far
 	 */
 	T minimalCost;
-	unsigned short previousSelectionOfNodeLastUpdated;
+	uint16_t previousSelectionOfNodeLastUpdated;
 	long nodeLastUpdated;
 
 public:
 	BruteForceSolver(PBQPGraph<T>* graph) :
-			PBQPSolver<T>(graph), currentSelection(std::vector<unsigned short>(graph->getNodeIndexCounter(), 0)),
-			minimalSelection(std::vector<unsigned short>(graph->getNodeIndexCounter(), 0)),
+			PBQPSolver<T>(graph), currentSelection(std::vector<uint16_t>(graph->getNodeIndexCounter(), 0)),
+			minimalSelection(std::vector<uint16_t>(graph->getNodeIndexCounter(), 0)),
 			size(graph->getNodeIndexCounter()), nodes(std::vector<PBQPNode<T>*>(graph->getNodeCount())),
-			limits(std::vector<unsigned short>(graph->getNodeCount())),
+			limits(std::vector<uint16_t>(graph->getNodeCount())),
 			trend(std::vector<bool>(graph->getNodeCount(), true)) {
-		unsigned long index = 0;
+		size_t index = 0;
 		// TODO Speed this up by completly copying the nodes to reduce the amount of reference lookup neccessary later
 		// on?
 		for (auto node : graph->nodes()) {
@@ -127,7 +126,7 @@ private:
 	T calculateDiffSolution() {
 		T sum = T();
 		PBQPNode<T>* nodeChanged = nodes[nodeLastUpdated];
-		unsigned short currentNodeSelection = currentSelection[nodeChanged->getIndex()];
+		uint16_t currentNodeSelection = currentSelection[nodeChanged->getIndex()];
 		for (auto edge : nodeChanged->getAdjacentEdges(false)) {
 			if (edge->getSource() == nodeChanged) {
 				sum += edge->getMatrix().get(currentNodeSelection, currentSelection[edge->getTarget()->getIndex()]);
@@ -163,7 +162,7 @@ private:
 	 * Increments the internal gray code selection by one
 	 */
 	long incrementSolution() {
-		for (unsigned int i = 0; i < this->graph->getNodeCount(); i++) {
+		for (size_t i = 0; i < this->graph->getNodeCount(); i++) {
 			auto index = (nodes[i])->getIndex();
 			if (trend[i]) {
 				// ascending
@@ -191,5 +190,3 @@ private:
 };
 
 } // namespace pbqppapa
-
-#endif /* SOLVE_BRUTEFORCESOLVER_HPP_ */

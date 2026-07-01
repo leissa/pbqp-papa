@@ -1,5 +1,4 @@
-#ifndef MATH_BRANCHBOUNDSOLVER_HPP_
-#define MATH_BRANCHBOUNDSOLVER_HPP_
+#pragma once
 
 #include <memory>
 #include <vector>
@@ -55,14 +54,14 @@ public:
 
 private:
 	PBQPSolution<InfinityWrapper<T>>* recursiveSolve(
-			InfinityWrapper<T> currentCost, PBQPSolution<InfinityWrapper<T>>* sol, unsigned int nodeCounter) {
+			InfinityWrapper<T> currentCost, PBQPSolution<InfinityWrapper<T>>* sol, size_t nodeCounter) {
 		auto localSolution = std::make_unique<PBQPSolution<InfinityWrapper<T>>>(*sol);
 		std::unique_ptr<PBQPSolution<InfinityWrapper<T>>> minSolution;
 		PBQPNode<InfinityWrapper<T>>* node = nodes.at(nodeCounter);
 		InfinityWrapper<T> localCost = InfinityWrapper<T>(0);
 		InfinityWrapper<T> localMin = InfinityWrapper<T>::getInfinite();
-		unsigned short minSelection = 0;
-		for (unsigned short index = 0; index < node->getVectorDegree(); index++) {
+		uint16_t minSelection = 0;
+		for (uint16_t index = 0; index < node->getVectorDegree(); index++) {
 			InfinityWrapper<T> value = node->getVector().get(index);
 			if (value.isInfinite()) {
 				continue;
@@ -111,5 +110,3 @@ private:
 };
 
 } // namespace pbqppapa
-
-#endif /* MATH_BRANCHBOUNDSOLVER_HPP_ */

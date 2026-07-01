@@ -1,7 +1,8 @@
-#ifndef MATH_INFINITYWRAPPER_HPP_
-#define MATH_INFINITYWRAPPER_HPP_
+#pragma once
 
 #include <climits>
+#include <cstddef>
+#include <cstdint>
 
 namespace pbqppapa {
 
@@ -196,5 +197,3 @@ inline bool operator>=(InfinityWrapper<T>& lhs, const T& rhs) {
 }
 
 } // namespace pbqppapa
-
-#endif /* MATH_INFINITYWRAPPER_HPP_ */

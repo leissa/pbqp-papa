@@ -1,84 +1,87 @@
 #include "io/TypeSerializers.hpp"
 
-#include <cstdlib> // std::strtoul (libc++ needs this explicitly)
+#include <cstdlib> // std::strtoul/std::strtoull (libc++ needs this explicitly)
 
 namespace pbqppapa {
 
-// unsigned long
-std::string serializeElement2(dummyType<unsigned long>, unsigned long element) {
+// The getTypeName strings below are the persisted serialization identifiers and are kept
+// stable across the switch to fixed-width types so existing JSON files still load.
+
+// uint64_t
+std::string serializeElement2(dummyType<uint64_t>, uint64_t element) {
 	return std::to_string(element);
 }
 
-unsigned long deserializeElement2(dummyType<unsigned long>, std::string serialized) {
-	return std::strtoul(serialized.c_str(), nullptr, 0);
+uint64_t deserializeElement2(dummyType<uint64_t>, std::string serialized) {
+	return static_cast<uint64_t>(std::strtoull(serialized.c_str(), nullptr, 0));
 }
 
-std::string getTypeName2(dummyType<unsigned long>) {
+std::string getTypeName2(dummyType<uint64_t>) {
 	return "unsigned long";
 }
 
-// unsigned int
-std::string serializeElement2(dummyType<unsigned int>, unsigned int element) {
+// uint32_t
+std::string serializeElement2(dummyType<uint32_t>, uint32_t element) {
 	return std::to_string(element);
 }
 
-unsigned int deserializeElement2(dummyType<unsigned int>, std::string serialized) {
-	return static_cast<unsigned int>(std::strtoul(serialized.c_str(), nullptr, 0));
+uint32_t deserializeElement2(dummyType<uint32_t>, std::string serialized) {
+	return static_cast<uint32_t>(std::strtoul(serialized.c_str(), nullptr, 0));
 }
 
-std::string getTypeName2(dummyType<unsigned int>) {
+std::string getTypeName2(dummyType<uint32_t>) {
 	return "unsigned int";
 }
 
-// unsigned short
-std::string serializeElement2(dummyType<unsigned short>, unsigned short element) {
+// uint16_t
+std::string serializeElement2(dummyType<uint16_t>, uint16_t element) {
 	return std::to_string(element);
 }
 
-unsigned short deserializeElement2(dummyType<unsigned short>, std::string serialized) {
-	return static_cast<unsigned short>(std::strtoul(serialized.c_str(), nullptr, 0));
+uint16_t deserializeElement2(dummyType<uint16_t>, std::string serialized) {
+	return static_cast<uint16_t>(std::strtoul(serialized.c_str(), nullptr, 0));
 }
 
-std::string getTypeName2(dummyType<unsigned short>) {
+std::string getTypeName2(dummyType<uint16_t>) {
 	return "unsigned short";
 }
 
-// signed long
-std::string serializeElement2(dummyType<signed long>, signed long element) {
+// int64_t
+std::string serializeElement2(dummyType<int64_t>, int64_t element) {
 	return std::to_string(element);
 }
 
-unsigned long deserializeElement2(dummyType<signed long>, std::string serialized) {
-	return std::strtoul(serialized.c_str(), nullptr, 0);
+uint64_t deserializeElement2(dummyType<int64_t>, std::string serialized) {
+	return static_cast<uint64_t>(std::strtoull(serialized.c_str(), nullptr, 0));
 }
 
-std::string getTypeName2(dummyType<signed long>) {
+std::string getTypeName2(dummyType<int64_t>) {
 	return "signed long";
 }
 
-// signed int
-std::string serializeElement2(dummyType<signed int>, signed int element) {
+// int32_t
+std::string serializeElement2(dummyType<int32_t>, int32_t element) {
 	return std::to_string(element);
 }
 
-unsigned int deserializeElement2(dummyType<signed int>, std::string serialized) {
-	return static_cast<signed int>(std::strtoul(serialized.c_str(), nullptr, 0));
+uint32_t deserializeElement2(dummyType<int32_t>, std::string serialized) {
+	return static_cast<int32_t>(std::strtoul(serialized.c_str(), nullptr, 0));
 }
 
-std::string getTypeName2(dummyType<signed int>) {
+std::string getTypeName2(dummyType<int32_t>) {
 	return "signed int";
 }
 
-// signed short
-std::string serializeElement2(dummyType<signed short>, signed short element) {
+// int16_t
+std::string serializeElement2(dummyType<int16_t>, int16_t element) {
 	return std::to_string(element);
 }
 
-unsigned short deserializeElement2(dummyType<signed short>, std::string serialized) {
-	return static_cast<signed short>(std::strtoul(serialized.c_str(), nullptr, 0));
+uint16_t deserializeElement2(dummyType<int16_t>, std::string serialized) {
+	return static_cast<int16_t>(std::strtoul(serialized.c_str(), nullptr, 0));
 }
 
-std::string getTypeName2(dummyType<signed short>) {
+std::string getTypeName2(dummyType<int16_t>) {
 	return "signed short";
 }
 

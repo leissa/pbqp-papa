@@ -1,5 +1,4 @@
-#ifndef STEPBYSTEPSOLVER_HPP_
-#define STEPBYSTEPSOLVER_HPP_
+#pragma once
 
 #include <memory>
 #include <queue>
@@ -50,9 +49,9 @@ private:
 	bool useRnAlready;
 	std::queue<PBQPNode<InfinityWrapper<T>>*> nodeQueue;
 	std::vector<PBQPNode<InfinityWrapper<T>>*> nodeVector;
-	unsigned int nodeIndex;
-	unsigned int peoIndex;
-	unsigned int backtrackIndex;
+	size_t nodeIndex;
+	size_t peoIndex;
+	size_t backtrackIndex;
 	bool isBackTracking;
 	Reduction lastReduction;
 
@@ -115,11 +114,11 @@ public:
 	}
 
 	bool applyR0R1R2(PBQPNode<InfinityWrapper<T>>* node) {
-		unsigned short degree = node->getDegree();
+		uint16_t degree = node->getDegree();
 		switch (degree) {
 		case 2: {
 			std::vector<PBQPNode<InfinityWrapper<T>>*> neighbors = node->getAdjacentNodes(false);
-			unsigned short oldDegree = neighbors.at(0)->getDegree();
+			uint16_t oldDegree = neighbors.at(0)->getDegree();
 			localSolutions.emplace_back(DegreeTwoReducer<T>::reduceDegreeTwoInf(node, this->graph));
 			if (neighbors.at(0)->getDegree() != oldDegree) {
 				// this happens if the edge created by the R2 reduction is merged into an existing edge
@@ -170,7 +169,7 @@ public:
 
 	std::vector<PBQPNode<InfinityWrapper<T>>*> stepForward(int howMany) {
 		std::vector<PBQPNode<InfinityWrapper<T>>*> result;
-		for (unsigned int i = 0; i < howMany; i++) {
+		for (size_t i = 0; i < howMany; i++) {
 			result.push_back(stepForward());
 		}
 		return result;
@@ -180,7 +179,7 @@ public:
 		if (localSolutions.empty()) {
 			return nullptr;
 		}
-		unsigned int index = localSolutions.size() - 1;
+		size_t index = localSolutions.size() - 1;
 		std::unique_ptr<DependentSolution<InfinityWrapper<T>>> sol = std::move(localSolutions.at(index));
 		localSolutions.pop_back();
 		sol->revertChange(graph);
@@ -195,17 +194,17 @@ public:
 		return node;
 	}
 
-	std::vector<PBQPNode<InfinityWrapper<T>>*> stepBackward(unsigned int howMany) {
+	std::vector<PBQPNode<InfinityWrapper<T>>*> stepBackward(size_t howMany) {
 		std::vector<PBQPNode<InfinityWrapper<T>>*> result;
-		for (unsigned int i = 0; i < howMany; i++) {
+		for (size_t i = 0; i < howMany; i++) {
 			result.push_back(stepBackward());
 		}
 		return result;
 	}
 
-	unsigned int revertIterator(unsigned int currentIndex, std::vector<PBQPNode<InfinityWrapper<T>>*>& vector,
+	size_t revertIterator(size_t currentIndex, std::vector<PBQPNode<InfinityWrapper<T>>*>& vector,
 			PBQPNode<InfinityWrapper<T>>* value) {
-		unsigned int revertedIndex = currentIndex;
+		size_t revertedIndex = currentIndex;
 		while (revertedIndex > 0) {
 			revertedIndex--;
 			if (vector.at(revertedIndex) == value) {
@@ -242,15 +241,15 @@ public:
 
 	[[nodiscard]] bool isSolvable() {
 		auto solution = std::make_unique<PBQPSolution<InfinityWrapper<T>>>(this->graph->getNodeIndexCounter());
-		unsigned int localPeoIndex = this->peoIndex;
+		size_t localPeoIndex = this->peoIndex;
 		for (; localPeoIndex != graph->getPEO().size(); localPeoIndex++) {
 			PBQPNode<InfinityWrapper<T>>* node = graph->getPEO().at(localPeoIndex);
 			if (node->isDeleted()) {
 				continue;
 			}
 			bool solvedNode = false;
-			unsigned short const length = node->getVectorDegree();
-			for (unsigned short i = 0; i < length; i++) {
+			uint16_t const length = node->getVectorDegree();
+			for (uint16_t i = 0; i < length; i++) {
 				if (node->getVector().get(i).isInfinite()) {
 					continue;
 				}
@@ -299,5 +298,3 @@ public:
 };
 
 } // namespace pbqppapa
-
-#endif /* STEPBYSTEPSOLVER_HPP_ */

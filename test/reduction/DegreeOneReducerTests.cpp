@@ -1,4 +1,5 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <cstdint>
 #include <set>
 #include <vector>
 
@@ -53,8 +54,8 @@ TEST_CASE("simpleCalculation") {
 	Vector<int> vek2(2, node2Arr);
 	PBQPNode<int>* first = graph.addNode(vek1);
 	PBQPNode<int>* second = graph.addNode(vek2);
-	unsigned long firstIndex = first->getIndex();
-	unsigned long secondIndex = second->getIndex();
+	uint64_t firstIndex = first->getIndex();
+	uint64_t secondIndex = second->getIndex();
 	int edge1Arr[]{2, 6, 2, 0};
 	Matrix<int> mat1(2, 2, edge1Arr);
 	graph.addEdge(first, second, mat1);

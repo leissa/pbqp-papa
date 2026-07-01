@@ -26,12 +26,12 @@ namespace pbqppapa {
 		std::unique_ptr<PBQPGraph<InfinityWrapper<TYPENAME>>> graph;                                                   \
 		std::vector<PBQPNode<InfinityWrapper<TYPENAME>>*> nodes;                                                       \
 		std::vector<PBQPNode<InfinityWrapper<TYPENAME>>*> peo;                                                         \
-		unsigned long maximumIndex = 0;                                                                                \
+		size_t maximumIndex = 0;                                                                                       \
 	};                                                                                                                 \
-	extern "C" void pbqp_##SHORTNAME##_addNode(struct pbqp_##SHORTNAME##_parsing* pbqpparsing, TYPENAME* data,         \
-			unsigned short length, unsigned int index) {                                                               \
+	extern "C" void pbqp_##SHORTNAME##_addNode(                                                                        \
+			struct pbqp_##SHORTNAME##_parsing* pbqpparsing, TYPENAME* data, uint16_t length, size_t index) {           \
 		std::vector<InfinityWrapper<TYPENAME>> infData(length);                                                        \
-		for (unsigned short i = 0; i < length; i++) {                                                                  \
+		for (uint16_t i = 0; i < length; i++) {                                                                        \
 			infData[i] = InfinityWrapper<TYPENAME>(data[i]);                                                           \
 		}                                                                                                              \
 		Vector<InfinityWrapper<TYPENAME>> vek(length, infData.data());                                                 \
@@ -40,13 +40,13 @@ namespace pbqppapa {
 		pbqpparsing->nodes.at(index) = node.get();                                                                     \
 		node.release();                                                                                                \
 	}                                                                                                                  \
-	extern "C" void pbqp_##SHORTNAME##_addEdge(struct pbqp_##SHORTNAME##_parsing* pbqpparsing,                         \
-			unsigned int sourceIndex, unsigned int targetIndex, TYPENAME* data) {                                      \
+	extern "C" void pbqp_##SHORTNAME##_addEdge(                                                                        \
+			struct pbqp_##SHORTNAME##_parsing* pbqpparsing, size_t sourceIndex, size_t targetIndex, TYPENAME* data) {  \
 		PBQPNode<InfinityWrapper<TYPENAME>>* source = pbqpparsing->nodes.at(sourceIndex);                              \
 		PBQPNode<InfinityWrapper<TYPENAME>>* target = pbqpparsing->nodes.at(targetIndex);                              \
-		const unsigned short length = source->getVectorDegree() * target->getVectorDegree();                           \
+		const size_t length = source->getVectorDegree() * target->getVectorDegree();                                   \
 		std::vector<InfinityWrapper<TYPENAME>> infData(length);                                                        \
-		for (unsigned short i = 0; i < length; i++) {                                                                  \
+		for (size_t i = 0; i < length; i++) {                                                                          \
 			infData[i] = InfinityWrapper<TYPENAME>(data[i]);                                                           \
 		}                                                                                                              \
 		Matrix<InfinityWrapper<TYPENAME>> mat(source->getVectorDegree(), target->getVectorDegree(), infData.data());   \
@@ -55,8 +55,8 @@ namespace pbqppapa {
 	struct pbqp_##SHORTNAME##_solution* pbqp_##SHORTNAME##_convertSolution(                                            \
 			struct pbqp_##SHORTNAME##_parsing* pbqpparsing, PBQPSolution<InfinityWrapper<TYPENAME>>* cppSol) {         \
 		auto cSol = std::make_unique<pbqp_##SHORTNAME##_solution>();                                                   \
-		auto selections = std::make_unique<unsigned short[]>(pbqpparsing->maximumIndex);                               \
-		for (unsigned int i = 0; i < pbqpparsing->maximumIndex; i++) {                                                 \
+		auto selections = std::make_unique<uint16_t[]>(pbqpparsing->maximumIndex);                                     \
+		for (size_t i = 0; i < pbqpparsing->maximumIndex; i++) {                                                       \
 			if (!pbqpparsing->nodes.at(i)) {                                                                           \
 				continue;                                                                                              \
 			}                                                                                                          \
@@ -79,14 +79,14 @@ namespace pbqppapa {
 		pbqp_##SHORTNAME##_solution* cLevelSol = pbqp_##SHORTNAME##_convertSolution(pbqpparsing, cppLevelSol.get());   \
 		return cLevelSol;                                                                                              \
 	}                                                                                                                  \
-	extern "C" struct pbqp_##SHORTNAME##_parsing* pbqp_##SHORTNAME##_createInstance(unsigned int maximumIndex) {       \
+	extern "C" struct pbqp_##SHORTNAME##_parsing* pbqp_##SHORTNAME##_createInstance(size_t maximumIndex) {             \
 		auto result = std::make_unique<pbqp_##SHORTNAME##_parsing>();                                                  \
 		result->graph = std::make_unique<PBQPGraph<InfinityWrapper<TYPENAME>>>();                                      \
 		result->nodes.resize(maximumIndex);                                                                            \
 		result->maximumIndex = maximumIndex;                                                                           \
 		return result.release();                                                                                       \
 	}                                                                                                                  \
-	extern "C" void pbqp_##SHORTNAME##_addToPEO(struct pbqp_##SHORTNAME##_parsing* pbqpparsing, unsigned int index) {  \
+	extern "C" void pbqp_##SHORTNAME##_addToPEO(struct pbqp_##SHORTNAME##_parsing* pbqpparsing, size_t index) {        \
 		pbqpparsing->peo.push_back(pbqpparsing->nodes.at(index));                                                      \
 	}                                                                                                                  \
 	extern "C" void pbqp_##SHORTNAME##_dump(struct pbqp_##SHORTNAME##_parsing* pbqpparsing, char* path) {              \
@@ -115,27 +115,27 @@ namespace pbqppapa {
 		std::reverse(pbqpparsing->peo.begin(), pbqpparsing->peo.end());                                                \
 	}                                                                                                                  \
 	extern "C" TYPENAME pbqp_##SHORTNAME##_getNodeVektorValue(                                                         \
-			struct pbqp_##SHORTNAME##_parsing* pbqpparsing, unsigned int nodeIndex, unsigned short entryIndex) {       \
+			struct pbqp_##SHORTNAME##_parsing* pbqpparsing, size_t nodeIndex, uint16_t entryIndex) {                   \
 		PBQPNode<InfinityWrapper<TYPENAME>>* node = pbqpparsing->nodes.at(nodeIndex);                                  \
 		return node->getVector().get(entryIndex).getValue();                                                           \
 	}                                                                                                                  \
-	extern "C" unsigned int pbqp_##SHORTNAME##_getAdjacentEdgeCount(                                                   \
-			struct pbqp_##SHORTNAME##_parsing* pbqpparsing, unsigned int nodeIndex) {                                  \
+	extern "C" size_t pbqp_##SHORTNAME##_getAdjacentEdgeCount(                                                         \
+			struct pbqp_##SHORTNAME##_parsing* pbqpparsing, size_t nodeIndex) {                                        \
 		PBQPNode<InfinityWrapper<TYPENAME>>* node = pbqpparsing->nodes.at(nodeIndex);                                  \
 		return node->getDegree();                                                                                      \
 	}                                                                                                                  \
-	extern "C" unsigned short pbqp_##SHORTNAME##_getVectorLength(                                                      \
-			struct pbqp_##SHORTNAME##_parsing* pbqpparsing, unsigned int nodeIndex) {                                  \
+	extern "C" uint16_t pbqp_##SHORTNAME##_getVectorLength(                                                            \
+			struct pbqp_##SHORTNAME##_parsing* pbqpparsing, size_t nodeIndex) {                                        \
 		PBQPNode<InfinityWrapper<TYPENAME>>* node = pbqpparsing->nodes.at(nodeIndex);                                  \
 		return node->getVectorDegree();                                                                                \
 	}                                                                                                                  \
 	extern "C" TYPENAME pbqp_##SHORTNAME##_getMatrixEntry(struct pbqp_##SHORTNAME##_parsing* pbqpparsing,              \
-			unsigned int nodeIndex, unsigned int adjacencyIndex, unsigned short row, unsigned short column) {          \
+			size_t nodeIndex, size_t adjacencyIndex, uint16_t row, uint16_t column) {                                  \
 		PBQPNode<InfinityWrapper<TYPENAME>>* node = pbqpparsing->nodes.at(nodeIndex);                                  \
 		return node->getAdjacentEdges().at(adjacencyIndex)->getMatrix().get(row, column).getValue();                   \
 	}                                                                                                                  \
-	extern "C" unsigned int pbqp_##SHORTNAME##_getAdjacentNodeIndex(                                                   \
-			struct pbqp_##SHORTNAME##_parsing* pbqpparsing, unsigned int nodeIndex, unsigned int adjacencyIndex) {     \
+	extern "C" size_t pbqp_##SHORTNAME##_getAdjacentNodeIndex(                                                         \
+			struct pbqp_##SHORTNAME##_parsing* pbqpparsing, size_t nodeIndex, size_t adjacencyIndex) {                 \
 		PBQPNode<InfinityWrapper<TYPENAME>>* node = pbqpparsing->nodes.at(nodeIndex);                                  \
 		return node->getAdjacentNodes().at(adjacencyIndex)->getIndex();                                                \
 	}
@@ -161,14 +161,14 @@ namespace pbqppapa {
 
 using namespace pbqppapa;
 
-CINTERFACEIMPL(unsigned int, uint)
+CINTERFACEIMPL(uint32_t, uint)
 
-CINTERFACEIMPL(unsigned short, ushort)
+CINTERFACEIMPL(uint16_t, ushort)
 
-CINTERFACEIMPL(unsigned long, ulong)
+CINTERFACEIMPL(uint64_t, ulong)
 
 #if PBQP_USE_GUROBI
-CGUROBI(unsigned int, uint)
-CGUROBI(unsigned short, ushort)
-CGUROBI(unsigned long, ulong)
+CGUROBI(uint32_t, uint)
+CGUROBI(uint16_t, ushort)
+CGUROBI(uint64_t, ulong)
 #endif

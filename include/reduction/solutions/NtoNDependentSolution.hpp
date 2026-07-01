@@ -1,5 +1,4 @@
-#ifndef REDUCTION_DependentSolution_HPP_
-#define REDUCTION_DependentSolution_HPP_
+#pragma once
 
 #include <vector>
 
@@ -28,7 +27,7 @@ class NtoNDependentSolution: public DependentSolution<T> {
 private:
 	std::vector<PBQPNode<T>*> solutionNodes;
 	std::vector<PBQPNode<T>*> dependencyNodes;
-	std::vector<unsigned short> solutions;
+	std::vector<uint16_t> solutions;
 	std::vector<PBQPEdge<T>> edges;
 	std::vector<Vector<T>> dependencyVectorsPreChange;
 
@@ -36,31 +35,31 @@ public:
 	NtoNDependentSolution(
 			const std::vector<PBQPNode<T>*>& dependencyNodes, const std::vector<PBQPNode<T>*>& solutionNodes) :
 			dependencyNodes(dependencyNodes), solutionNodes(solutionNodes) {
-		const unsigned long length = dependencyNodes.size();
-		unsigned long solutionAmount = 1;
-		for (unsigned long i = 0; i < length; i++) {
+		const size_t length = dependencyNodes.size();
+		size_t solutionAmount = 1;
+		for (size_t i = 0; i < length; i++) {
 			PBQPNode<T>* node = dependencyNodes.at(i);
 			dependencyVectorsPreChange.push_back(node->getVector());
 			// TODO fix this
 			solutionAmount *= node->getVectorDegree();
 		}
 
-		solutions = std::vector<unsigned short>(solutionAmount * solutionNodes.size());
+		solutions = std::vector<uint16_t>(solutionAmount * solutionNodes.size());
 	}
 
-	void setSolution(const std::vector<unsigned short>& dependencySelections,
-			const std::vector<unsigned short>& solutionSelection) {
-		unsigned long index = resolveIndex(dependencySelections);
+	void setSolution(
+			const std::vector<uint16_t>& dependencySelections, const std::vector<uint16_t>& solutionSelection) {
+		size_t index = resolveIndex(dependencySelections);
 		std::copy(solutionSelection.begin(), solutionSelection.end(), solutions.data() + index);
 	}
 
 	void solve(PBQPSolution<T>* solution) const {
-		std::vector<unsigned short> dependencySolution(dependencyNodes.size());
-		for (unsigned long i = 0; i < dependencyNodes.size(); i++) {
+		std::vector<uint16_t> dependencySolution(dependencyNodes.size());
+		for (size_t i = 0; i < dependencyNodes.size(); i++) {
 			dependencySolution.at(i) = solution->getSolution(dependencyNodes.at(i)->getIndex());
 		}
-		unsigned long index = resolveIndex(dependencySolution);
-		for (unsigned long i = 0; i < solutionNodes.size(); i++) {
+		size_t index = resolveIndex(dependencySolution);
+		for (size_t i = 0; i < solutionNodes.size(); i++) {
 			solution->setSolution(solutionNodes.at(i)->getIndex(), solutions.at(index + i));
 		}
 	}
@@ -70,10 +69,10 @@ public:
 	}
 
 private:
-	unsigned long resolveIndex(const std::vector<unsigned short>& dependencySelections) const {
-		unsigned long index = 0;
-		unsigned long offset = 1;
-		for (unsigned long i = 0; i < dependencyNodes.size(); i++) {
+	size_t resolveIndex(const std::vector<uint16_t>& dependencySelections) const {
+		size_t index = 0;
+		size_t offset = 1;
+		for (size_t i = 0; i < dependencyNodes.size(); i++) {
 			index += offset * dependencySelections.at(i);
 			offset *= dependencyNodes.at(i)->getVectorDegree();
 		}
@@ -82,5 +81,3 @@ private:
 };
 
 } // namespace pbqppapa
-
-#endif /* REDUCTION_DependentSolution_HPP_ */

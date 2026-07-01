@@ -1,5 +1,4 @@
-#ifndef DEBUG_STATKEEPER_HPP_
-#define DEBUG_STATKEEPER_HPP_
+#pragma once
 
 #include <string>
 
@@ -10,12 +9,12 @@ namespace pbqppapa {
 class StatKeeper {
 
 private:
-	unsigned int r0Applied = 0;
-	unsigned int r1Applied = 0;
-	unsigned int r2Applied = 0;
-	unsigned int rNEarlyApplied = 0;
-	unsigned int nodeCount;
-	unsigned int edgeCount;
+	size_t r0Applied = 0;
+	size_t r1Applied = 0;
+	size_t r2Applied = 0;
+	size_t rNEarlyApplied = 0;
+	size_t nodeCount;
+	size_t edgeCount;
 	float averageVectorDegree;
 
 public:
@@ -44,5 +43,3 @@ public:
 };
 
 } // namespace pbqppapa
-
-#endif /* DEBUG_STATKEEPER_HPP_ */

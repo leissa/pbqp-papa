@@ -46,7 +46,7 @@ public:
 	/**
 	 * Create a new empty graph with no nodes
 	 */
-	PBQPGraph() {}
+	PBQPGraph() = default;
 
 	/**
 	 * Deletes all nodes and edges contained within the graph

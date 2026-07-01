@@ -23,7 +23,7 @@ class CheckSolvableCommand: public Command<T> {
 public:
 	CheckSolvableCommand() : Command<T>("check") {}
 
-	~CheckSolvableCommand() {}
+	~CheckSolvableCommand() = default;
 
 	std::string run(std::string input, CommandHandler<T>* cmdHandler) {
 		if (cmdHandler->getSolver()->isSolvable()) {

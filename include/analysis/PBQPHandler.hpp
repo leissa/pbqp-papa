@@ -20,7 +20,7 @@ protected:
 public:
 	PBQPHandler(PBQPGraph<T>* graph) : graph(graph) {}
 
-	virtual ~PBQPHandler() {}
+	virtual ~PBQPHandler() = default;
 };
 
 } // namespace pbqppapa

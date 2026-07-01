@@ -9,6 +9,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include <nlohmann/json.hpp>
@@ -59,7 +60,7 @@ public:
 	/**
 	 * Gets a nice printable version of a matrix. Useful for debugging
 	 */
-	static std::string matrixToString(const Matrix<T>& matrix, const std::string& separator = " ") {
+	static std::string matrixToString(const Matrix<T>& matrix, std::string_view separator = " ") {
 		std::string output;
 		for (unsigned short row = 0; row < matrix.getRowCount(); row++) {
 			for (unsigned short column = 0; column < matrix.getColumnCount(); column++) {

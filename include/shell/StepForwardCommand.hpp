@@ -18,7 +18,7 @@ class StepForwardCommand: public Command<T> {
 public:
 	StepForwardCommand() : Command<T>("forward") {}
 
-	~StepForwardCommand() {}
+	~StepForwardCommand() = default;
 
 	std::string run(std::string input, CommandHandler<T>* cmdHandler) {
 		int count;

@@ -37,7 +37,7 @@ public:
 	PBQPSolver(PBQPGraph<T>* graph) :
 			PBQPHandler<T>(graph), solution(std::make_unique<PBQPSolution<T>>(graph->getNodeIndexCounter())) {}
 
-	virtual ~PBQPSolver() {}
+	virtual ~PBQPSolver() = default;
 
 	[[nodiscard]] PBQPSolution<T>* calcSolution() {
 		if (solution && this->graph->getNodeCount() != 0) {

@@ -21,7 +21,7 @@ class VisualizeCommand: public Command<T> {
 public:
 	VisualizeCommand() : Command<T>("visualize") {}
 
-	~VisualizeCommand() {}
+	~VisualizeCommand() = default;
 
 	std::string run(std::string input, CommandHandler<T>* cmdHandler) {
 		dump(cmdHandler->getSolver()->getGraph(), input);

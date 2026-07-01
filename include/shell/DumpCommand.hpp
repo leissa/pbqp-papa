@@ -20,7 +20,7 @@ class DumpCommand: public Command<T> {
 public:
 	DumpCommand() : Command<T>("dump") {}
 
-	~DumpCommand() {}
+	~DumpCommand() = default;
 
 	std::string run(std::string input, CommandHandler<T>* cmdHandler) {
 		// TODO check/sanitize path

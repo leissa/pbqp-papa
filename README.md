@@ -4,7 +4,7 @@
 [![Windows CI](https://github.com/leissa/pbqp-papa/actions/workflows/windows.yml/badge.svg)](https://github.com/leissa/pbqp-papa/actions/workflows/windows.yml)
 [![macOS CI](https://github.com/leissa/pbqp-papa/actions/workflows/macos.yml/badge.svg)](https://github.com/leissa/pbqp-papa/actions/workflows/macos.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.txt)
-[![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://en.cppreference.com/w/cpp/20)
+[![C++23](https://img.shields.io/badge/C%2B%2B-23-blue.svg)](https://en.cppreference.com/w/cpp/23)
 
 Solver and analysing tool for Partitioned Boolean Quadratic Problems
 

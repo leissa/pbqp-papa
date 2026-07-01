@@ -20,7 +20,7 @@ class StopCommand: public Command<T> {
 public:
 	StopCommand() : Command<T>("stop") {}
 
-	~StopCommand() {}
+	~StopCommand() = default;
 
 	std::string run(std::string input, CommandHandler<T>* cmdHandler) {
 		std::exit(0);

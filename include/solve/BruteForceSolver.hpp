@@ -100,7 +100,7 @@ public:
 		}
 	}
 
-	~BruteForceSolver() {}
+	~BruteForceSolver() = default;
 
 	void solve() override {
 		minimalCost = calculateNewSolution();

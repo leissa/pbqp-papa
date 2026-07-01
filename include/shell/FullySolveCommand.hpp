@@ -25,7 +25,7 @@ class FullySolveCommand: public Command<T> {
 public:
 	FullySolveCommand() : Command<T>("fullysolve") {}
 
-	~FullySolveCommand() {}
+	~FullySolveCommand() = default;
 
 	std::string run(std::string input, CommandHandler<T>* cmdHandler) {
 		auto solution = std::unique_ptr<PBQPSolution<InfinityWrapper<T>>>(cmdHandler->getSolver()->solveFully());

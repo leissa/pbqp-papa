@@ -47,7 +47,7 @@ public:
 	{
 	}
 
-	virtual ~PBQPSolution() {}
+	virtual ~PBQPSolution() = default;
 
 	/**
 	 * Sets the selection for a node with the given index to the given selection

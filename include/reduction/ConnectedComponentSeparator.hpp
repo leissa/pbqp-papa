@@ -26,7 +26,7 @@ class ConnectedComponentSeparator: public PBQP_Reduction<T> {
 public:
 	ConnectedComponentSeparator(PBQPGraph<T>* graph) : PBQP_Reduction<T>(graph) {}
 
-	~ConnectedComponentSeparator() {}
+	~ConnectedComponentSeparator() = default;
 
 	std::vector<PBQPGraph<T>*>& reduce() override {
 		while (true) {

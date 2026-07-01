@@ -25,7 +25,7 @@ private:
 public:
 	VectorDegreeZeroReducer(PBQPGraph<T>* graph) : PBQP_Reduction<T>(graph) {}
 
-	~VectorDegreeZeroReducer() {}
+	~VectorDegreeZeroReducer() = default;
 
 	std::vector<PBQPGraph<T>*>& reduce() {
 		auto iter = this->graph->getNodeBegin();

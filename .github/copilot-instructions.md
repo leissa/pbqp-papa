@@ -19,7 +19,7 @@ cmake -B build -DPBQP_USE_GVC=ON -DPBQP_USE_GUROBI=ON
 
 ## Architecture
 
-This is a C++20 library for solving **Partitioned Boolean Quadratic Problems** (PBQP).
+This is a C++23 library for solving **Partitioned Boolean Quadratic Problems** (PBQP).
 
 ### Core graph model (`include/graph/`)
 
@@ -28,7 +28,7 @@ Everything is templated on a cost type `T`. The central types are:
 - `PBQPGraph<T>` — owns nodes and edges, supports copy, serialization, and a PEO (Perfect Elimination Ordering)
 - `PBQPNode<T>` — holds a cost `Vector<T>` and adjacency lists
 - `PBQPEdge<T>` — holds a cost `Matrix<T>` between two nodes
-- `Matrix<T>` / `Vector<T>` — hand-rolled owning dense matrix/vector with raw `new T[]` storage (intentionally not `std::vector` to avoid default-initialization overhead). `Vector<T>` inherits from `Matrix<T>` (single-column matrix).
+- `Matrix<T>` / `Vector<T>` — hand-rolled owning dense matrix/vector backed by `std::unique_ptr<T[]>` (intentionally not `std::vector` to avoid default-initialization overhead). `Vector<T>` inherits from `Matrix<T>` (single-column matrix).
 
 ### InfinityWrapper (`include/math/`)
 

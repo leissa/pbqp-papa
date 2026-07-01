@@ -21,7 +21,7 @@ private:
 public:
 	Command(std::string identifier) : identifier(identifier) {}
 
-	virtual ~Command() {}
+	virtual ~Command() = default;
 
 	virtual std::string run(std::string input, CommandHandler<T>* cmdHandler) {
 		return "Should not see this";

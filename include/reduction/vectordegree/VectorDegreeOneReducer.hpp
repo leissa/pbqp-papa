@@ -30,7 +30,7 @@ private:
 public:
 	VectorDegreeOneReducer(PBQPGraph<T>* graph) : PBQP_Reduction<T>(graph) {}
 
-	~VectorDegreeOneReducer() {}
+	~VectorDegreeOneReducer() = default;
 
 	std::vector<PBQPGraph<T>*>& reduce() override {
 		std::vector<PBQPNode<T>*> dependencyNodes;

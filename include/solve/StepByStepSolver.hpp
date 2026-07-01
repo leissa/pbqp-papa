@@ -41,7 +41,7 @@ class InfinityWrapper;
 
 template <typename T>
 class StepByStepSolver {
-	enum Reduction { R0, R1, R2, RN, NONE };
+	enum class Reduction { R0, R1, R2, RN, NONE };
 
 private:
 	PBQPGraph<InfinityWrapper<T>>* graph;
@@ -59,7 +59,7 @@ private:
 public:
 	StepByStepSolver(PBQPGraph<InfinityWrapper<T>>* graph) :
 			graph(graph), useRnAlready(false), nodeIndex(0), peoIndex(0), backtrackIndex(0), isBackTracking(false),
-			lastReduction(NONE) {
+			lastReduction(Reduction::NONE) {
 		originalGraph = std::make_unique<PBQPGraph<InfinityWrapper<T>>>(graph);
 		assert(graph->getPEO().size() == graph->getNodeCount());
 		localSolutions.reserve(graph->getNodeCount());
@@ -126,18 +126,18 @@ public:
 				nodeQueue.push(neighbors.at(0));
 				nodeQueue.push(neighbors.at(1));
 			}
-			lastReduction = R2;
+			lastReduction = Reduction::R2;
 			return true;
 		}
 		case 0:
 			localSolutions.emplace_back(DegreeZeroReducer<T>::reduceDegreeZeroInf(node, this->graph));
-			lastReduction = R0;
+			lastReduction = Reduction::R0;
 			return true;
 		case 1: {
 			PBQPNode<InfinityWrapper<T>>* other = node->getAdjacentNodes().at(0);
 			localSolutions.emplace_back(DegreeOneReducer<T>::reduceDegreeOneInf(node, this->graph));
 			nodeQueue.push(other);
-			lastReduction = R1;
+			lastReduction = Reduction::R1;
 			return true;
 		}
 		default:
@@ -155,7 +155,7 @@ public:
 			std::cout << "EROR, could not solve node";
 		}
 		localSolutions.push_back(std::move(sol));
-		lastReduction = RN;
+		lastReduction = Reduction::RN;
 	}
 
 	[[nodiscard]] Reduction getLastReductionType() const {

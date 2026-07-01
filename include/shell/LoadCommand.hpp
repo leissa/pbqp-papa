@@ -20,7 +20,7 @@ class LoadCommand: public Command<T> {
 public:
 	LoadCommand() : Command<T>("load") {}
 
-	~LoadCommand() {}
+	~LoadCommand() = default;
 
 	std::string run(std::string input, CommandHandler<T>* cmdHandler) override {
 		PBQP_Serializer<InfinityWrapper<T>> serial;

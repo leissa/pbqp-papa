@@ -18,7 +18,7 @@ class StepBackwardCommand: public Command<T> {
 public:
 	StepBackwardCommand() : Command<T>("back") {}
 
-	~StepBackwardCommand() {}
+	~StepBackwardCommand() = default;
 
 	std::string run(std::string input, CommandHandler<T>* cmdHandler) {
 		if (input == "") {

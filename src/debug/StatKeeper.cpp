@@ -27,7 +27,7 @@ std::string StatKeeper::getGraphDescription() {
 	result += ", Edges: ";
 	result += std::to_string(edgeCount);
 	result += ", E/N ratio: ";
-	result += std::to_string((float)edgeCount / (float)nodeCount);
+	result += std::to_string(static_cast<float>(edgeCount) / static_cast<float>(nodeCount));
 	result += ", Avg. vector degree: ";
 	result += std::to_string(averageVectorDegree);
 	result += '\n';

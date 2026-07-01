@@ -20,7 +20,7 @@ class InfoCommand: public Command<T> {
 public:
 	InfoCommand() : Command<T>("info") {}
 
-	~InfoCommand() {}
+	~InfoCommand() = default;
 
 	std::string run(std::string input, CommandHandler<T>* cmdHandler) override {
 		PBQPGraph<InfinityWrapper<T>>* graph = cmdHandler->getSolver()->getGraph();

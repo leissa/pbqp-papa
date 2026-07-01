@@ -25,7 +25,7 @@ class NodeMerger: public PBQP_Reduction<T> {
 public:
 	NodeMerger(PBQPGraph<T>* graph) : PBQP_Reduction<T>(graph) {}
 
-	~NodeMerger() {}
+	~NodeMerger() = default;
 
 	static NtoNDependentSolution<T>* mergeNodes(PBQPNode<T>* remaining, PBQPNode<T>* toRemove, PBQPGraph<T>* graph) {
 		Vector<T> resultVector(remaining->getVectorDegree() * toRemove->getVectorDegree());

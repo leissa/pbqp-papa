@@ -5,7 +5,7 @@
 ```sh
 cmake -B build
 cmake --build build
-ctest --test-dir build                          # all 13 tests
+ctest --test-dir build                          # all 14 tests
 ctest --test-dir build -R MatrixTests           # single test by name regex
 ctest --test-dir build --output-on-failure      # show details on failure
 ```

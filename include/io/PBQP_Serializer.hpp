@@ -9,6 +9,7 @@
 #include <memory>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <vector>
 
 #include <nlohmann/json.hpp>
@@ -24,6 +25,11 @@ template <typename T>
 class PBQPGraph;
 template <typename T>
 class InfinityWrapper;
+
+template <typename T>
+struct IsInfinityWrapper: std::false_type {};
+template <typename T>
+struct IsInfinityWrapper<InfinityWrapper<T>>: std::true_type {};
 
 /**
  * Saves PBQP instances to JSON files and loads them from them
@@ -112,7 +118,7 @@ private:
 	static Vector<T> parseVector(const nlohmann::json& json) {
 		Vector<T> vek = Vector<T>(static_cast<uint16_t>(json.size()));
 		for (uint16_t i = 0; i < json.size(); i++) {
-			vek.get(i) = deserializeElement<T>(json[i]);
+			vek.get(i) = parseElement(json[i]);
 		}
 		return vek;
 	}
@@ -123,9 +129,25 @@ private:
 		nlohmann::json valueJson = json["cost"];
 		Matrix<T> mat = Matrix<T>(rows, columns);
 		for (size_t i = 0; i < valueJson.size(); i++) {
-			mat.getRaw(i) = deserializeElement<T>(valueJson[i]);
+			mat.getRaw(i) = parseElement(valueJson[i]);
 		}
 		return mat;
+	}
+
+	// Version 1 files store every cost as a string.
+	static T parseElement(const nlohmann::json& json) {
+		return deserializeElement<T>(json.is_string() ? json.get<std::string>() : json.dump());
+	}
+
+	static nlohmann::json elementToJson(const T& element) {
+		if constexpr (IsInfinityWrapper<T>::value) {
+			if (element.isInfinite()) {
+				return "inf";
+			}
+			return element.getValue();
+		} else {
+			return element;
+		}
 	}
 
 	static nlohmann::json graphToJson(PBQPGraph<T>* graph, bool debug) {
@@ -137,7 +159,7 @@ private:
 			nodeJson["index"] = node->getIndex();
 			nlohmann::json costVector = nlohmann::json::array();
 			for (uint16_t i = 0; i < node->getVectorDegree(); i++) {
-				costVector.push_back(serializeElement<T>(node->getVector().get(i)));
+				costVector.push_back(elementToJson(node->getVector().get(i)));
 			}
 			nodeJson["cost"] = costVector;
 			if (debug) {
@@ -158,10 +180,10 @@ private:
 			edgeJson["target"] = edge->getTarget()->getIndex();
 			edgeJson["columns"] = edge->getMatrix().getColumnCount();
 			edgeJson["rows"] = edge->getMatrix().getRowCount();
-			nlohmann::json matrixValues;
+			nlohmann::json matrixValues = nlohmann::json::array();
 			size_t length = edge->getMatrix().getElementCount();
 			for (size_t i = 0; i < length; i++) {
-				matrixValues.push_back(serializeElement<T>(edge->getMatrix().getRaw(i)));
+				matrixValues.push_back(elementToJson(edge->getMatrix().getRaw(i)));
 			}
 			edgeJson["cost"] = matrixValues;
 			edgeJsons.push_back(edgeJson);
@@ -185,7 +207,7 @@ private:
 
 	static nlohmann::json serializeMeta(const PBQPGraph<T>* graph) {
 		nlohmann::json json;
-		json["version"] = 1;
+		json["version"] = 2;
 		json["nodeCount"] = graph->getNodeCount();
 		json["edgeCount"] = graph->getEdgeCount();
 		json["type"] = getTypeName<T>();

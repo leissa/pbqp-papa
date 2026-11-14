@@ -79,7 +79,7 @@ std::string serializeElement2(dummyType<InfinityWrapper<T>>, InfinityWrapper<T> 
 
 template <typename T>
 InfinityWrapper<T> deserializeElement2(dummyType<InfinityWrapper<T>>, std::string serialized) {
-	if (serialized == "∞" || serialized == "INF") {
+	if (serialized == "∞" || serialized == "INF" || serialized == "inf") {
 		return InfinityWrapper<T>::getInfinite();
 	}
 	return InfinityWrapper<T>(deserializeElement<T>(serialized));

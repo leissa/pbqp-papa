@@ -69,6 +69,7 @@ set(TESTS
     test/graph/GraphTests.cpp
     test/graph/MatrixTests.cpp
     test/graph/PBQPSolutionTests.cpp
+    test/io/SerializerTests.cpp
     test/math/GurobiConverterTest.cpp
     test/math/InfinityWrapperTests.cpp
     test/reduction/ConnectedComponentSeparatorTests.cpp
